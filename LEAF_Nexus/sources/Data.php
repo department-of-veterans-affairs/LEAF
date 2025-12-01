@@ -102,8 +102,7 @@ abstract class Data
      */
     public function getAllData($UID, $indicatorID = 0)
     {
-        if (!is_numeric($indicatorID))
-        {
+        if (!is_numeric($indicatorID)) {
             return array();
         }
 
@@ -111,73 +110,69 @@ abstract class Data
         $res = array();
 
         $cacheHash = "getAllData_{$UID}_{$indicatorID}";
-        if (isset($this->cache[$cacheHash]))
-        {
+
+        if (isset($this->cache[$cacheHash])) {
             return $this->cache[$cacheHash];
         }
 
-        if (!isset($this->cache["getAllData_{$indicatorID}"]))
-        {
-            if ($indicatorID != 0)
-            {
+        if (!isset($this->cache["getAllData_{$indicatorID}"])) {
+            if ($indicatorID != 0) {
                 $vars = array(':indicatorID' => $indicatorID);
-                $res = $this->db->prepared_query("SELECT * FROM indicators
-                                                    WHERE categoryID={$this->dataTableCategoryID}
-                                                        AND disabled=0
-                                                        AND indicatorID=:indicatorID
-                                                    ORDER BY sort", $vars);
-            }
-            else
-            {
-                $res = $this->db->prepared_query("SELECT * FROM indicators
-                                                    WHERE categoryID={$this->dataTableCategoryID}
-                                                        AND disabled=0
-                                                    ORDER BY sort", $vars);
+                $sql = "SELECT *
+                        FROM `indicators`
+                        WHERE `categoryID` = {$this->dataTableCategoryID}
+                        AND `disabled` = 0
+                        AND `indicatorID` = :indicatorID
+                        ORDER BY `sort`";
+                $res = $this->db->prepared_query($sql, $vars);
+            } else {
+                $sql = "SELECT *
+                        FROM `indicators`
+                        WHERE `categoryID` = {$this->dataTableCategoryID}
+                        AND `disabled` = 0
+                        ORDER BY `sort`";
+                $res = $this->db->prepared_query($sql, $vars);
             }
             $this->cache["getAllData_{$indicatorID}"] = $res;
-        }
-        else
-        {
+        } else {
             $res = $this->cache["getAllData_{$indicatorID}"];
         }
 
         $data = array();
 
-        foreach ($res as $item)
-        {
+        foreach ($res as $item) {
             $idx = $item['indicatorID'];
             $data[$idx]['indicatorID'] = $item['indicatorID'];
             $data[$idx]['name'] = isset($item['name']) ? $item['name'] : '';
             $data[$idx]['format'] = isset($item['format']) ? $item['format'] : '';
-            if (isset($item['description']))
-            {
+
+            if (isset($item['description'])) {
                 $data[$idx]['description'] = $item['description'];
             }
-            if (isset($item['default']))
-            {
+
+            if (isset($item['default'])) {
                 $data[$idx]['default'] = $item['default'];
             }
-            if (isset($item['html']))
-            {
+
+            if (isset($item['html'])) {
                 $data[$idx]['html'] = $item['html'];
             }
+
             $data[$idx]['required'] = $item['required'];
-            if ($item['encrypted'] != 0)
-            {
+
+            if ($item['encrypted'] != 0) {
                 $data[$idx]['encrypted'] = $item['encrypted'];
             }
+
             $data[$idx]['data'] = '';
             $data[$idx]['isWritable'] = 0; //temp
-            //$data[$idx]['author'] = '';
-            //$data[$idx]['timestamp'] = 0;
 
             // handle checkboxes/radio buttons
             $inputType = explode("\n", $item['format']);
             $numOptions = count($inputType) > 1 ? count($inputType) : 2;
-            if (count($inputType) != 1)
-            {
-                for ($i = 1; $i < $numOptions; $i++)
-                {
+
+            if (count($inputType) != 1) {
+                for ($i = 1; $i < $numOptions; $i++) {
                     $inputType[$i] = isset($inputType[$i]) ? trim($inputType[$i]) : '';
                     $data[$idx]['options'][] = $inputType[$i];
                 }
@@ -186,50 +181,49 @@ abstract class Data
             $data[$idx]['format'] = trim($inputType[0]);
         }
 
-        if (count($res) > 0)
-        {
+        if (count($res) > 0) {
             $indicatorList = '';
-            foreach ($res as $field)
-            {
-                if (is_numeric($field['indicatorID']))
-                {
+
+            foreach ($res as $field) {
+                if (is_numeric($field['indicatorID'])) {
                     $indicatorList .= "{$field['indicatorID']},";
                 }
             }
+
             $indicatorList = trim($indicatorList, ',');
             $var = array(':id' => $UID);
-            $res2 = $this->db->prepared_query("SELECT data, timestamp, indicatorID FROM {$this->dataTable}
-                									WHERE indicatorID IN ({$indicatorList}) AND {$this->dataTableUID}=:id", $var);
+            $sql = "SELECT `data`, `timestamp`, `indicatorID`
+                    FROM {$this->dataTable}
+                	WHERE `indicatorID` IN ({$indicatorList})
+                    AND {$this->dataTableUID} = :id";
+            $res2 = $this->db->prepared_query($sql, $var);
 
-            foreach ($res2 as $resIn)
-            {
+            foreach ($res2 as $resIn) {
                 $idx = $resIn['indicatorID'];
                 $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
 
                 $decoded = Setting::safeDecodeData($data[$idx]['data']);
                 $data[$idx]['data'] = $decoded !== false ? $decoded : $data[$idx]['data'];
-                if ($data[$idx]['format'] == 'json')
-                {
+
+                if ($data[$idx]['format'] == 'json') {
                     $data[$idx]['data'] = html_entity_decode($data[$idx]['data']);
                 }
-                if ($data[$idx]['format'] == 'fileupload')
-                {
+
+                if ($data[$idx]['format'] == 'fileupload') {
                     $tmpFileNames = explode("\n", $data[$idx]['data']);
                     $data[$idx]['data'] = array();
-                    foreach ($tmpFileNames as $tmpFileName)
-                    {
-                        if (trim($tmpFileName) != '')
-                        {
+                    foreach ($tmpFileNames as $tmpFileName) {
+                        if (trim($tmpFileName) != '') {
                             $data[$idx]['data'][] = $tmpFileName;
                         }
                     }
                 }
-                if (isset($resIn['author']))
-                {
+
+                if (isset($resIn['author'])) {
                     $data[$idx]['author'] = $resIn['author'];
                 }
-                if (isset($resIn['timestamp']))
-                {
+
+                if (isset($resIn['timestamp'])) {
                     $data[$idx]['timestamp'] = $resIn['timestamp'];
                 }
             }
@@ -237,15 +231,15 @@ abstract class Data
             // apply access privileges
             $privilegesData = $this->login->getIndicatorPrivileges(array_keys($data), $this->dataTableUID, $UID);
             $privileges = array_keys($privilegesData);
-            foreach ($privileges as $id)
-            {
+
+            foreach ($privileges as $id) {
                 if ($privilegesData[$id]['read'] == 0
-                    && $data[$id]['data'] != '')
-                {
+                    && $data[$id]['data'] != ''
+                ) {
                     $data[$id]['data'] = '[protected data]';
                 }
-                if ($privilegesData[$id]['write'] != 0)
-                {
+
+                if ($privilegesData[$id]['write'] != 0) {
                     $data[$id]['isWritable'] = 1;
                 }
             }
@@ -364,29 +358,26 @@ abstract class Data
      */
     public function modify($UID)
     {
-        if (!is_numeric($UID))
-        {
+        if (!is_numeric($UID)) {
             throw new Exception($this->dataTableDescription . ' ID required');
         }
-        if (!isset($_POST['CSRFToken']) || $_POST['CSRFToken'] != $_SESSION['CSRFToken'])
-        {
+
+        if (!isset($_POST['CSRFToken']) || $_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             throw new Exception($this->dataTableDescription . ' invalid token');
         }
 
         // Check for file uploads
-        if (is_array($_FILES))
-        {
+        if (is_array($_FILES)) {
             $commonConfig = new CommonConfig();
             $fileExtensionWhitelist = $commonConfig->requestWhitelist;
             $fileIndicators = array_keys($_FILES);
-            foreach ($fileIndicators as $indicator)
-            {
-                if (is_int($indicator))
-                {
+
+            foreach ($fileIndicators as $indicator) {
+                if (is_int($indicator)){
                     // check write access
                     $privilegesData = $this->login->getIndicatorPrivileges(array($indicator), $this->dataTableUID, $UID);
-                    if (isset($privilegesData[$indicator]['write']) && $privilegesData[$indicator]['write'] == 0)
-                    {
+
+                    if (isset($privilegesData[$indicator]['write']) && $privilegesData[$indicator]['write'] == 0) {
                         throw new Exception($this->dataTableDescription . ' write access denied');
                     }
 
@@ -395,18 +386,16 @@ abstract class Data
                     $filenameParts = explode('.', $_FILES[$indicator]['name']);
                     $fileExtension = array_pop($filenameParts);
                     $fileExtension = strtolower($fileExtension);
-                    if (in_array($fileExtension, $fileExtensionWhitelist))
-                    {
+
+                    if (in_array($fileExtension, $fileExtensionWhitelist)) {
                         $sanitizedFileName = $this->getFileHash($this->dataTableCategoryID, $UID, $indicator, $this->sanitizeInput($_FILES[$indicator]['name']));
+
                         // $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
-                        if (!is_dir(Config::$uploadDir))
-                        {
+                        if (!is_dir(Config::$uploadDir)) {
                             mkdir(Config::$uploadDir, 0755, true);
                         }
                         move_uploaded_file($_FILES[$indicator]['tmp_name'], Config::$uploadDir . $sanitizedFileName);
-                    }
-                    else
-                    {
+                    } else {
                         throw new Exception($this->dataTableDescription . ' file extension not supported');
                     }
                 }
@@ -415,33 +404,30 @@ abstract class Data
 
         $keys = array_keys($_POST);
 
-        foreach ($keys as $key)
-        {
-            if (is_numeric($key))
-            {
+        foreach ($keys as $key) {
+            if (is_numeric($key)) {
                 $vars = array(':UID' => $UID,
                               ':indicatorID' => $key, );
-                $res = $this->db->prepared_query("SELECT data, format FROM {$this->dataTable}
-                                                    LEFT JOIN indicators USING (indicatorID)
-                                                    WHERE {$this->dataTableUID}=:UID AND indicatorID=:indicatorID", $vars);
+                $sql = "SELECT `data`, `format`
+                        FROM {$this->dataTable}
+                        LEFT JOIN `indicators` USING (`indicatorID`)
+                        WHERE {$this->dataTableUID} = :UID
+                        AND `indicatorID` = :indicatorID";
+                $res = $this->db->prepared_query($sql, $vars);
 
                 // handle JSON indicator type
-                if (isset($res[0]['format']) && $res[0]['format'] == 'json')
-                {
+                if (isset($res[0]['format']) && $res[0]['format'] == 'json') {
                     $res_temp = XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode($res[0]['data']), true));
-                    if (is_array($res_temp))
-                    {
+
+                    if (is_array($res_temp)) {
                         $_POST[$key] = XSSHelpers::scrubObjectOrArray(json_decode($_POST[$key], true));
 
                         $jsonKeys = array_keys($res_temp);
-                        foreach ($jsonKeys as $jsonKey)
-                        {
-                            if (isset($_POST[$key][$jsonKey]))
-                            {
+
+                        foreach ($jsonKeys as $jsonKey) {
+                            if (isset($_POST[$key][$jsonKey])) {
                                 $_POST[$key][$jsonKey] = $_POST[$key][$jsonKey] + $res_temp[$jsonKey]; // array union, first term takes precedence
-                            }
-                            else
-                            {
+                            } else {
                                 $_POST[$key] = $_POST[$key] + $res_temp;
                             }
                         }
@@ -450,43 +436,37 @@ abstract class Data
                     }
                 }
 
-                if (is_array($_POST[$key]))
-                {
+                if (is_array($_POST[$key])) {
                     $_POST[$key] = json_encode($_POST[$key]); // special case for radio/checkbox items
-                }
-                else
-                {
+                } else {
                     $_POST[$key] = preg_replace('/[^\040-\176]/', '', $this->sanitizeInput($_POST[$key]));
                 }
 
                 // handle fileupload indicator type
-                if (isset($res[0]['format']) && $res[0]['format'] == 'fileupload')
-                {
+                if (isset($res[0]['format']) && $res[0]['format'] == 'fileupload') {
                     if (!isset($_POST['overwrite'])
-                        && strpos($res[0]['data'], $_POST[$key]) === false)
-                    {
+                        && strpos($res[0]['data'], $_POST[$key]) === false
+                    ) {
                         $_POST[$key] = trim($res[0]['data'] . "\n" . $_POST[$key]);
-                    }
-                    else
-                    {
+                    } else {
                         if (!isset($_POST['overwrite'])
-                        && strpos($res[0]['data'], $_POST[$key]) !== false)
-                        {
+                            && strpos($res[0]['data'], $_POST[$key]) !== false
+                        ) {
                             $_POST[$key] = trim($res[0]['data']);
                         }
                     }
                 }
 
                 $duplicate = false;
-                if (isset($res[0]['data']) && $res[0]['data'] == trim($_POST[$key]))
-                {
+
+                if (isset($res[0]['data']) && $res[0]['data'] == trim($_POST[$key])) {
                     $duplicate = true;
                 }
 
                 // check write access
                 $privilegesData = $this->login->getIndicatorPrivileges(array($key), $this->dataTableUID, $UID);
-                if (isset($privilegesData[$key]['write']) && $privilegesData[$key]['write'] == 0)
-                {
+
+                if (isset($privilegesData[$key]['write']) && $privilegesData[$key]['write'] == 0) {
                     throw new Exception($this->dataTableDescription . ' write access denied');
                 }
 
@@ -495,14 +475,15 @@ abstract class Data
                               ':data' => trim($_POST[$key]),
                               ':timestamp' => time(),
                               ':author' => $this->login->getUserID(), );
-                $res = $this->db->prepared_query("INSERT INTO {$this->dataTable} ({$this->dataTableUID}, indicatorID, data, timestamp, author)
-                                                                VALUES (:UID, :indicatorID, :data, :timestamp, :author)
-                                                                ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
+                $sql = "INSERT INTO {$this->dataTable} ({$this->dataTableUID}, `indicatorID`, `data`, `timestamp`, `author`)
+                            VALUES (:UID, :indicatorID, :data, :timestamp, :author)
+                            ON DUPLICATE KEY UPDATE `data` = :data, `timestamp` = :timestamp, `author` = :author";
+                $res = $this->db->prepared_query($sql, $vars);
 
-                if (!$duplicate)
-                {
-                    $res2 = $this->db->prepared_query("INSERT INTO {$this->dataHistoryTable} ({$this->dataTableUID}, indicatorID, data, timestamp, author)
-                                                                       VALUES (:UID, :indicatorID, :data, :timestamp, :author)", $vars);
+                if (!$duplicate) {
+                    $sql = "INSERT INTO {$this->dataHistoryTable} ({$this->dataTableUID}, `indicatorID`, `data`, `timestamp`, `author`)
+                            VALUES (:UID, :indicatorID, :data, :timestamp, :author)";
+                    $res2 = $this->db->prepared_query($sql, $vars);
                 }
             }
         }
