@@ -39,9 +39,9 @@ if (isset($_SERVER['REMOTE_USER'])) {
                     `data`,
             FROM `employee`
             LEFT JOIN `employee_data` USING (`empUID`)
-            WHERE  userName` = :userName
-            AND  indicatorID` = 6
-            AND  deleted` = 0';
+            WHERE  `userName` = :userName
+            AND  `indicatorID` = 6
+            AND  `deleted` = 0';
 
     $res = $globalDB->prepared_query($sql, $vars);
 
