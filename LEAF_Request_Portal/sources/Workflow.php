@@ -540,89 +540,173 @@ class Workflow
      * @param array $data New Data being passed through
      * @return int|string Successful Edit = 1 (Check for Admin Access, System Event, and Name pass-through)
      */
-    public function editEvent($name = null, $newName = null, $desc = '', $type = null, $data = array())
+    public function editEvent($name = null, $newName = null, $desc = '', $type = null, $data = array()): int|string
     {
+        $return_value = 1;
+
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
-        }
-        if ($this->isSystemEventName($name)) {
-            return 'System Events Cannot Be Modified.';
-        }
+            $return_value = 'Admin access required';
+        } else if ($this->isSystemEventName($name)) {
+            $return_value = 'System Events Cannot Be Modified.';
+        } else {
+            $newName = XSSHelpers::scrubFilename($newName);
+            $name = XSSHelpers::scrubFilename($name);
 
-        $newName = XSSHelpers::scrubFilename($newName);
-        $name = XSSHelpers::scrubFilename($name);
+            if ($name === null || $newName === null || $type === null) {
+                $return_value = 'Event not found, please try again.';
+            } else {
+                $desc = trim($desc);
 
-        if ($name === null || $newName === null || $type === null) {
-            return 'Event not found, please try again.';
-        }
-        $desc = trim($desc);
+                //Check for other existing email_templates records with a label that matches desc to avoid inconsistencies.
+                //Return information for user if a match is found.  Trim for back compat.
+                $vars = array(
+                    ':label' => $desc,
+                    ':body' => $name . "_body.tpl",
+                );
+                $sql = "SELECT `label`
+                        FROM `email_templates`
+                        WHERE TRIM(`label`) = :label
+                        AND `body` != :body";
 
-        //Check for other existing email_templates records with a label that matches desc to avoid inconsistencies.
-        //Return information for user if a match is found.  Trim for back compat.
-        $vars = array(
-            ':label' => $desc,
-            ':body' => $name . "_body.tpl",
-        );
-        $strSQL = "SELECT `label` FROM `email_templates` WHERE TRIM(`label`) = :label AND `body` != :body";
-        $res = $this->db->prepared_query($strSQL, $vars);
-        if(count($res) > 0) {
-            return 'This description has already been used, please use another one.';
-        }
+                $res = $this->db->prepared_query($sql, $vars);
 
-        //Update events record
-        $vars = array(
-            ':eventID' => $name,
-            ':eventDescription' => $desc,
-            ':newEventID' => $newName,
-            ':eventType' => $type,
-            ':eventData' => json_encode(
-                    array(
-                        'NotifyRequestor' => $data['Notify Requestor'],
-                        'NotifyNext' => $data['Notify Next'],
-                        'NotifyGroup' => $data['Notify Group'],
-                )
-            )
-        );
-        $strSQL = "UPDATE events
-            SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData
-            WHERE eventID=:eventID";
-        $this->db->prepared_query($strSQL, $vars);
+                if(count($res) > 0) {
+                    $return_value = 'This description has already been used, please use another one.';
+                } else {
+                    //Update events record
+                    $vars = array(
+                        ':eventID' => $name,
+                        ':eventDescription' => $desc,
+                        ':newEventID' => $newName,
+                        ':eventType' => $type,
+                        ':eventData' => json_encode(
+                                array(
+                                    'NotifyRequestor' => $data['Notify Requestor'],
+                                    'NotifyNext' => $data['Notify Next'],
+                                    'NotifyGroup' => $data['Notify Group'],
+                            )
+                        )
+                    );
+                    $sql = "UPDATE `events`
+                            SET `eventID` = :newEventID, `eventDescription` = :eventDescription,
+                                `eventType` = :eventType, `eventData` = :eventData
+                            WHERE `eventID` = :eventID";
 
-        $this->dataActionLogger->logAction(DataActions::MODIFY, LoggableTypes::EVENTS, [
-            new LogItem("events", "eventDescription",  $desc),
-            new LogItem("events", "eventID",  $name)
-        ]);
+                    $this->db->prepared_query($sql, $vars);
 
-        //check for corresponding non-system email template record before updating and renaming files
-        $vars = array(':oldBody' => $name . "_body.tpl");
-        $strSQL = "SELECT emailTemplateID FROM `email_templates` WHERE body=:oldBody AND emailTemplateID > 1";
-        $res = $this->db->prepared_query($strSQL, $vars);
+                    $this->dataActionLogger->logAction(DataActions::MODIFY, LoggableTypes::EVENTS, [
+                        new LogItem("events", "eventDescription",  $desc),
+                        new LogItem("events", "eventID",  $name)
+                    ]);
 
-        if(count($res) === 1) {
-            //update email_templates record
-            $vars = array(
-                ':emailTo' => "{$newName}_emailTo.tpl",
-                ':emailCc' => "{$newName}_emailCc.tpl",
-                ':subject' => "{$newName}_subject.tpl",
-                ':oldBody' => "{$name}_body.tpl",
-                ':body' => "{$newName}_body.tpl",
-                ':newLabel' => $desc);
+                    //check for corresponding non-system email template record before updating and renaming files
+                    $vars = array(':oldBody' => $name . "_body.tpl");
+                    $sql = "SELECT `emailTemplateID`
+                            FROM `email_templates`
+                            WHERE `body` = :oldBody
+                            AND `emailTemplateID` > 1";
 
-            $strSQL = "UPDATE email_templates
-                SET label=:newLabel, emailTo=:emailTo, emailCc=:emailCc, subject=:subject, body=:body
-                WHERE body=:oldBody AND emailTemplateID > 1";
+                    $res = $this->db->prepared_query($sql, $vars);
 
-            $this->db->prepared_query($strSQL, $vars);
+                    if (count($res) === 1) {
+                        //update email_templates record
+                        $vars = array(
+                            ':emailTo' => "{$newName}_emailTo.tpl",
+                            ':emailCc' => "{$newName}_emailCc.tpl",
+                            ':subject' => "{$newName}_subject.tpl",
+                            ':oldBody' => "{$name}_body.tpl",
+                            ':body' => "{$newName}_body.tpl",
+                            ':newLabel' => $desc);
 
-            //rename files
-            if (file_exists("../templates/email/custom_override/{$name}_body.tpl")) {
-                rename("../templates/email/custom_override/{$name}_body.tpl", "../templates/email/custom_override/{$newName}_body.tpl");
-                rename("../templates/email/custom_override/{$name}_subject.tpl", "../templates/email/custom_override/{$newName}_subject.tpl");
-                rename("../templates/email/custom_override/{$name}_emailTo.tpl", "../templates/email/custom_override/{$newName}_emailTo.tpl");
-                rename("../templates/email/custom_override/{$name}_emailCc.tpl", "../templates/email/custom_override/{$newName}_emailCc.tpl");
+                        $sql = "UPDATE `email_templates`
+                                SET `label` = :newLabel, `emailTo` = :emailTo,
+                                    `emailCc` = :emailCc, `subject` = :subject,
+                                    `body` = :body
+                                WHERE `body` = :oldBody
+                                AND `emailTemplateID` > 1";
+
+                        $this->db->prepared_query($sql, $vars);
+
+                        //rename files
+                        $customOverrideDir = realpath('../templates/email/custom_override');
+
+                        if ($customOverrideDir === false) {
+                            error_log("Edit event error: Custom override directory not found");
+                            $return_value = 'Template directory not found';
+                        } else {
+                            // Build old file paths
+                            $oldBodyFile = $customOverrideDir . '/' . $name . '_body.tpl';
+                            $oldSubjectFile = $customOverrideDir . '/' . $name . '_subject.tpl';
+                            $oldEmailToFile = $customOverrideDir . '/' . $name . '_emailTo.tpl';
+                            $oldEmailCcFile = $customOverrideDir . '/' . $name . '_emailCc.tpl';
+
+                            // Build new file paths
+                            $newBodyFile = $customOverrideDir . '/' . $newName . '_body.tpl';
+                            $newSubjectFile = $customOverrideDir . '/' . $newName . '_subject.tpl';
+                            $newEmailToFile = $customOverrideDir . '/' . $newName . '_emailTo.tpl';
+                            $newEmailCcFile = $customOverrideDir . '/' . $newName . '_emailCc.tpl';
+
+                            // CRITICAL: Validate all old file paths are within the allowed directory
+                            if (!XSSHelpers::isPathSafe($oldBodyFile, $customOverrideDir)) {
+                                error_log("Edit event error: Invalid old body file path: {$oldBodyFile}");
+                                $return_value = 'Invalid file path';
+                            } else if (!XSSHelpers::isPathSafe($oldSubjectFile, $customOverrideDir)) {
+                                error_log("Edit event error: Invalid old subject file path: {$oldSubjectFile}");
+                                $return_value = 'Invalid file path';
+                            } else if (!XSSHelpers::isPathSafe($oldEmailToFile, $customOverrideDir)) {
+                                error_log("Edit event error: Invalid old emailTo file path: {$oldEmailToFile}");
+                                $return_value = 'Invalid file path';
+                            } else if (!XSSHelpers::isPathSafe($oldEmailCcFile, $customOverrideDir)) {
+                                error_log("Edit event error: Invalid old emailCc file path: {$oldEmailCcFile}");
+                                $return_value = 'Invalid file path';
+                            } else if (!XSSHelpers::isPathSafe($newBodyFile, $customOverrideDir)) {
+                                error_log("Edit event error: Invalid new body file path: {$newBodyFile}");
+                                $return_value = 'Invalid file path';
+                            } else if (!XSSHelpers::isPathSafe($newSubjectFile, $customOverrideDir)) {
+                                error_log("Edit event error: Invalid new subject file path: {$newSubjectFile}");
+                                $return_value = 'Invalid file path';
+                            } else if (!XSSHelpers::isPathSafe($newEmailToFile, $customOverrideDir)) {
+                                error_log("Edit event error: Invalid new emailTo file path: {$newEmailToFile}");
+                                $return_value = 'Invalid file path';
+                            } else if (!XSSHelpers::isPathSafe($newEmailCcFile, $customOverrideDir)) {
+                                error_log("Edit event error: Invalid new emailCc file path: {$newEmailCcFile}");
+                                $return_value = 'Invalid file path';
+                            } else if (file_exists($oldBodyFile)) {
+                                // Perform renames only after all validations pass
+                                $errorMessages = array();
+
+                                if (!rename($oldBodyFile, $newBodyFile)) {
+                                    error_log("Edit event error: Failed to rename {$oldBodyFile} to {$newBodyFile}");
+                                    $errorMessages[] = 'Failed to rename body template';
+                                }
+
+                                if (!rename($oldSubjectFile, $newSubjectFile)) {
+                                    error_log("Edit event error: Failed to rename {$oldSubjectFile} to {$newSubjectFile}");
+                                    $errorMessages[] = 'Failed to rename subject template';
+                                }
+
+                                if (!rename($oldEmailToFile, $newEmailToFile)) {
+                                    error_log("Edit event error: Failed to rename {$oldEmailToFile} to {$newEmailToFile}");
+                                    $errorMessages[] = 'Failed to rename emailTo template';
+                                }
+
+                                if (!rename($oldEmailCcFile, $newEmailCcFile)) {
+                                    error_log("Edit event error: Failed to rename {$oldEmailCcFile} to {$newEmailCcFile}");
+                                    $errorMessages[] = 'Failed to rename emailCc template';
+                                }
+
+                                // If any errors occurred, combine them into a single message
+                                if (count($errorMessages) > 0) {
+                                    $return_value = implode('; ', $errorMessages);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
-        return 1;
+
+        return $return_value;
     }
 
     public function getActions()
