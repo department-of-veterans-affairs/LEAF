@@ -2423,7 +2423,7 @@ class Form
                             WHERE `categoryID` IN ({$placeholders})
                             AND `readable` = 1";
 
-                    $catsInGroups = $this->db->prepared_query($sql, $$uniqueCategoryIDs);
+                    $catsInGroups = $this->db->prepared_query($sql, $uniqueCategoryIDs);
 
                     if (count($catsInGroups) > 0) {
                         $groups = $this->login->getMembership();
