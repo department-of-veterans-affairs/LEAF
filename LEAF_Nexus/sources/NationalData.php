@@ -211,9 +211,11 @@ abstract class NationalData
                     }
                 }
             }
+
+            $this->cache[$cacheHash] = $data;
         }
 
-        return $this->cache[$cacheHash] = $data;
+        return $this->cache[$cacheHash];
     }
 
     /**
