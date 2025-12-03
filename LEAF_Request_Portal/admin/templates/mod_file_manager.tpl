@@ -52,10 +52,6 @@ function showFiles() {
         type: 'GET',
         url: '../api/system/files?getStats=1',
         success: function(res) {
-            grid.setData(Object.keys(res).map(key => {
-                res[key].recordID = key; // formGrid expects there to be a recordID property that contains unique integers
-                return res[key];
-            }));
             grid.setDataBlob(res);
             
             grid.setHeaders([
