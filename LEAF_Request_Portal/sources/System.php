@@ -594,11 +594,11 @@ class System
     /**
      * getFileList retrieves filenames uploaded via Admin Panel -> File Manager
      *
-     * @param bool getLastModified If set to true, the returned elements within the array include [file, modifiedTime]
+     * @param bool getStats If set to true, the returned elements within the array include [file, modifiedTime, size]
      *
      * @return array
      */
-    public function getFileList(?bool $getLastModified = false): array
+    public function getFileList(?bool $getStats = false): array|string
     {
         if (!$this->login->checkGroup(1))
         {
@@ -613,11 +613,14 @@ class System
             if (in_array(strtolower($ext), $this->fileExtensionWhitelist)
                 && $item != 'index.html')
             {
-                if($getLastModified == false) {
+                if($getStats == false) {
                     $out[] = $item;
                 }
                 else {
-                    $out[] = ['file' => $item, 'modifiedTime' => filemtime('../files/' . $item)];
+                    $stats = stat('../files/' . $item);
+                    $out[] = ['file' => $item, 
+                            'modifiedTime' => $stats['mtime'],
+                            'size' => $stats['size']];
                 }
             }
         }
