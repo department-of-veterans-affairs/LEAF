@@ -1747,7 +1747,7 @@
     }
 
     async function editAgentInstructions(stepID) {
-        alert(stepID);
+        alert('The Edit feature for the LEAF Agent is under development, and will be completed in 2026.');
     }
 
     async function viewAgentInstructions(stepID) {
