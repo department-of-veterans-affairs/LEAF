@@ -139,7 +139,10 @@ class Login
         // Currently only used for LEAF Agent
         if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
             $token = trim(str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']));
-            if(hash_equals(getenv('AGENT_TOKEN'), $token) && strlen($token) > 32) {
+            $agentEnvToken = getenv('AGENT_TOKEN');
+            if(is_string($agentEnvToken)
+                && hash_equals($agentEnvToken, $token)
+                && strlen($token) > 32) {
                 $_SESSION['CSRFToken'] = "";
                 // This must never intersect with a real user account.
                 // For example in APP_AGENT_USERNAME, use invalid Active Directory characters such as an asterisk (*)

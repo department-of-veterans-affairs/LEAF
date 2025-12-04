@@ -4306,6 +4306,7 @@ class Form
                                 || (is_array($temp['parentStaples'])
                                     && array_search($form, $temp['parentStaples']) !== false)) {
                                 $data[] = $temp;
+                                break;
                             }
                         }
                     }

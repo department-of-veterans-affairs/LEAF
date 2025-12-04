@@ -146,9 +146,9 @@ $(function() {
                 <!--{else}-->
                     <span class="entry_info bg-blue-5v" tabindex="0">
                     <!--{if $is_admin !== true}-->
-                            <span>There are no forms available.<br><br>Please contact <b class="system-admin-name"></b> for assistance.<br><br>To make a form available, open the Form Editor, select your form, ensure the workflow is assigned, and update the Form Status to <b>Available</b>.</span>
+                            <span>There are no forms available.<br><br><span class="system-admin-name"></span>Site Administrators: To make a form available, open the Form Editor, select your form, ensure the workflow is assigned, and update the Form Status to <b>Available</b>.</span>
                     <!--{else}-->
-                        <span>There are no forms available.<br><br>To make a form available, open the Form Editor, select your form, ensure the workflow is assigned, and update the Form Status to <b>Available</b>.</span>
+                        <span>There are no forms available.<br><br>Site Administrators: To make a form available, open the Form Editor, select your form, ensure the workflow is assigned, and update the Form Status to <b>Available</b>.</span>
                     <!--{/if}-->
                     </span>
                 <!--{/if}-->
@@ -176,8 +176,8 @@ $(function() {
         const email = data['Email'] || '';
 
         const adminInfo = email !== '' ?
-            nameDisplay + ' - <a href="mailto:' + email+ '">' + email + '</a>' :
-            'your site Admin';
+            'Please contact <b>' +nameDisplay + ' - <a href="mailto:' + email+ '">' + email + '</a></b> for assistance.<br><br>' :
+            '';
 
         // Update the system admin name in the "no forms available" message
         $('.system-admin-name').html(adminInfo);
