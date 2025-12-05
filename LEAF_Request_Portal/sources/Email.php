@@ -798,7 +798,7 @@ class Email
         if (count($approvers) > 0) {
             $reminderDepArray = array();
             //if reminder, find out how many requirements the step has
-            if($emailTemplateID === -4 || $emailTemplateID === -5) {
+            if($emailTemplateID === self::EMAIL_REMINDER || $emailTemplateID === self::AUTOMATED_EMAIL_REMINDER) {
                 foreach ($approvers as $row) {
                     $dID = $row['dependencyID'];
                     if(!in_array($dID, $reminderDepArray)) {
@@ -988,7 +988,7 @@ class Email
                 }
             }
             $return_value = $this->sendMail($recordID);
-        } elseif ($emailTemplateID === -4) {
+        } elseif ($emailTemplateID === self::EMAIL_REMINDER) {
             // Record has no approver so if it is sent from Mass Action Email Reminder, notify user
             $recordInfo = $this->getRecord($recordID);
             $formType = trim(strip_tags(
@@ -1027,7 +1027,7 @@ class Email
                 $this->addRecipient($tmp[0]['Email']);
             }
             $return_value = $this->sendMail($recordID);
-        } elseif ($emailTemplateID === -7) { //Cancel Notification
+        } elseif ($emailTemplateID === self::CANCEL_REQUEST) {
             $recordInfo = $this->getRecord($recordID);
 
             if ((int)$recordInfo[0]['submitted'] > 0) {
