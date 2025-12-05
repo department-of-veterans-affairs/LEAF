@@ -483,7 +483,7 @@ class Form
      * @param int $indicatorID
      * @param int $series
      * @param int $recordID
-     * @param bool $parseTemplate - parses html/htmlPrint template variables
+     * @param bool|null $parseTemplate - parses html/htmlPrint template variables
      * @param bool $forceReadOnly ***Only use in safe contexts*** Force allow read only access and
      *                            bypasses normal access checks. Does not load child indicators.
      * @return array
@@ -1102,7 +1102,7 @@ class Form
      */
     private function writeDataField($recordID, $key, $series)
     {
-        
+
         if (is_array($_POST[$key])) //multiselect, checkbox, grid items
         {
             $_POST[$key] = XSSHelpers::scrubObjectOrArray($_POST[$key]);
@@ -1779,174 +1779,333 @@ class Form
     }
 
     /**
-     * Checks if the current user has write access
-     * Users should have write access if they are in "posession" of a request (they are currently reviewing it)
-     * @param int $recordID
-     * @param int $categoryID
-     * @param int $indicatorID
-     * @return int 1 = has access, 0 = no access
-     */
-    public function hasWriteAccess($recordID, $categoryID = 0, $indicatorID = 0)
+     * Check if the current user has write access to a record
+     *
+     * @param int|string $recordID The record ID to check access for
+    * @param int|string $categoryID The category ID (optional)
+    * @param int $indicatorID The indicator ID (optional)
+    * @return int Returns 1 if user has write access, 0 otherwise
+    */
+    public function hasWriteAccess($recordID, $categoryID = 0, int $indicatorID = 0): int
     {
-        // if an indicatorID is specified, find out what the indicator's categoryID is
-        if (isset($this->cache["hasWriteAccess_{$recordID}_{$categoryID}_{$indicatorID}"]))
-        {
-            $categoryID = $this->cache["hasWriteAccess_{$recordID}_{$categoryID}_{$indicatorID}"];
+        $recordID = (int)$recordID; // Convert to int, empty string becomes 0
+
+        $resolvedCategoryID = $this->resolveCategoryID($recordID, $categoryID, $indicatorID);
+        $multipleCategories = $this->getMultipleCategoriesIfNeeded($recordID, $resolvedCategoryID, $indicatorID);
+
+        $cacheKeyCategoryID = $resolvedCategoryID;
+        if (!empty($multipleCategories)) {
+            $cacheKeyCategoryID = implode('', $multipleCategories);
         }
-        else
-        {
-            if ($indicatorID != 0)
-            {
-                $vars = array(':indicatorID' => (int)$indicatorID);
-                $res = $this->db->prepared_query('SELECT * FROM indicators WHERE indicatorID=:indicatorID', $vars);
-                if (isset($res[0]['categoryID']))
-                {
-                    $categoryID = $res[0]['categoryID'];
-                    $this->cache["hasWriteAccess_{$recordID}_{$categoryID}_{$indicatorID}"] = $categoryID;
-                    $this->log["write"]["{$recordID}_{$categoryID}_{$indicatorID}"] = "Indicator {$indicatorID} is associated with {$categoryID}.";
-                }
-                else
-                {
+
+        $cacheKey = "hasWriteAccess_{$recordID}_{$cacheKeyCategoryID}";
+
+        if (!isset($this->cache[$cacheKey])) {
+            $hasAccess = $this->determineWriteAccess($recordID, $cacheKeyCategoryID, $multipleCategories);
+            $this->cache[$cacheKey] = $hasAccess;
+        }
+
+        return (int)$this->cache[$cacheKey];
+    }
+
+    /**
+     * Resolve the category ID based on indicator ID if provided
+     *
+     * @param int $recordID The record ID
+     * @param int|string $categoryID The initial category ID
+     * @param int $indicatorID The indicator ID to resolve
+     * @return int|string The resolved category ID
+     */
+    private function resolveCategoryID(int $recordID, $categoryID, int $indicatorID)
+    {
+        $resolvedCategoryID = $categoryID;
+
+        if ($indicatorID != 0) {
+            $cacheKey = "hasWriteAccess_{$recordID}_{$categoryID}_{$indicatorID}";
+
+            if (isset($this->cache[$cacheKey])) {
+                $resolvedCategoryID = $this->cache[$cacheKey];
+            } else {
+                $vars = [':indicatorID' => $indicatorID];
+                $sql = 'SELECT `categoryID`
+                        FROM `indicators`
+                        WHERE `indicatorID` = :indicatorID';
+
+                $res = $this->db->prepared_query($sql, $vars);
+
+                if (isset($res[0]['categoryID'])) {
+                    $resolvedCategoryID = $res[0]['categoryID'];
+                    $this->cache[$cacheKey] = $resolvedCategoryID;
+                    $this->log["write"]["{$recordID}_{$categoryID}_{$indicatorID}"] = "Indicator {$indicatorID} is associated with {$resolvedCategoryID}.";
+                } else {
                     $this->log["write"]["{$recordID}_{$categoryID}_{$indicatorID}"] = "Indicator {$indicatorID} on record {$recordID} is not associated with any form.";
                 }
             }
         }
 
-        $multipleCategories = array();
-        if ($categoryID === 0
-            && $indicatorID == 0)
-        {
-            $categoryID = '';
-            $vars = array(':recordID' => (int)$recordID);
-            $res = $this->db->prepared_query('SELECT * FROM category_count
-        										WHERE recordID=:recordID
-        										GROUP BY categoryID', $vars);
-            foreach ($res as $type)
-            {
-                $categoryID .= $type['categoryID'];
-                $multipleCategories[] = $type['categoryID'];
+        return $resolvedCategoryID;
+    }
+
+    /**
+     * Get multiple categories for a record if needed
+     *
+     * @param int $recordID The record ID
+     * @param int|string $categoryID The category ID
+     * @param int $indicatorID The indicator ID
+     * @return array Array of category IDs
+     */
+    private function getMultipleCategoriesIfNeeded(int $recordID, $categoryID, int $indicatorID): array
+    {
+        $multipleCategories = [];
+
+        if ($categoryID === 0 && $indicatorID == 0) {
+            $vars = [':recordID' => $recordID];
+            $sql = 'SELECT `categoryID`
+                    FROM `category_count`
+                    WHERE `recordID` = :recordID
+                    GROUP BY `categoryID`';
+
+            $res = $this->db->prepared_query($sql, $vars);
+            $multipleCategories = array_column($res, 'categoryID');
+        }
+
+        return $multipleCategories;
+    }
+
+    /**
+     * Determine if user has write access based on various permission checks
+     *
+     * @param int $recordID The record ID
+     * @param int|string $categoryID The category ID
+     * @param array $multipleCategories Array of multiple category IDs
+     * @return int Returns 1 if access granted, 0 otherwise
+     */
+    private function determineWriteAccess(int $recordID, $categoryID, array $multipleCategories): int
+    {
+        $hasAccess = 0;
+
+        if ($this->isWritableUser($recordID, $categoryID)) {
+            $hasAccess = 1;
+        } elseif ($this->isAdmin($recordID, $categoryID)) {
+            $hasAccess = 1;
+        } elseif ($this->hasGroupPermissions($recordID, $categoryID, $multipleCategories)) {
+            $hasAccess = 1;
+        } elseif ($this->hasDependencyPermissions($recordID, $categoryID)) {
+            $hasAccess = 1;
+        }
+
+        return $hasAccess;
+    }
+
+    /**
+     * Check if current user is a writable user for the record
+     *
+     * @param int $recordID The record ID
+     * @param int|string $categoryID The category ID
+     * @return bool True if user is writable, false otherwise
+     */
+    private function isWritableUser(int $recordID, $categoryID): bool
+    {
+        $isWritable = false;
+        $resRecords = $this->getRecordDetails($recordID);
+
+        if ($resRecords[0]['isWritableUser'] == 1) {
+            $currentUserID = strtolower($this->login->getUserID());
+            $recordUserID = strtolower($resRecords[0]['userID']);
+
+            if ($currentUserID == $recordUserID || $this->checkIfBackupUserName($resRecords[0]['userID'])) {
+                $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You are a writable user or initiator of record {$recordID}, {$categoryID}.";
+                $isWritable = true;
+            } else {
+                $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You are not a writable user or initiator of record {$recordID}, {$categoryID}.";
             }
+        } else {
+            $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You are not a writable user or initiator of record {$recordID}, {$categoryID}.";
         }
 
-        // check cached result
-        if (isset($this->cache["hasWriteAccess_{$recordID}_{$categoryID}"]))
-        {
-            return $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"];
+        return $isWritable;
+    }
+
+    /**
+     * Get record details with caching
+     *
+     * @param int $recordID The record ID
+     * @return array Record details from database
+     */
+    private function getRecordDetails(int $recordID): array
+    {
+        $cacheKey = "resRecords_{$recordID}";
+
+        if (!isset($this->cache[$cacheKey])) {
+            $vars = [':recordID' => $recordID];
+            $sql = 'SELECT `userID`, `isWritableUser`, `isWritableGroup`
+                    FROM `records`
+                    WHERE `recordID` = :recordID';
+
+            $resRecords = $this->db->prepared_query($sql, $vars);
+            $this->cache[$cacheKey] = $resRecords;
         }
 
-        $resRecords = null;
-        if (isset($this->cache["resRecords_{$recordID}"]))
-        {
-            $resRecords = $this->cache["resRecords_{$recordID}"];
-        }
-        else
-        {
-            $vars = array(':recordID' => (int)$recordID);
-            $resRecords = $this->db->prepared_query('SELECT userID, isWritableUser, isWritableGroup FROM records
-                                                WHERE recordID=:recordID', $vars);
-            $this->cache["resRecords_{$recordID}"] = $resRecords;
-        }
+        return $this->cache[$cacheKey];
+    }
 
-        // give the requestor access if the record explictly gives them write access
-        if ($resRecords[0]['isWritableUser'] == 1 &&
-            (strtolower($this->login->getUserID()) == strtolower($resRecords[0]['userID']) || $this->checkIfBackupUserName($resRecords[0]['userID']))
-        )
-        {
-            $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
-            $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You are a writable user or initiator of record {$recordID}, {$categoryID}.";
+    /**
+     * Check if current user is an admin
+     *
+     * @param int $recordID The record ID
+     * @param int|string $categoryID The category ID
+     * @return bool True if user is admin, false otherwise
+     */
+    private function isAdmin(int $recordID, $categoryID): bool
+    {
+        $isAdmin = false;
 
-            return 1;
-        }
-        $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You are not a writable user or initiator of record {$recordID}, {$categoryID}.";
-
-        // give admins access
-        if ($this->login->checkGroup(1))
-        {
-            $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
+        if ($this->login->checkGroup(1)) {
             $this->log["write"]["{$recordID}_{$categoryID}_admin"] = 'You are an admin.';
-
-            return 1;
+            $isAdmin = true;
+        } else {
+            $this->log["write"]["{$recordID}_{$categoryID}_admin"] = 'You are not an admin.';
         }
-        $this->log["write"]["{$recordID}_{$categoryID}_admin"] = 'You are not an admin.';
 
-        // find out if explicit permissions have been granted to any groups
-        if (count($multipleCategories) <= 1)
-        {
-            $resCategoryPrivs = null;
-            $cacheHash = 'hasWriteAccess_catPrivs_'.$categoryID.$this->login->getUserID();
-            if(isset($this->cache[$cacheHash])) {
-                $resCategoryPrivs = $this->cache[$cacheHash];
-            }
-            else {
-                $vars = array(':categoryID' => $categoryID,
-                              ':userID' => $this->login->getUserID());
-                $resCategoryPrivs = $this->db->prepared_query('SELECT COUNT(*) FROM category_privs
-                                                            LEFT JOIN users USING (groupID)
-                                                            WHERE categoryID=:categoryID
-                                                                AND userID=:userID
-                                                                AND writable=1
-                                                                AND active=1', $vars);
-                $this->cache[$cacheHash] = $resCategoryPrivs;
-            }
+        return $isAdmin;
+    }
 
-            if ($resCategoryPrivs[0]['COUNT(*)'] > 0)
-            {
-                $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
-                $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are in group with appropriate write permissions.';
+    /**
+     * Check if user has group permissions for the category
+     *
+     * @param int $recordID The record ID
+     * @param int|string $categoryID The category ID
+     * @param array $multipleCategories Array of multiple category IDs
+     * @return bool True if user has group permissions, false otherwise
+     */
+    private function hasGroupPermissions(int $recordID, $categoryID, array $multipleCategories): bool
+    {
+        $hasPermissions = false;
 
-                return 1;
-            }
+        if (count($multipleCategories) <= 1) {
+            $hasPermissions = $this->checkSingleCategoryPermissions($recordID, $categoryID);
+        } else {
+            $hasPermissions = $this->checkMultipleCategoryPermissions($recordID, $categoryID, $multipleCategories);
+        }
+
+        return $hasPermissions;
+    }
+
+    /**
+     * Check permissions for a single category
+     *
+     * @param int $recordID The record ID
+     * @param int|string $categoryID The category ID
+     * @return bool True if user has permissions, false otherwise
+     */
+    private function checkSingleCategoryPermissions(int $recordID, $categoryID): bool
+    {
+        $cacheKey = 'hasWriteAccess_catPrivs_' . $categoryID . $this->login->getUserID();
+
+        if (!isset($this->cache[$cacheKey])) {
+            $vars = [
+                ':categoryID' => $categoryID,
+                ':userID' => $this->login->getUserID()
+            ];
+            $sql = 'SELECT COUNT(*) as count
+                    FROM `category_privs`
+                    LEFT JOIN `users` USING (`groupID`)
+                    WHERE `categoryID` = :categoryID
+                    AND `userID` = :userID
+                    AND `writable` = 1
+                    AND `active` = 1';
+
+            $result = $this->db->prepared_query($sql, $vars);
+            $this->cache[$cacheKey] = $result;
+        }
+
+        $resCategoryPrivs = $this->cache[$cacheKey];
+        $hasPermissions = false;
+
+        if ($resCategoryPrivs[0]['count'] > 0) {
+            $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are in group with appropriate write permissions.';
+            $hasPermissions = true;
+        } else {
             $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are not in group with appropriate write permissions.';
         }
-        else
-        {
-            foreach ($multipleCategories as $category)
-            {
-                $vars = array(':categoryID' => $category,
-                              ':userID' => $this->login->getUserID(), );
-                $resCategoryPrivs = $this->db->prepared_query('SELECT COUNT(*) FROM category_privs
-                                                        LEFT JOIN users USING (groupID)
-                                                        WHERE categoryID=:categoryID
-                                                            AND userID=:userID
-            												AND writable=1
-                                                            AND active=1', $vars);
 
-                if ($resCategoryPrivs[0]['COUNT(*)'] > 0)
-                {
-                    $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
-                    $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are in group with appropriate write permissions.';
+        return $hasPermissions;
+    }
 
-                    return 1;
-                }
+    /**
+     * Check permissions across multiple categories
+     *
+     * @param int $recordID The record ID
+     * @param int|string $categoryID The category ID (concatenated string)
+     * @param array $multipleCategories Array of category IDs to check
+     * @return bool True if user has permissions for any category, false otherwise
+     */
+    private function checkMultipleCategoryPermissions(int $recordID, $categoryID, array $multipleCategories): bool
+    {
+        $hasPermissions = false;
+
+        foreach ($multipleCategories as $category) {
+            $vars = [
+                ':categoryID' => $category,
+                ':userID' => $this->login->getUserID()
+            ];
+            $sql = 'SELECT COUNT(*) as count
+                    FROM `category_privs`
+                    LEFT JOIN `users` USING (`groupID`)
+                    WHERE `categoryID` = :categoryID
+                    AND `userID` = :userID
+                    AND `writable` = 1
+                    AND `active` = 1';
+
+            $resCategoryPrivs = $this->db->prepared_query($sql, $vars);
+
+            if ($resCategoryPrivs[0]['count'] > 0) {
+                $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are in group with appropriate write permissions.';
+                $hasPermissions = true;
+                break;
+            } else {
                 $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are not in group with appropriate write permissions.';
             }
         }
 
-        // grant permissions to whoever currently "has" the form (whoever is the current approver)
-        $vars = array(':recordID' => (int)$recordID);
-        $resRecordPrivs = $this->db->prepared_query('SELECT recordID, groupID, dependencyID, records.userID, serviceID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID FROM records_workflow_state
-        												LEFT JOIN step_dependencies USING (stepID)
-        												LEFT JOIN workflow_steps USING (stepID)
-        												LEFT JOIN dependency_privs USING (dependencyID)
-                                                        LEFT JOIN users USING (groupID)
-        												LEFT JOIN records USING (recordID)
-                                                        WHERE recordID=:recordID', $vars);
-        foreach ($resRecordPrivs as $priv)
-        {
-            if ($this->hasDependencyAccess($priv['dependencyID'], $priv))
-            {
-                $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
-                $this->log["write"]["{$recordID}_{$categoryID}_dependency"] = 'You are a dependency.';
+        return $hasPermissions;
+    }
 
-                return 1;
+    /**
+     * Check if user has dependency-based permissions through workflow
+     *
+     * @param int $recordID The record ID
+     * @param int|string $categoryID The category ID
+     * @return bool True if user has dependency permissions, false otherwise
+     */
+    private function hasDependencyPermissions(int $recordID, $categoryID): bool
+    {
+        $vars = [':recordID' => $recordID];
+        $sql = 'SELECT `recordID`, `groupID`, `dependencyID`, `records`.`userID`, `serviceID`,
+                    `indicatorID_for_assigned_empUID`, `indicatorID_for_assigned_groupID`
+                FROM `records_workflow_state`
+                LEFT JOIN `step_dependencies` USING (`stepID`)
+                LEFT JOIN `workflow_steps` USING (`stepID`)
+                LEFT JOIN `dependency_privs` USING (`dependencyID`)
+                LEFT JOIN `users` USING (`groupID`)
+                LEFT JOIN `records` USING (`recordID`)
+                WHERE `recordID` = :recordID
+                AND `active` = 1';
+
+        $resRecordPrivs = $this->db->prepared_query($sql, $vars);
+        $hasPermissions = false;
+
+        foreach ($resRecordPrivs as $priv) {
+            if ($this->hasDependencyAccess($priv['dependencyID'], $priv)) {
+                $this->log["write"]["{$recordID}_{$categoryID}_dependency"] = 'You are a dependency.';
+                $hasPermissions = true;
+                break;
+            } else {
+                $this->log["write"]["{$recordID}_{$categoryID}_dependency"] = 'You are not a dependency.';
             }
-            $this->log["write"]["{$recordID}_{$categoryID}_dependency"] = 'You are not a dependency.';
         }
 
-        // default no access
-        $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 0;
-
-        return 0;
+        return $hasPermissions;
     }
 
     /**
@@ -3149,14 +3308,14 @@ class Form
      */
     private function isLargeQuery(array $query): bool
     {
-        
+
         $externalProcessQuery = false;
         // No limit parameter set
         if (isset($query['limit']) && is_numeric($query['limit'])) {
 
             // Limit is > 10,000 records
             if ($query['limit'] > 10000) {
-               
+
                 $externalProcessQuery = true;
 
             // Limit is > 1000 and <= 10,000 records AND more than 10 indicators are requested
@@ -3167,7 +3326,7 @@ class Form
             // no limit parameter set
             $externalProcessQuery = true;
         }
-    
+
         return $externalProcessQuery;
     }
 
@@ -3661,8 +3820,8 @@ class Form
                             // loops within a workflow, and people can take different actions later
                             $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
                                                     LEFT OUTER JOIN action_history sFA_ah{$count}
-                                                        ON (ah.recordID = sFA_ah{$count}.recordID 
-                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                        ON (ah.recordID = sFA_ah{$count}.recordID
+                                                            AND ah.stepID = sFA_ah{$count}.stepID
                                                             AND ah.time < sFA_ah{$count}.time)
                                             WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL) lj_action_history{$count}
                                             USING (recordID) ";
@@ -3683,7 +3842,7 @@ class Form
                             $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
                                                     LEFT OUTER JOIN action_history sFA_ah{$count}
                                                         ON (ah.recordID = sFA_ah{$count}.recordID
-                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                            AND ah.stepID = sFA_ah{$count}.stepID
                                                             AND ah.time < sFA_ah{$count}.time)
                                             WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL AND ah.actionType=:stepAction{$count}) lj_action_history{$count}
                                             USING (recordID) ";

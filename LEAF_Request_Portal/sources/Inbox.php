@@ -435,166 +435,378 @@ class Inbox
     /**
      * Find out if there are any items in the current user's inbox
      * TODO: improve performance of this
-     * @return int approximate number of items in inbox
+     *
+     * @return int Approximate number of items in inbox
      */
-    public function getInboxStatus()
+    public function getInboxStatus(): int
     {
-        $vars = array(':userID' => $this->login->getUserID());
-        $res = $this->db->prepared_query('SELECT COUNT(*) FROM records_workflow_state
-        									  LEFT JOIN step_dependencies USING (stepID)
-        									  LEFT JOIN dependency_privs USING (dependencyID)
-        									  LEFT JOIN users USING (groupID)
-        									  LEFT JOIN records_dependencies USING (recordID, dependencyID)
-        									  WHERE userID=:userID
-        										AND filled=0', $vars);
+        $inboxCount = $this->getDirectInboxCount();
 
-        // if the initial search is empty, check for special cases (service chief, quadrad)
-        if ($res[0]['COUNT(*)'] == 0)
-        {
-            $count = 0;
-            $vars2 = array();
-            $res2 = $this->db->prepared_query('SELECT * FROM records_workflow_state
-            									LEFT JOIN records USING (recordID)
-            									LEFT JOIN step_dependencies USING (stepID)
-                                                LEFT JOIN workflow_steps USING (stepID)
-            									LEFT JOIN records_dependencies USING (recordID, dependencyID)
-            									WHERE (dependencyID = 1
-                                                         OR dependencyID = 8
-                                                         OR dependencyID = -1
-                                                         OR dependencyID = -2
-                                                         OR dependencyID = -3)
-            										AND filled = 0', $vars2);
+        if ($inboxCount == 0) {
+            $inboxCount = $this->checkSpecialCaseInboxItems();
+        }
 
-            foreach ($res2 as $record)
-            {
-                switch ($record['dependencyID']) {
-                    case 1: // dependencyID 1 is for a special service chief group
-                        if ($this->login->checkService($record['serviceID']))
-                        {
-                            return 1;
-                        }
+        return $inboxCount;
+    }
 
-                        break;
-                    case 8: // dependencyID 8 is for a special quadrad group
-                        $hash = md5($this->login->getQuadradGroupID() . $record['serviceID']);
-                        if (!isset($this->cache["getInboxStatus_{$hash}"]))
-                        {
-                            $quadGroupIDs = $this->login->getQuadradGroupID();
-                            $vars3 = array(':serviceID' => $record['serviceID']);
-                            $res3 = $this->db->prepared_query("SELECT * FROM services
-                            									WHERE groupID IN ({$quadGroupIDs})
-                            										AND serviceID=:serviceID", $vars3);
-                            if (isset($res3[0]))
-                            {
-                                return 1;
-                            }
-                            $this->cache["getInboxStatus_{$hash}"] = 0;
-                        }
+    /**
+     * Get count of items directly assigned to the user via dependency privileges
+     *
+     * @return int Count of direct inbox items
+     */
+    private function getDirectInboxCount(): int
+    {
+        $vars = [':userID' => $this->login->getUserID()];
+        $sql = 'SELECT COUNT(*) as count
+                FROM `records_workflow_state`
+                LEFT JOIN `step_dependencies` USING (`stepID`)
+                LEFT JOIN `dependency_privs` USING (`dependencyID`)
+                LEFT JOIN `users` USING (`groupID`)
+                LEFT JOIN `records_dependencies` USING (`recordID`, `dependencyID`)
+                WHERE `userID` = :userID
+                AND `filled` = 0
+                AND `active` = 1';
 
-                        break;
-                    case -1: // dependencyID -1 is for a person designated by the requestor
-                        $resEmpUID = $this->form->getIndicator($record['indicatorID_for_assigned_empUID'], 1, $record['recordID']);
-                        $empUID = $resEmpUID[$record['indicatorID_for_assigned_empUID']]['value'];
+        $res = $this->db->prepared_query($sql, $vars);
+        $count = (int)$res[0]['count'];
 
-                        //check if the requester has any backups
-                        $nexusDB = $this->login->getNexusDB();
-                        $vars4 = array(':empId' => $empUID);
-                        $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
+        return $count;
+    }
 
-                        if ($empUID == $this->login->getEmpUID())
-                        {
-                            return 1;
-                        }
-                            //check and provide access to backups
-                            foreach ($backupIds as $row)
-                            {
-                                if ($row['backupEmpUID'] == $this->login->getEmpUID())
-                                {
-                                    return 1;
-                                }
-                            }
+    /**
+     * Check for special case inbox items (service chief, quadrad, designated person, etc.)
+     *
+     * @return int Returns 1 if any special case items found, 0 otherwise
+     */
+    private function checkSpecialCaseInboxItems(): int
+    {
+        $specialRecords = $this->getSpecialCaseRecords();
+        $inboxCount = 0;
 
-                        break;
-                    case -2: // dependencyID -2 is for requestor followup
-                        if ($record['userID'] == $this->login->getUserID())
-                        {
-                            return 1;
-                        }
+        foreach ($specialRecords as $record) {
+            $hasSpecialAccess = $this->checkRecordAccess($record);
 
-                        break;
-                    case -3: // dependencyID -3 is for a group designated by the requestor
-                        $resGroupID = $this->form->getIndicator($record['indicatorID_for_assigned_groupID'], 1, $record['recordID']);
-                        $groupID = $resGroupID[$record['indicatorID_for_assigned_groupID']]['value'];
-
-                        if ($this->login->checkGroup($groupID))
-                        {
-                            return 1;
-                        }
-
-                        break;
-                    default:
-                        break;
-                }
+            if ($hasSpecialAccess) {
+                $inboxCount = 1;
+                break;
             }
         }
 
-        return $res[0]['COUNT(*)'];
+        return $inboxCount;
+    }
+
+    /**
+     * Get records with special case dependencies
+     *
+     * @return array Array of special case records
+     */
+    private function getSpecialCaseRecords(): array
+    {
+        $vars = [];
+        $sql = 'SELECT `dependencyID`, `recordID`, `serviceID`, `userID`,
+                    `indicatorID_for_assigned_empUID`, `indicatorID_for_assigned_groupID`
+                FROM `records_workflow_state`
+                LEFT JOIN `records` USING (`recordID`)
+                LEFT JOIN `step_dependencies` USING (`stepID`)
+                LEFT JOIN `workflow_steps` USING (`stepID`)
+                LEFT JOIN `records_dependencies` USING (`recordID`, `dependencyID`)
+                WHERE `dependencyID` IN (1, 8, -1, -2, -3)
+                AND `filled` = 0';
+
+        $records = $this->db->prepared_query($sql, $vars);
+
+        return $records;
+    }
+
+    /**
+     * Check if user has access to a record based on dependency type
+     *
+     * @param array $record The record data
+     * @return bool True if user has access, false otherwise
+     */
+    private function checkRecordAccess(array $record): bool
+    {
+        $hasAccess = false;
+
+        if ($record['dependencyID'] == 1) {
+            $hasAccess = $this->checkServiceChiefInbox($record['serviceID']);
+        } elseif ($record['dependencyID'] == 8) {
+            $hasAccess = $this->checkQuadradInbox($record['serviceID']);
+        } elseif ($record['dependencyID'] == -1) {
+            $hasAccess = $this->checkDesignatedPersonInbox($record);
+        } elseif ($record['dependencyID'] == -2) {
+            $hasAccess = $this->checkRequestorFollowupInbox($record['userID']);
+        } elseif ($record['dependencyID'] == -3) {
+            $hasAccess = $this->checkDesignatedGroupInbox($record);
+        }
+
+        return $hasAccess;
+    }
+
+    /**
+     * Check if user is a service chief for the given service
+     *
+     * @param int $serviceID The service ID
+     * @return bool True if user is service chief, false otherwise
+     */
+    private function checkServiceChiefInbox(int $serviceID): bool
+    {
+        $hasAccess = $this->login->checkService($serviceID);
+
+        return $hasAccess;
+    }
+
+    /**
+     * Check if user has quadrad (executive leadership) access for the service
+     *
+     * @param int $serviceID The service ID
+     * @return bool True if user has quadrad access, false otherwise
+     */
+    private function checkQuadradInbox(int $serviceID): bool
+    {
+        $hasAccess = false;
+        $hash = md5($this->login->getQuadradGroupID() . $serviceID);
+
+        if (!isset($this->cache["getInboxStatus_{$hash}"])) {
+            $hasAccess = $this->hasQuadradServiceAccess($serviceID);
+            $this->cache["getInboxStatus_{$hash}"] = $hasAccess ? 1 : 0;
+        } else {
+            $hasAccess = ($this->cache["getInboxStatus_{$hash}"] == 1);
+        }
+
+        return $hasAccess;
+    }
+
+    /**
+     * Check if user's quadrad groups have access to the service
+     *
+     * @param int $serviceID The service ID
+     * @return bool True if quadrad has access, false otherwise
+     */
+    private function hasQuadradServiceAccess(int $serviceID): bool
+    {
+        $quadGroupIDs = $this->login->getQuadradGroupID();
+        $vars = [':serviceID' => $serviceID];
+        $sql = "SELECT `serviceID`
+                FROM `services`
+                WHERE `groupID` IN ({$quadGroupIDs})
+                AND `serviceID` = :serviceID";
+
+        $res = $this->db->prepared_query($sql, $vars);
+        $hasAccess = isset($res[0]);
+
+        return $hasAccess;
+    }
+
+    /**
+     * Check if user is the designated person or backup for the record
+     *
+     * @param array $record The record data
+     * @return bool True if user is designated person or backup, false otherwise
+     */
+    private function checkDesignatedPersonInbox(array $record): bool
+    {
+        $resEmpUID = $this->form->getIndicator($record['indicatorID_for_assigned_empUID'], 1, $record['recordID']);
+        $empUID = $resEmpUID[$record['indicatorID_for_assigned_empUID']]['value'];
+        $currentEmpUID = $this->login->getEmpUID();
+
+        $hasAccess = false;
+
+        if ($empUID == $currentEmpUID) {
+            $hasAccess = true;
+        } else {
+            $hasAccess = $this->isBackupForEmployee($empUID);
+        }
+
+        return $hasAccess;
+    }
+
+    /**
+     * Check if current user is a backup for the given employee
+     *
+     * @param string $empUID The employee UID to check backup for
+     * @return bool True if current user is backup, false otherwise
+     */
+    private function isBackupForEmployee(string $empUID): bool
+    {
+        $nexusDB = $this->login->getNexusDB();
+        $vars = [':empId' => $empUID];
+        $sql = 'SELECT `backupEmpUID`
+                FROM `relation_employee_backup`
+                WHERE `empUID` = :empId';
+
+        $backupIds = $nexusDB->prepared_query($sql, $vars);
+        $currentEmpUID = $this->login->getEmpUID();
+        $isBackup = false;
+
+        foreach ($backupIds as $row) {
+            if ($row['backupEmpUID'] == $currentEmpUID) {
+                $isBackup = true;
+                break;
+            }
+        }
+
+        return $isBackup;
+    }
+
+    /**
+     * Check if user is the requestor for followup
+     *
+     * @param string $recordUserID The record's user ID
+     * @return bool True if user is the requestor, false otherwise
+     */
+    private function checkRequestorFollowupInbox(string $recordUserID): bool
+    {
+        $hasAccess = ($recordUserID == $this->login->getUserID());
+
+        return $hasAccess;
+    }
+
+    /**
+     * Check if user is in the designated group for the record
+     *
+     * @param array $record The record data
+     * @return bool True if user is in designated group, false otherwise
+     */
+    private function checkDesignatedGroupInbox(array $record): bool
+    {
+        $resGroupID = $this->form->getIndicator($record['indicatorID_for_assigned_groupID'], 1, $record['recordID']);
+        $groupID = $resGroupID[$record['indicatorID_for_assigned_groupID']]['value'];
+        $hasAccess = $this->login->checkGroup($groupID);
+
+        return $hasAccess;
     }
 
     /**
      * Retrieve the number of items in the current user's inbox
      * @return int number
      */
-    public function getInboxCount()
+    public function getInboxCount(): int
     {
-        $vars = array(':userID' => $this->login->getUserID());
-        $res = $this->db->prepared_query('SELECT COUNT(*) FROM records_workflow_state
-        									  LEFT JOIN step_dependencies USING (stepID)
-        									  LEFT JOIN dependency_privs USING (dependencyID)
-        									  LEFT JOIN users USING (groupID)
-        									  WHERE userID=:userID', $vars);
+        $count = $this->getDirectInboxItemCount();
 
-        // if the initial search is empty, check for special cases (service chief, quadrad)
-        if ($res[0]['COUNT(*)'] == 0)
-        {
-            $count = 0;
-            $vars2 = array();
-            $res2 = $this->db->prepared_query('SELECT * FROM records_workflow_state
-            									LEFT JOIN records USING (recordID)
-            									LEFT JOIN step_dependencies USING (stepID)
-            									WHERE dependencyID = 1
-            										OR dependencyID = 8', $vars2);
-
-            foreach ($res2 as $record)
-            {
-                switch ($record['dependencyID']) {
-                    case 1:
-                        if ($this->login->checkService($record['serviceID']))
-                        {
-                            $count++;
-                        }
-
-                        break;
-                    case 8:
-                        $vars3 = array(':quadGroupIDs' => $this->login->getQuadradGroupID(),
-                                       ':serviceID' => $record['serviceID'], );
-                        $res3 = $this->db->prepared_query('SELECT * FROM services
-                        									WHERE groupID IN (:quadGroupIDs)
-                        										AND serviceID=:serviceID', $vars2);
-                        if (isset($res3[0]))
-                        {
-                            $count++;
-                        }
-
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            return $count;
+        if ($count == 0) {
+            $count = $this->getSpecialCaseInboxItemCount();
         }
 
-        return $res[0]['COUNT(*)'];
+        return $count;
+    }
+
+    /**
+     * Get count of items directly assigned to the user via dependency privileges
+     *
+     * @return int Count of direct inbox items
+     */
+    private function getDirectInboxItemCount(): int
+    {
+        $vars = [':userID' => $this->login->getUserID()];
+        $sql = 'SELECT COUNT(*) as count
+                FROM `records_workflow_state`
+                LEFT JOIN `step_dependencies` USING (`stepID`)
+                LEFT JOIN `dependency_privs` USING (`dependencyID`)
+                LEFT JOIN `users` USING (`groupID`)
+                WHERE `userID` = :userID
+                AND `active` = 1';
+
+        $res = $this->db->prepared_query($sql, $vars);
+        $count = (int)$res[0]['count'];
+
+        return $count;
+    }
+
+    /**
+     * Get count of special case inbox items (service chief, quadrad)
+     *
+     * @return int Count of special case inbox items
+     */
+    private function getSpecialCaseInboxItemCount(): int
+    {
+        $specialRecords = $this->getSpecialCaseInboxRecords();
+        $count = 0;
+
+        foreach ($specialRecords as $record) {
+            $shouldCount = $this->shouldCountSpecialRecord($record);
+
+            if ($shouldCount) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Get records with special case dependencies (service chief, quadrad)
+     *
+     * @return array Array of special case records
+     */
+    private function getSpecialCaseInboxRecords(): array
+    {
+        $vars = [];
+        $sql = 'SELECT `dependencyID`, `serviceID`
+                FROM `records_workflow_state`
+                LEFT JOIN `records` USING (`recordID`)
+                LEFT JOIN `step_dependencies` USING (`stepID`)
+                WHERE `dependencyID` IN (1, 8)';
+
+        $records = $this->db->prepared_query($sql, $vars);
+
+        return $records;
+    }
+
+    /**
+     * Determine if a special case record should be counted for the user
+     *
+     * @param array $record The record data
+     * @return bool True if record should be counted, false otherwise
+     */
+    private function shouldCountSpecialRecord(array $record): bool
+    {
+        $shouldCount = false;
+
+        if ($record['dependencyID'] == 1) {
+            $shouldCount = $this->checkServiceChiefInboxCount($record['serviceID']);
+        } elseif ($record['dependencyID'] == 8) {
+            $shouldCount = $this->checkQuadradInboxCount($record['serviceID']);
+        }
+
+        return $shouldCount;
+    }
+
+    /**
+     * Check if user is a service chief for the given service
+     *
+     * @param int $serviceID The service ID
+     * @return bool True if user is service chief, false otherwise
+     */
+    private function checkServiceChiefInboxCount(int $serviceID): bool
+    {
+        $shouldCount = $this->login->checkService($serviceID);
+
+        return $shouldCount;
+    }
+
+    /**
+     * Check if user has quadrad (executive leadership) access for the service
+     *
+     * @param int $serviceID The service ID
+     * @return bool True if user has quadrad access, false otherwise
+     */
+    private function checkQuadradInboxCount(int $serviceID): bool
+    {
+        $quadGroupIDs = $this->login->getQuadradGroupID();
+        $vars = [
+            ':quadGroupIDs' => $quadGroupIDs,
+            ':serviceID' => $serviceID
+        ];
+        $sql = 'SELECT `serviceID`
+                FROM `services`
+                WHERE `groupID` IN (:quadGroupIDs)
+                AND `serviceID` = :serviceID';
+
+        $res = $this->db->prepared_query($sql, $vars);
+        $shouldCount = isset($res[0]);
+
+        return $shouldCount;
     }
 }

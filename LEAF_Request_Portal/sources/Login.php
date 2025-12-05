@@ -303,59 +303,92 @@ class Login
         return false;
     }
 
+    /**
+     * Get quadrad group IDs for the current user
+     *
+     * @return string|int Comma-separated group IDs or 0 if none found
+     */
     public function getQuadradGroupID()
     {
-        if (isset($this->cache['getQuadradGroupID']))
-        {
-            return $this->cache['getQuadradGroupID'];
-        }
-        $var = array(':userID' => $this->userID);
-        $result = $this->userDB->prepared_query('SELECT * FROM `groups`
-                                            LEFT JOIN users USING (groupID)
-                                            WHERE parentGroupID=-1
-                                                AND userID=:userID', $var);
+        $this->cache['getQuadradGroupID'] ??= $this->fetchQuadradGroupID();
 
-        $buffer = '';
-        foreach ($result as $group)
-        {
-            $buffer .= $group['groupID'] . ',';
-        }
-        $buffer = trim($buffer, ',');
-
-        if (isset($result[0]))
-        {
-            $this->cache['getQuadradGroupID'] = $buffer;
-
-            return $buffer;
-        }
-        $this->cache['getQuadradGroupID'] = 0;
-
-        return 0;
+        return $this->cache['getQuadradGroupID'];
     }
 
-    // quadrad groupID = -1
-    public function isQuadrad()
+    /**
+     * Fetch quadrad group IDs from database
+     *
+     * @return string|int Comma-separated group IDs or 0 if none found
+     */
+    private function fetchQuadradGroupID()
     {
-        if (isset($this->cache['isQuadrad']))
-        {
-            return $this->cache['isQuadrad'];
+        $result = $this->queryQuadradGroups();
+        $groupID = $this->buildGroupIDString($result);
+
+        return $groupID;
+    }
+
+    /**
+     * Query database for quadrad groups
+     *
+     * @return array Array of group records
+     */
+    private function queryQuadradGroups(): array
+    {
+        $var = [':userID' => $this->userID];
+        $sql = 'SELECT `groupID`
+                FROM `groups`
+                LEFT JOIN `users` USING (`groupID`)
+                WHERE `parentGroupID` = -1
+                AND `userID` = :userID
+                AND `active` = 1';
+
+        $result = $this->userDB->prepared_query($sql, $var);
+
+        return $result;
+    }
+
+    /**
+     * Build comma-separated string of group IDs from query results
+     *
+     * @param array $result Array of group records
+     * @return string|int Comma-separated group IDs or 0 if empty
+     */
+    private function buildGroupIDString(array $result)
+    {
+        $groupID = 0;
+
+        if (!empty($result)) {
+            $groupIDs = array_column($result, 'groupID');
+            $groupID = implode(',', $groupIDs);
         }
 
-        $var = array(':userID' => $this->userID);
-        $result = $this->userDB->prepared_query('SELECT * FROM `groups`
-                                            LEFT JOIN users USING (groupID)
-                                            WHERE parentGroupID=-1
-                                                AND userID=:userID', $var);
+        return $groupID;
+    }
 
-        if (isset($result[0]))
-        {
-            $this->cache['isQuadrad'] = true;
+    /**
+     * Check if the current user is part of quadrad (executive leadership)
+     *
+     * @return bool True if user is quadrad, false otherwise
+     */
+    public function isQuadrad(): bool
+    {
+        $this->cache['isQuadrad'] ??= $this->checkQuadradMembership();
 
-            return true;
-        }
-        $this->cache['isQuadrad'] = false;
+        return $this->cache['isQuadrad'];
+    }
 
-        return false;
+    /**
+     * Check quadrad membership by querying groups
+     *
+     * @return bool True if user has quadrad groups, false otherwise
+     */
+    private function checkQuadradMembership(): bool
+    {
+        $result = $this->queryQuadradGroups();
+        $isQuadrad = !empty($result);
+
+        return $isQuadrad;
     }
 
     /**

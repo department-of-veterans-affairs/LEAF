@@ -285,91 +285,217 @@ class System
     }
 
     /**
-     * @param int $groupID
+     * Import a group from Orgchart into the Portal system
      *
-     * @return string
+     * @param int $groupID The group ID to import
+     * @return string Status message indicating success or failure
      */
-    public function importGroup($groupID): string
+    public function importGroup(int $groupID): string
     {
-        if (!is_numeric($groupID)) {
-            $return_value = 'Invalid Group';
-        } else if ($groupID == 1) {
-            $return_value = 'Cannot update admin group';
-        } else {
-            // clear out old data first
-            $vars = array(':groupID' => $groupID);
-            //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
-            $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
+        $result = $this->validateGroupImport($groupID);
 
-            $oc_db = OC_DB;
-            $group = new \Orgchart\Group($oc_db, $this->login);
-            $position = new \Orgchart\Position($oc_db, $this->login);
-            $employee = new \Orgchart\Employee($oc_db, $this->login);
-            $tag = new \Orgchart\Tag($oc_db, $this->login);
-
-            // find quadrad/ELT tag name
-            $upperLevelTag = $tag->getParent('service');
-            $isQuadrad = false;
-            if (array_search($upperLevelTag, $group->getAllTags($groupID)) !== false) {
-                $isQuadrad = true;
-            }
-
-            $resGroup = $group->getGroup($groupID)[0];
-            $vars = array(':groupID' => $groupID,
-                ':parentGroupID' => ($isQuadrad == true ? -1 : null),
-                ':name' => $resGroup['groupTitle'],
-                ':groupDescription' => '',);
-
-            $this->db->prepared_query('INSERT INTO `groups` (groupID, parentGroupID, name, groupDescription)
-                    					VALUES (:groupID, :parentGroupID, :name, :groupDescription)', $vars);
-
-            // build list of member employees
-            $resEmp = array();
-            $positions = $group->listGroupPositions($groupID);
-            $resEmp = $group->listGroupEmployees($groupID);
-            foreach ($positions as $tposition) {
-                $resEmp = array_merge($resEmp, $position->getEmployees($tposition['positionID']));
-            }
-
-            // clear backups in case of updates
-            $vars = array(':groupID' => $groupID);
-            $sql = 'DELETE
-                    FROM `users`
-                    WHERE `backupID` <> ""
-                    AND `groupID` = :groupID';
-
-            $this->db->prepared_query($sql, $vars);
-
-            foreach ($resEmp as $emp) {
-                if ($emp['userName'] != '') {
-                    $vars = array(':userID' => $emp['userName'],
-                        ':groupID' => $groupID,);
-
-                    $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-                                                        VALUES (:userID, :groupID, "")
-                                                        ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
-
-                    // include the backups of employees
-                    $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
-                    if ($res[0]['active'] == 1) {
-                        $backups = $employee->getBackups($emp['empUID']);
-                        foreach ($backups as $backup) {
-                            $vars = array(':userID' => $backup['userName'],
-                                ':groupID' => $groupID,
-                                ':backupID' => $emp['userName'],);
-
-                            // Add backupID check for updates
-                            $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-                                                        VALUES (:userID, :groupID, :backupID)
-                                                        ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
-                        }
-                    }
-                }
-            }
-            $return_value = "groupID: {$groupID} imported";
+        if ($result !== '') {
+            return $result;
         }
 
-        return $return_value;
+        $this->deleteExistingGroup($groupID);
+        $groupData = $this->fetchOrgchartGroupData($groupID);
+        $this->insertGroup($groupID, $groupData['isQuadrad'], $groupData['title']);
+        $this->importGroupMembers($groupID);
+
+        $result = "groupID: {$groupID} imported";
+
+        return $result;
+    }
+
+    /**
+     * Validate that a group can be imported
+     *
+     * @param int $groupID The group ID to validate
+     * @return string Empty string if valid, error message otherwise
+     */
+    private function validateGroupImport(int $groupID): string
+    {
+        $error = '';
+
+        if (!is_numeric($groupID)) {
+            $error = 'Invalid Group';
+        } elseif ($groupID == 1) {
+            $error = 'Cannot update admin group';
+        }
+
+        return $error;
+    }
+
+    /**
+     * Delete existing group data before import
+     *
+     * @param int $groupID The group ID to delete
+     * @return void
+     */
+    private function deleteExistingGroup(int $groupID): void
+    {
+        $vars = [':groupID' => $groupID];
+        $sql = 'DELETE
+                FROM `groups`
+                WHERE `groupID` = :groupID';
+
+        $this->db->prepared_query($sql, $vars);
+    }
+
+    /**
+     * Fetch group data from Orgchart
+     *
+     * @param int $groupID The group ID to fetch
+     * @return array Array with 'isQuadrad' (bool) and 'title' (string) keys
+     */
+    private function fetchOrgchartGroupData(int $groupID): array
+    {
+        $oc_db = OC_DB;
+        $group = new \Orgchart\Group($oc_db, $this->login);
+        $tag = new \Orgchart\Tag($oc_db, $this->login);
+
+        // Find quadrad/ELT tag name
+        $upperLevelTag = $tag->getParent('service');
+        $isQuadrad = (array_search($upperLevelTag, $group->getAllTags($groupID)) !== false);
+
+        $resGroup = $group->getGroup($groupID)[0];
+
+        $groupData = [
+            'isQuadrad' => $isQuadrad,
+            'title' => $resGroup['groupTitle']
+        ];
+
+        return $groupData;
+    }
+
+    /**
+     * Import all members of a group from Orgchart
+     *
+     * @param int $groupID The group ID to import members for
+     * @return void
+     */
+    private function importGroupMembers(int $groupID): void
+    {
+        $oc_db = OC_DB;
+        $group = new \Orgchart\Group($oc_db, $this->login);
+        $position = new \Orgchart\Position($oc_db, $this->login);
+
+        // Build list of member employees
+        $resEmp = $group->listGroupEmployees($groupID);
+        $positions = $group->listGroupPositions($groupID);
+
+        foreach ($positions as $tposition) {
+            $resEmp = array_merge($resEmp, $position->getEmployees($tposition['positionID']));
+        }
+
+        // Clear existing backups before adding new ones
+        $this->deleteGroupBackups($groupID);
+
+        // Import each employee and their backups
+        foreach ($resEmp as $emp) {
+            if ($emp['userName'] != '') {
+                $this->importGroupEmployee($groupID, $emp);
+            }
+        }
+    }
+
+    /**
+     * Delete all backup users for a group
+     *
+     * @param int $groupID The group ID
+     * @return void
+     */
+    private function deleteGroupBackups(int $groupID): void
+    {
+        $vars = [':groupID' => $groupID];
+        $sql = 'DELETE
+                FROM `users`
+                WHERE `backupID` <> ""
+                AND `groupID` = :groupID';
+
+        $this->db->prepared_query($sql, $vars);
+    }
+
+    /**
+     * Import a single employee into a group
+     *
+     * @param int $groupID The group ID
+     * @param array $emp The employee data
+     * @return void
+     */
+    private function importGroupEmployee(int $groupID, array $emp): void
+    {
+        // Insert the primary user
+        $vars = [
+            ':userID' => $emp['userName'],
+            ':groupID' => $groupID
+        ];
+        $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`)
+                VALUES (:userID, :groupID, "")
+                ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID';
+
+        $this->db->prepared_query($sql, $vars);
+
+        // Check if user is active before adding backups
+        $isActive = $this->isUserActive($emp['userName'], $groupID);
+
+        if ($isActive) {
+            $this->importEmployeeBackups($groupID, $emp);
+        }
+    }
+
+    /**
+     * Check if a user is active in a group
+     *
+     * @param string $userName The username
+     * @param int $groupID The group ID
+     * @return bool True if user is active, false otherwise
+     */
+    private function isUserActive(string $userName, int $groupID): bool
+    {
+        $vars = [
+            ':userID' => $userName,
+            ':groupID' => $groupID
+        ];
+        $sql = 'SELECT `active`
+                FROM `users`
+                WHERE `userID` = :userID
+                AND `groupID` = :groupID
+                AND `active` = 1';
+
+        $res = $this->db->prepared_query($sql, $vars);
+        $isActive = !empty($res);
+
+        return $isActive;
+    }
+
+    /**
+     * Import all backups for an employee
+     *
+     * @param int $groupID The group ID
+     * @param array $emp The employee data
+     * @return void
+     */
+    private function importEmployeeBackups(int $groupID, array $emp): void
+    {
+        $oc_db = OC_DB;
+        $employee = new \Orgchart\Employee($oc_db, $this->login);
+
+        $backups = $employee->getBackups($emp['empUID']);
+
+        foreach ($backups as $backup) {
+            $vars = [
+                ':userID' => $backup['userName'],
+                ':groupID' => $groupID,
+                ':backupID' => $emp['userName']
+            ];
+            $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`)
+                    VALUES (:userID, :groupID, :backupID)
+                    ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID';
+
+            $this->db->prepared_query($sql, $vars);
+        }
     }
 
     public function getServices(): array
@@ -598,7 +724,7 @@ class System
      *
      * @return array
      */
-    public function getFileList(?bool $getLastModified = false): array
+    public function getFileList(?bool $getLastModified = false): array|string
     {
         if (!$this->login->checkGroup(1))
         {
@@ -695,14 +821,19 @@ class System
      */
     public function getPrimaryAdmin()
     {
-        $primaryAdminRes = $this->db->prepared_query('SELECT * FROM `users`
-                                    WHERE `primary_admin` = 1', array());
-        $result = array();
-        if(count($primaryAdminRes))
-        {
+        $vars = [];
+        $sql = 'SELECT *
+                FROM `users`
+                WHERE `primary_admin` = 1
+                AND `active` = 1';
+
+        $primaryAdminRes = $this->db->prepared_query($sql, $vars);
+        $result = [];
+
+        if (count($primaryAdminRes)) {
             $dir = new VAMC_Directory;
             $user = $dir->lookupLogin($primaryAdminRes[0]['userID']);
-            $result = isset($user[0]) ? $user[0] : $primaryAdminRes[0]['userID'];
+            $result = $user[0] ?? $primaryAdminRes[0]['userID'];
         }
 
         return $result;
@@ -736,20 +867,30 @@ class System
     public function setPrimaryAdmin()
     {
         $vars = array(':userID' => XSSHelpers::xscrub($_POST['userID']));
+        $sql = 'SELECT *
+                FROM `users`
+                WHERE `userID` = :userID
+                AND `groupID` = 1
+                AND `active` = 1';
+
         //check if user is system admin
-        $res = $this->db->prepared_query('SELECT *
-                                            FROM `users`
-                                            WHERE `userID` = :userID
-                                            AND `groupID` = 1', $vars);
-        $resultArray = array();
-        if(count($res))
-        {
-            $this->db->prepared_query('UPDATE `users`
-    								        SET `primary_admin` = 0', array());
-            $res = $this->db->prepared_query('UPDATE `users`
-                                                SET `primary_admin` = 1
-                                                WHERE `userID` = :userID;', $vars);
-            $resultArray = array('success' => true, 'response' => $res);
+        $res = $this->db->prepared_query($sql, $vars);
+        $resultArray = [];
+
+        if (count($res) === 0) {
+            $vars2 = [];
+            $sql = 'UPDATE `users`
+    				SET `primary_admin` = 0';
+
+            $this->db->prepared_query($sql, $vars2);
+
+            $sql = 'UPDATE `users`
+                    SET `primary_admin` = 1
+                    WHERE `userID` = :userID;';
+
+            $this->db->prepared_query($sql, $vars);
+
+            $resultArray = array('success' => true, 'response' => 'Primary Admin successfully updated');
 
             $primary = $this->getPrimaryAdmin();
 
@@ -757,9 +898,7 @@ class System
                 new LogItem("users", "primary_admin", 1),
                 new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
             ]);
-        }
-        else
-        {
+        } else {
             $resultArray = array('success' => false, 'response' => $res);
         }
 
@@ -1339,7 +1478,8 @@ class System
         $sql = 'SELECT `userID`
                 FROM `users`
                 WHERE `groupID` = :groupID
-                AND `backupID` = ""';
+                AND `backupID` = ""
+                AND `active` = 1';
 
         $return_value = $this->db->pdo_select_query($sql, $vars);
 

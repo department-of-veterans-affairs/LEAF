@@ -220,34 +220,45 @@ class Login
 
     /**
      * Checks if the current user is part of a group
+     *
      * @param int $groupID Group ID number
-     * @return boolean
+     * @return bool True if user is in the group, false otherwise
      */
-    public function checkGroup($groupID)
+    public function checkGroup(int $groupID): bool
     {
-        if (!isset($this->cache['checkGroup']))
-        {
-            $var = array(':userID' => $this->userID);
-            $result = $this->userDB->prepared_query('SELECT * FROM users WHERE userID=:userID', $var);
+        $this->cache['checkGroup'] ??= $this->loadUserGroups();
 
-            foreach ($result as $group)
-            {
-                $this->cache['checkGroup'][$group['groupID']] = true;
-            }
-        }
-
-        // special case for "Everyone" groupID 2, workaround until Orgchart is more integrated
-        if ($groupID == 2)
-        {
+        // Special case for "Everyone" groupID 2, workaround until Orgchart is more integrated
+        if ($groupID == 2) {
             $this->cache['checkGroup'][2] = true;
         }
 
-        if (!isset($this->cache['checkGroup']))
-        {
-            $this->cache['checkGroup'] = array();
+        $isMember = isset($this->cache['checkGroup'][$groupID]);
+
+        return $isMember;
+    }
+
+    /**
+     * Load all groups for the current user from database
+     *
+     * @return array Array of groupID => true mappings
+     */
+    private function loadUserGroups(): array
+    {
+        $var = [':userID' => $this->userID];
+        $sql = 'SELECT `groupID`
+                FROM `users`
+                WHERE `userID` = :userID
+                AND `active` = 1';
+
+        $result = $this->userDB->prepared_query($sql, $var);
+        $groups = [];
+
+        foreach ($result as $group) {
+            $groups[$group['groupID']] = true;
         }
 
-        return isset($this->cache['checkGroup'][$groupID]);
+        return $groups;
     }
 
     /**
@@ -304,145 +315,218 @@ class Login
 
     public function getQuadradGroupID()
     {
-        if (isset($this->cache['getQuadradGroupID']))
-        {
-            return $this->cache['getQuadradGroupID'];
-        }
-        $var = array(':userID' => $this->userID);
-        $result = $this->userDB->prepared_query('SELECT * FROM `groups`
-                                            LEFT JOIN users USING (groupID)
-                                            WHERE parentGroupID=-1
-                                                AND userID=:userID', $var);
+        if (!isset($this->cache['getQuadradGroupID'])) {
+            $result = $this->queryQuadradGroups();
 
-        $buffer = '';
-        foreach ($result as $group)
-        {
-            $buffer .= $group['groupID'] . ',';
-        }
-        $buffer = trim($buffer, ',');
+            $buffer = 0;
 
-        if (isset($result[0]))
-        {
+            if (isset($result[0])) {
+                $groupIDs = array_column($result, 'groupID');
+                $buffer = implode(',', $groupIDs);
+            }
+
             $this->cache['getQuadradGroupID'] = $buffer;
-
-            return $buffer;
         }
-        $this->cache['getQuadradGroupID'] = 0;
 
-        return 0;
+        return $this->cache['getQuadradGroupID'];
     }
 
-    // quadrad groupID = -1
-    public function isQuadrad()
+    /**
+     * Check if the current user is part of quadrad (executive leadership)
+     *
+     * @return bool True if user is quadrad, false otherwise
+     */
+    public function isQuadrad(): bool
     {
-        if (isset($this->cache['isQuadrad']))
-        {
-            return $this->cache['isQuadrad'];
-        }
+        $this->cache['isQuadrad'] ??= $this->checkQuadradMembership();
 
-        $var = array(':userID' => $this->userID);
-        $result = $this->userDB->prepared_query('SELECT * FROM `groups`
-                                            LEFT JOIN users USING (groupID)
-                                            WHERE parentGroupID=-1
-                                                AND userID=:userID', $var);
+        return $this->cache['isQuadrad'];
+    }
 
-        if (isset($result[0]))
-        {
-            $this->cache['isQuadrad'] = true;
+    /**
+     * Check quadrad membership by querying groups
+     *
+     * @return bool True if user has quadrad groups, false otherwise
+     */
+    private function checkQuadradMembership(): bool
+    {
+        $result = $this->queryQuadradGroups();
+        $isQuadrad = !empty($result);
 
-            return true;
-        }
-        $this->cache['isQuadrad'] = false;
+        return $isQuadrad;
+    }
 
-        return false;
+    /**
+     * Query database for quadrad groups
+     *
+     * @return array Array of group records
+     */
+    private function queryQuadradGroups(): array
+    {
+        $var = [':userID' => $this->userID];
+        $sql = 'SELECT `groupID`
+                FROM `groups`
+                LEFT JOIN `users` USING (`groupID`)
+                WHERE `parentGroupID` = -1
+                AND `userID` = :userID
+                AND `active` = 1';
+
+        $result = $this->userDB->prepared_query($sql, $var);
+
+        return $result;
     }
 
     /**
      * Retrieves the positions and groups the current user is a member of
-     * @return array
+     *
+     * @return array Array containing membership information (positionID, empUID, groupID, inheritsFrom)
      */
-    public function getMembership()
+    public function getMembership(): array
     {
         $empUID = (int)$this->empUID;
+        $cacheKey = "getMembership_{$empUID}";
 
-        if (isset($this->cache['getMembership_' . $empUID]))
-        {
-            return $this->cache['getMembership_' . $empUID];
+        $this->cache[$cacheKey] ??= $this->buildMembership($empUID);
+
+        return $this->cache[$cacheKey];
+    }
+
+    /**
+     * Build complete membership information for a user
+     *
+     * @param int $empUID The employee UID
+     * @return array Complete membership information
+     */
+    private function buildMembership(int $empUID): array
+    {
+        $membership = [];
+
+        // Get backup relationships and build employee list
+        $backupEmployees = $this->getBackupEmployees($empUID);
+        $employeeList = $this->buildEmployeeList($empUID, $backupEmployees);
+
+        if (!empty($backupEmployees)) {
+            $membership['inheritsFrom'] = $backupEmployees;
         }
 
-        $membership = array();
-        // inherit permissions if employee is a backup for someone else
-        $vars = array(':empUID' => $empUID);
-        $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
-                                            WHERE backupEmpUID=:empUID
-        										AND approved=1', $vars);
-        $temp = (int)$empUID;
-        if (count($res) > 0)
-        {
-            foreach ($res as $item)
-            {
-                $var = (int)$item['empUID'];
-                $temp .= ",{$var}";
-                $membership['inheritsFrom'][] = $var;
-            }
-            $vars = array(':empUID' => $temp);
+        // Get positions for all employees
+        $positions = $this->getPositionsForEmployees($employeeList);
+        if (!empty($positions)) {
+            $membership['positionID'] = $positions;
         }
 
-        $res = $this->db->prepared_query("SELECT positionID, empUID,
-                                                relation_group_employee.groupID as employee_groupID,
-                                                relation_group_position.groupID as position_groupID FROM employee
-                                            LEFT JOIN relation_position_employee USING (empUID)
-                                            LEFT JOIN relation_group_employee USING (empUID)
-                                            LEFT JOIN relation_group_position USING (positionID)
-                                            WHERE empUID IN ({$temp})", array());
-        if (count($res) > 0)
-        {
-            foreach ($res as $item)
-            {
-                if (isset($item['positionID']))
-                {
-                    $membership['positionID'][$item['positionID']] = 1;
-                }
-                /*	            if(isset($item['employee_groupID'])) {
-                                    $membership['groupID'][$item['employee_groupID']] = 1;
-                                }
-                                if(isset($item['position_groupID'])) {
-                                    $membership['groupID'][$item['position_groupID']] = 1;
-                                }*/
-            }
-        }
+        // Add current employee
         $membership['employeeID'][$empUID] = 1;
         $membership['empUID'][$empUID] = 1;
 
-        // incorporate groups from local DB
-        $vars = array(':userName' => $this->userID);
-        $res = $this->userDB->prepared_query('SELECT * FROM users
-												WHERE userID = :userName', $vars);
-        if (count($res) > 0)
-        {
-            foreach ($res as $item)
-            {
-                $membership['groupID'][$item['groupID']] = 1;
-            }
-        }
-        $vars = array(':userName' => $this->userID);
-        $res = $this->userDB->prepared_query('SELECT * FROM service_chiefs
-												WHERE userID = :userName
-													AND active=1', $vars);
-        if (count($res) > 0)
-        {
-            foreach ($res as $item)
-            {
-                $membership['groupID'][$item['serviceID']] = 1;
-            }
+        // Get user groups
+        $userGroups = $this->loadUserGroups();
+        $membership['groupID'] = $userGroups;
+
+        // Get service chief groups
+        $serviceChiefGroups = $this->getServiceChiefGroups();
+        foreach ($serviceChiefGroups as $serviceID => $value) {
+            $membership['groupID'][$serviceID] = $value;
         }
 
         // Add special membership groups
         $membership['groupID'][2] = 1;    // groupID 2 = "Everyone"
 
-        $this->cache['getMembership_' . $empUID] = $membership;
+        return $membership;
+    }
 
-        return $this->cache['getMembership_' . $empUID];
+    /**
+     * Get employees that the current user is a backup for
+     *
+     * @param int $empUID The employee UID
+     * @return array Array of employee UIDs
+     */
+    private function getBackupEmployees(int $empUID): array
+    {
+        $vars = [':empUID' => $empUID];
+        $sql = 'SELECT `empUID`
+                FROM `relation_employee_backup`
+                WHERE `backupEmpUID` = :empUID
+                AND `approved` = 1';
+
+        $res = $this->db->prepared_query($sql, $vars);
+        $backupEmployees = [];
+
+        foreach ($res as $item) {
+            $backupEmployees[] = (int)$item['empUID'];
+        }
+
+        return $backupEmployees;
+    }
+
+    /**
+     * Build comma-separated list of employee UIDs including backups
+     *
+     * @param int $empUID The primary employee UID
+     * @param array $backupEmployees Array of backup employee UIDs
+     * @return string Comma-separated employee UIDs
+     */
+    private function buildEmployeeList(int $empUID, array $backupEmployees): string
+    {
+        $employeeList = (string)$empUID;
+
+        foreach ($backupEmployees as $backupEmpUID) {
+            $employeeList .= ",{$backupEmpUID}";
+        }
+
+        return $employeeList;
+    }
+
+    /**
+     * Get positions for a list of employees
+     *
+     * @param string $employeeList Comma-separated employee UIDs
+     * @return array Array of positionID => 1 mappings
+     */
+    private function getPositionsForEmployees(string $employeeList): array
+    {
+        $vars = [];
+        $sql = "SELECT `positionID`, `empUID`, `rge`.`groupID` as `employee_groupID`,
+                    `rgp`.`groupID` as `position_groupID`
+                FROM `employee`
+                LEFT JOIN `relation_position_employee` `rpe` USING (`empUID`)
+                LEFT JOIN `relation_group_employee` `rge` USING (`empUID`)
+                LEFT JOIN `relation_group_position` `rgp` USING (`positionID`)
+                WHERE `empUID` IN ({$employeeList})";
+
+        $res = $this->db->prepared_query($sql, $vars);
+        $positions = [];
+
+        foreach ($res as $item) {
+            if (isset($item['positionID'])) {
+                $positions[$item['positionID']] = 1;
+            }
+        }
+
+        return $positions;
+    }
+
+    /**
+     * Get service chief groups for the current user
+     *
+     * @return array Array of serviceID => 1 mappings
+     */
+    private function getServiceChiefGroups(): array
+    {
+        $vars = [':userName' => $this->userID];
+        $sql = 'SELECT `serviceID`
+                FROM `service_chiefs`
+                WHERE `userID` = :userName
+                AND `active` = 1';
+
+        $res = $this->userDB->prepared_query($sql, $vars);
+        $serviceGroups = [];
+
+        foreach ($res as $item) {
+            $serviceGroups[$item['serviceID']] = 1;
+        }
+
+        return $serviceGroups;
     }
 
     private function setSession()

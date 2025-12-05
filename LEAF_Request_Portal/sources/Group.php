@@ -221,23 +221,21 @@ class Group
                 )
             );
         } else {
-            if ($all) {
-                $groupBy = '';
-            } else {
-                $groupBy = 'GROUP BY `userID`';
-            }
+            $groupBy = $all ? '' : 'GROUP BY `userID`';
 
-            $vars = array(':groupID' => $groupID);
-            $sql = 'SELECT `userID`, `groupID`, `backupID`, `primary_admin`,
+            $vars = [':groupID' => $groupID];
+            $sql = "SELECT `userID`, `groupID`, `backupID`, `primary_admin`,
                         `locallyManaged`, `active`
                     FROM `users`
                     WHERE `groupID` = :groupID
-                    ' . $groupBy . '
-                    ORDER BY `userID`';
+                    AND `active` = 1
+                    {$groupBy}
+                    ORDER BY `userID`";
 
             $res = $this->db->pdo_select_query($sql, $vars);
 
-            $members = array();
+            $members = [];
+
             if ($res['status']['code'] == 2) {
                 $dir = new VAMC_Directory();
 
@@ -379,8 +377,7 @@ class Group
      */
     public function deactivateMember($member, $groupID): void
     {
-        if (is_numeric($groupID) && $member != '')
-        {
+        if (is_numeric($groupID) && $member != '') {
             $vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
 
@@ -389,14 +386,17 @@ class Group
                 new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
-            $sql = 'SELECT userID, groupID, locallyManaged FROM `users`
+            $sql = 'SELECT `userID`, `groupID`, `locallyManaged`
+                    FROM `users`
                     WHERE `userID` = :userID
-                        AND `groupID` = :groupID
-                        AND locallyManaged = 1';
+                    AND `groupID` = :groupID
+                    AND `locallyManaged` = 1
+                    AND `acitve` = 1';
 
             $res = $this->db->prepared_query($sql, $vars);
+
             // If the users are locally managed, we can simply delete them
-            if(count($res) > 0) {
+            if (count($res) > 0) {
                 $sql = 'DELETE FROM `users`
                         WHERE `userID` = :userID
                         AND `groupID` = :groupID';
@@ -408,9 +408,7 @@ class Group
                         AND `groupID` = :groupID';
 
                 $this->db->prepared_query($sql, $vars);
-            }
-            // otherwise we flag it as a local override
-            else {
+            } else {
                 $sql = 'UPDATE `users`
                         SET `active` = 0,
                         `locallyManaged` = 1
@@ -670,6 +668,13 @@ class Group
      */
     public function getAllUsers(): array|bool
     {
-        return $this->db->prepared_query('SELECT * FROM users WHERE groupID > 1 ORDER BY userID', array());
+        $vars = [];
+        $sql = 'SELECT *
+                FROM `users`
+                WHERE `groupID` > 1
+                AND `active` = 1
+                ORDER BY `userID`';
+
+        return $this->db->prepared_query($sql, $vars);
     }
 }
