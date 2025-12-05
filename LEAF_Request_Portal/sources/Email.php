@@ -635,7 +635,7 @@ class Email
                     break;
                 case "fileupload":
                 case "image":
-                    $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
+                    $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"], $recordID);
                     break;
                 case "orgchart_group":
                     if(is_numeric($data)) {
@@ -712,7 +712,7 @@ class Email
         return array("content" => $formattedData, "to_cc_content" => $formattedEmails);
     }
 
-    private function buildFileLink(string $data, string $id, string $series): string
+    private function buildFileLink(string $data, string $id, string $series, int $recordID): string
     {
         // split the file names out into an array
         $data = explode("\n", $data);
@@ -720,7 +720,7 @@ class Email
 
         // parse together the links to each file
         foreach($data as $index => $file) {
-            $buffer[] = "<a href=\"{$this->siteRoot}file.php?form={$this->recordID}&id={$id}&series={$series}&file={$index}\">{$file}</a>";
+            $buffer[] = "<a href=\"{$this->siteRoot}file.php?form={$recordID}&id={$id}&series={$series}&file={$index}\">{$file}</a>";
         }
 
         // separate the links by comma
@@ -735,7 +735,7 @@ class Email
      */
     private function getGroupInfoForTemplate(int $groupID, $loggedInUser): array
     {
-        $group = new Group($this->db, $loggedInUser);
+        $group = new Group($this->portal_db, $loggedInUser);
         $groupName = $group->getGroupName($groupID);
         $groupMembers = $group->getMembers($groupID)['data'] ?? [];
         $userEmails = array_column($groupMembers, 'email') ?? [];
