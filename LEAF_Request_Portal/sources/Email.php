@@ -1062,7 +1062,6 @@ class Email
                     "comment" => $comment
                 ));
                 $this->getAndAddFields($recordID, $loggedInUser);
-                $this->processPriorStepsEmailed($this->getPriorStepsEmailed($recordID));
 
                 $authorMetadata = json_decode($recordInfo[0]['userMetadata'], true);
                 $authorEmail = trim($authorMetadata['email'] ?? '');
@@ -1070,6 +1069,7 @@ class Email
                     $this->addRecipient($authorEmail);
                 }
                 $this->setTemplateByID($emailTemplateID);
+                $this->processPriorStepsEmailed($this->getPriorStepsEmailed($recordID));
                 $this->sendMail($recordID);
             }
         } elseif ($emailTemplateID > 1) {
