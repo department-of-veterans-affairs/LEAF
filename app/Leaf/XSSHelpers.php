@@ -322,71 +322,55 @@ class XSSHelpers
     {
         $pattern = "/[\/\:\*\?\"\<\>\|\\\]*/";
 
-        return preg_replace($pattern, "" , (string) $stringToSanitize );
-    }
+        // Remove invalid characters
+        $sanitized = preg_replace($pattern, "", (string) $stringToSanitize);
 
-    /**
-     * This is intented to be used after scrubFilename. scrubFileName removes
-     * /'s so that traversal of directories won't happen. But it's possible then
-     * to have filenames with ..fileName.txt or ....fileName.txt. This method
-     * is an attempt to allow files to still be added but in the correct directory
-     * and with a normal file name.
-     *
-     * @param string $stringToSanitize
-     *
-     * @return array|string|null
-     *
-     */
-    public static function removeMultipleDots(string $stringToSanitize = ''): array|string|null
-    {
         // Replace multiple consecutive dots with a single dot
-        return preg_replace('/\.{2,}/', '.', (string) $stringToSanitize);
+        return preg_replace('/\.{2,}/', '.', $sanitized);
     }
 
     /**
-     * Validates that a file path is within the allowed directory
-     * Prevents path traversal attacks by ensuring the resolved path
-     * stays within the specified allowed directory
+     * Validates that a file path is within an allowed directory and prevents path traversal attacks.
      *
-     * @param string $filePath The file path to validate
-     * @param string $allowedDirectory The directory that the file must be within
-     * @return bool True if the path is safe, false otherwise
+     * This method resolves both the file path and allowed directory to their canonical absolute paths
+     * and verifies they match exactly. This prevents malicious paths like "../../../etc/passwd" or
+     * symlink attacks from accessing files outside the allowed directory.
      *
-     * Example usage:
-     *   $uploadDir = realpath('/var/www/uploads');
-     *   $userFile = $uploadDir . '/' . $_POST['filename'];
-     *   if (XSSHelpers::isPathSafe($userFile, $uploadDir)) {
-     *       // Safe to use $userFile
-     *   }
+     * @param string $filePath The full path to the file being validated (file may not exist yet)
+     * @param string $allowedDirectory The absolute path to the directory where files are permitted
+     *
+     * @return bool True if the file's directory matches the allowed directory, false otherwise
+     *
+     * @example
+     * // Valid: file in allowed directory
+     * isPathSafe('/var/www/uploads/document.pdf', '/var/www/uploads'); // true
+     *
+     * // Invalid: path traversal attempt
+     * isPathSafe('/var/www/uploads/../../../etc/passwd', '/var/www/uploads'); // false
+     *
+     * // Invalid: allowed directory doesn't exist
+     * isPathSafe('/var/www/uploads/file.pdf', '/nonexistent/path'); // false
      */
     public static function isPathSafe(string $filePath, string $allowedDirectory): bool
     {
         $isValid = false;
 
+        // Ensure no trailing slash on allowed directory for consistent comparison
+        $allowedDirectory = rtrim($allowedDirectory, '/\\');
+
         // Resolve the allowed directory to its canonical absolute path
         $realAllowedPath = realpath($allowedDirectory);
 
         // If the allowed directory doesn't exist, it's not safe
-        if ($realAllowedPath === false) {
-            return false;
-        }
+        if ($realAllowedPath !== false) {
+            // Always check the directory the file is in, not the file itself
+            $fileDirectory = dirname($filePath);
+            $realPath = realpath($fileDirectory);
 
-        // Try to resolve the file path
-        $realPath = realpath($filePath);
-
-        // If file doesn't exist yet, check the directory it would be in
-        if ($realPath === false) {
-            $realPath = realpath(dirname($filePath));
-
-            // If the parent directory doesn't exist either, check grandparent
-            if ($realPath === false) {
-                $realPath = realpath(dirname(dirname($filePath)));
+            // Ensure the resolved paths match exactly
+            if ($realPath === $realAllowedPath) {
+                $isValid = true;
             }
-        }
-
-        // Ensure the resolved path starts with the allowed directory
-        if ($realPath !== false && strpos($realPath, $realAllowedPath) === 0) {
-            $isValid = true;
         }
 
         return $isValid;

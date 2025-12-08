@@ -54,7 +54,6 @@ class EmailTemplate
             $return_value = 'Admin access required';
         } else {
             $template = XSSHelpers::scrubFilename($template);
-            $template = XSSHelpers::removeMultipleDots($template);
 
             $return_value = array();
 
@@ -90,7 +89,6 @@ class EmailTemplate
             $return_value = 'Admin access required';
         } else {
             $template = XSSHelpers::scrubFilename($template);
-            $template = XSSHelpers::removeMultipleDots($template);
 
             $list = $this->getEmailAndSubjectTemplateList();
             $return_value = array();
@@ -220,7 +218,6 @@ class EmailTemplate
             $return_value = 'Admin access required';
         } else {
             $template = XSSHelpers::scrubFilename($template);
-            $template = XSSHelpers::removeMultipleDots($template);
 
             $list = $this->getEmailAndSubjectTemplateList();
             $validTemplate = $this->isEmailTemplateValid($template, $list);
@@ -258,7 +255,6 @@ class EmailTemplate
                         $currentTemplate['subjectFile'] !== $_POST['subjectFile']
                     ) {
                         $subjectFileName = XSSHelpers::scrubFilename($_POST['subjectFileName']);
-                        $subjectFileName = XSSHelpers::removeMultipleDots($subjectFileName);
 
                         if ($this->isValidTemplateExtension($subjectFileName)) {
                             $filePath = $baseDir . '/' . $subjectFileName;
@@ -289,7 +285,6 @@ class EmailTemplate
                         $currentTemplate['emailToFile'] !== $_POST['emailToFile']
                     ) {
                         $emailToFileName = XSSHelpers::scrubFilename($_POST['emailToFileName']);
-                        $emailToFileName = XSSHelpers::removeMultipleDots($emailToFileName);
 
                         if ($this->isValidTemplateExtension($emailToFileName)) {
                             $filePath = $baseDir . '/' . $emailToFileName;
@@ -320,7 +315,6 @@ class EmailTemplate
                         $currentTemplate['emailCcFile'] !== $_POST['emailCcFile']
                     ) {
                         $emailCcFileName = XSSHelpers::scrubFilename($_POST['emailCcFileName']);
-                        $emailCcFileName = XSSHelpers::removeMultipleDots($emailCcFileName);
 
                         if ($this->isValidTemplateExtension($emailCcFileName)) {
                             $filePath = $baseDir . '/' . $emailCcFileName;
@@ -445,7 +439,6 @@ class EmailTemplate
     private function getTemplateFilePath(string $fileName): string
     {
         $fileName = XSSHelpers::scrubFilename($fileName);
-        $fileName = XSSHelpers::removeMultipleDots($fileName);
 
         if (!$this->isValidTemplateExtension($fileName)) {
             throw new \Exception('Invalid template file extension');
@@ -498,7 +491,6 @@ class EmailTemplate
                     }
 
                     $subjectFileName = XSSHelpers::scrubFilename($_REQUEST['subjectFileName']);
-                    $subjectFileName = XSSHelpers::removeMultipleDots($subjectFileName);
 
                     if ($subjectFileName != '') {
                         $subjectPath = $baseDir . '/' . $subjectFileName;
@@ -509,7 +501,6 @@ class EmailTemplate
                     }
 
                     $emailToFileName = XSSHelpers::scrubFilename($_REQUEST['emailToFileName']);
-                    $emailToFileName = XSSHelpers::removeMultipleDots($emailToFileName);
 
                     if ($emailToFileName != '') {
                         $emailToPath = $baseDir . '/' . $emailToFileName;
@@ -521,7 +512,6 @@ class EmailTemplate
                     }
 
                     $emailCcFileName = XSSHelpers::scrubFilename($_REQUEST['emailCcFileName']);
-                    $emailCcFileName = XSSHelpers::removeMultipleDots($emailCcFileName);
 
                     if ($emailCcFileName != '') {
                         $emailCcPath = $baseDir . '/' . $emailCcFileName;
