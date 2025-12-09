@@ -1,7 +1,7 @@
 var LeafPreview = function(domID) {
     let numSection = 1;
     let rawForm = {};
-    let LEAF_NEXUS_URL = 'https://LEAF_NEXUS_URL/';
+    let LEAF_DOMAIN = 'https://LEAF_DOMAIN/';
 
     $('#' + domID).html('');
 
@@ -16,7 +16,7 @@ var LeafPreview = function(domID) {
     }
     function renderField(field, isChild) {
         const required = field.required == 1 ? '<span style="color:#b00;">* Required</span>': '';
-        const sensitive = field.is_sensitive == 1 ? '<span style="color:#b00;">* Sensitive</span>': '';
+        const sensitive = field.is_sensitive == 1 ? '<span class="sensitiveIndicator" style="color:#b00;">* Sensitive</span>': '';
         const labelledById = `leaf_library_preview_${field.indicatorID}`;
         const inputId = `leaf_library_input_${field.indicatorID}`;
         const indName = decodeHTMLEntities(field.name);
@@ -112,7 +112,7 @@ var LeafPreview = function(domID) {
     function load(recordID, indicatorID, fileID, callback) {
     	$.ajax({
         	type: 'GET',
-            url: LEAF_NEXUS_URL + 'LEAF/library/file.php?form='+ recordID +'&id='+ indicatorID +'&series=1&file=' + fileID,
+            url: LEAF_DOMAIN + 'LEAF/library/file.php?form='+ recordID +'&id='+ indicatorID +'&series=1&file=' + fileID,
             dataType: 'json',
             xhrFields: {withCredentials: true},
             success: function(res) {
@@ -134,6 +134,6 @@ var LeafPreview = function(domID) {
         load: load,
         renderSection,
         getRawForm: function() { return rawForm; },
-        setNexusURL: function(url) { LEAF_NEXUS_URL = url; }
+        setLeafDomain: function(url) { LEAF_DOMAIN = url; }
     };
 }

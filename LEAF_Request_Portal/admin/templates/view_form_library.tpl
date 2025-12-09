@@ -47,7 +47,7 @@ function showPreview(recordID) {
 	dialog_simple.show();
 
     preview = new LeafPreview('preview');
-    preview.setNexusURL('<!--{$LEAF_DOMAIN}-->');
+    preview.setLeafDomain('<!--{$LEAF_DOMAIN}-->');
     preview.load(recordID, 1, 0);
 
     $('#btn_download').one('click', function() {
