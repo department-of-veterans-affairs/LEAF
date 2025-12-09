@@ -73,6 +73,8 @@ switch ($action) {
             {
                 $o_login = $t_login->fetch('login.tpl');
 
+                $powerQueryURL = "https://" . AUTH_URL . "/report_auth.php?r=";
+
                 $t_form = new \Smarty;
                 $t_form->left_delimiter = '<!--{';
                 $t_form->right_delimiter = '}-->';
@@ -80,6 +82,7 @@ switch ($action) {
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('empUID', $oc_login->getEmpUID());
                 $t_form->assign('empMembership', $oc_login->getMembership());
+                $t_form->assign('powerQueryURL', $powerQueryURL);
 
                 //url
                 // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
