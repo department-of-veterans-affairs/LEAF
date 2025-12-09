@@ -92,7 +92,8 @@ function loadContent(file) {
 	currentFile = file;
 	$('#codeContainer').css('display', 'none');
 	$('#controls').css('visibility', 'visible');
-    if(file == 'example') {
+    if(file == 'example'
+		|| file.substring(0, 5) == 'LEAF_') {
     	$('#controls').css('visibility', 'hidden');
     }
 

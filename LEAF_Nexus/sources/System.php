@@ -133,11 +133,21 @@ class System
         return $out;
     }
 
+    private function isReservedFilename($file)
+    {
+        if($file == 'example'
+            || substr($file, 0, 5) == 'LEAF_'
+        ) {
+            return true;
+        }
+        return false;
+    }
+
     public function newReportTemplate($in)
     {
         $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
         if ($template != $in
-                || $template == 'example'
+                || $this->isReservedFilename($template)
                 || $template == '')
         {
             return 'Invalid or reserved name.';
@@ -193,9 +203,9 @@ class System
     {
         $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
         if ($template != $in
-                || $template == 'example')
+                || $this->isReservedFilename($in))
         {
-            return 0;
+            return 'Cannot modify reserved templates';
         }
         $template .= '.tpl';
         $memberships = $this->login->getMembership();
@@ -215,9 +225,9 @@ class System
     {
         $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
         if ($template != $in
-                || $template == 'example')
+                || $this->isReservedFilename($template))
         {
-            return 0;
+            return 'Cannot remove reserved templates';
         }
         $template .= '.tpl';
         $memberships = $this->login->getMembership();
