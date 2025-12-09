@@ -117,6 +117,9 @@ switch ($action) {
             $t_form->assign('app_css_path', APP_CSS_PATH);
             $t_form->assign('app_js_path', APP_JS_PATH);
 
+            $powerQueryURL = "https://" . AUTH_URL . "/report_auth.php?r=";
+            $t_form->assign('powerQueryURL', $powerQueryURL);
+
             $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
             $tabText = '';
         }
