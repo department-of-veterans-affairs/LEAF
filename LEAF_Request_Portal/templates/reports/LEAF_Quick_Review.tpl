@@ -251,7 +251,7 @@ async function setupProposals(stepID) {
     }
 
     // prep data for column customization
-    let resFieldData = await fetch(`./api/form/indicator/list?x-filterData=indicatorID,name,description,format,categoryID,categoryName`).then(res => res.json());
+    let resFieldData = await fetch(`./api/form/indicator/list?x-filterData=indicatorID,name,description,format,categoryID,parentCategoryID,categoryName`).then(res => res.json());
 
     // add indexes
     let fieldData = {};
@@ -350,7 +350,9 @@ async function setupProposals(stepID) {
         temp = `<optgroup label="${form}">`;
         fieldsByForm[form].forEach(field => {
             // skip non-applicable fields
-            if(unabridgedCategories[field.categoryID] == undefined) {
+            if(unabridgedCategories[field.categoryID] == undefined &&
+                unabridgedCategories[field.parentCategoryID] == undefined
+            ) {
                 return;
             }
             hasFields = true;
