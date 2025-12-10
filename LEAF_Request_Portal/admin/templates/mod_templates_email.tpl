@@ -274,6 +274,7 @@
     let ignoreUnsavedChanges = false;
     let ignorePrompt = true;
     let indicatorFormats = {};
+    let customLookup = {};
     const allowedToCcFormats = {
         "orgchart_employee": 1,
         "orgchart_group": 1,
@@ -509,6 +510,8 @@
                     if (res !== null) {
                         alert(res);
                     } else {
+                        const baseName = currentFile.replace('_body.tpl', '');
+                        customLookup[baseName] = true;
                         const time = new Date().toLocaleTimeString();
                         $('.saveStatus').html('<br /> Last saved: ' + time);
                         currentFileContent = data;
@@ -587,6 +590,8 @@
                     'CSRFToken': '<!--{$CSRFToken}-->'
                 }),
                 success: function() {
+                    const baseName = currentFile.replace('_body.tpl', '');
+                    customLookup[baseName] = false;
                     const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button'))?.length;
                     if(numRecords === 0) {
                         saveFileHistory();
@@ -1050,7 +1055,9 @@
                 }
 
                 checkFieldEntries();
-                if (res?.modified === 1) {
+
+                const hasCustomContent = customTemplateFileExists(currentFile, customLookup);
+                if (hasCustomContent === true) {
                     $('#restore_original, #btn_compare').addClass('modifiedTemplate');
                     $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
                 } else {
@@ -1602,6 +1609,10 @@
         }
     }
 
+    function customTemplateFileExists(bodyname = '', customTemplatesLookup = {}) {
+        const baseName = bodyname.replace('_body.tpl', '');
+        return customTemplatesLookup?.[baseName] === true;
+    }
 
     //loads components when the document loads
     $(document).ready(function() {
@@ -1652,6 +1663,15 @@
                     url: '../api/emailTemplates/custom',
                     dataType: 'json',
                     success: function (customTemplates) { //array of file names in templates/email/custom_override
+                        customTemplates.forEach(filename => {
+                            const baseName = filename
+                            .replace('_body.tpl', '')
+                            .replace('_subject.tpl', '')
+                            .replace('_emailTo.tpl', '')
+                            .replace('_emailCc.tpl', '');
+                            customLookup[baseName] = true;
+                        });
+
                         let customClass = '';
                         let selectedAttr = '';
 
@@ -1666,7 +1686,8 @@
                                 filesMobile += '<optgroup label="Custom Events">';
 
                                 userTemplates.forEach(t => {
-                                    customClass = customTemplates.includes(t.fileName) ? ' class="custom_file"' : '';
+                                    const hasCustomContent = customTemplateFileExists(t.fileName, customLookup);
+                                    customClass = hasCustomContent ? ' class="custom_file"' : '';
                                     selectedAttr = t.fileName === currentFile ? ' selected' : '';
 
                                     // Construct the li element for non-mobile buffer
@@ -1688,7 +1709,8 @@
                             filesMobile += `<optgroup label="Standard Events">`;
 
                             standardTemplates.forEach(t => {
-                                customClass = customTemplates.includes(t.fileName) ? ' class="custom_file"' : '';
+                                const hasCustomContent = customTemplateFileExists(t.fileName, customLookup);
+                                customClass = hasCustomContent ? ' class="custom_file"' : '';
                                 selectedAttr = t.fileName === currentFile ? ' selected' : '';
 
                                 // Construct the li element for non-mobile buffer
@@ -1713,6 +1735,12 @@
 
                         $('#fileList').html(buffer);
                         $('.filesMobile').html(filesMobile);
+
+                        const hasCustomContent = customTemplateFileExists(currentFile, customLookup);
+                        if (hasCustomContent === true) {
+                            $('#restore_original, #btn_compare').addClass('modifiedTemplate');
+                            $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
+                        }
 
                         // Attach onchange event handler to templateFiles select element (mobile nav)
                         $('.template_select_container').on('change', function (event) {
