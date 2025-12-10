@@ -372,27 +372,32 @@ switch ($action) {
 
         break;
     case 'formLibrary':
-          $t_form = new Smarty;
-           $t_form->left_delimiter = '<!--{';
-           $t_form->right_delimiter = '}-->';
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
 
-           $main->assign('useUI', true);
+        $main->assign('useUI', true);
+        $main->assign('javascripts', array(
+            '../js/formGrid.js',
+            '../js/formQuery.js',
+            '../js/formQuery.js',
+            '../js/formSearch.js',
+            '../js/LeafPreview.js',
+            APP_JS_PATH . '/LEAF/XSSHelpers.js',
+        ));
 
-           if ($login->checkGroup(1))
-           {
-               $t_form->assign('LEAF_DOMAIN', LEAF_DOMAIN);
-               $t_form->assign('app_js_path', APP_JS_PATH);
+        if ($login->checkGroup(1)) {
+            $t_form->assign('LEAF_DOMAIN', LEAF_DOMAIN);
+            $t_form->assign('app_js_path', APP_JS_PATH);
 
-               $main->assign('body', $t_form->fetch('view_form_library.tpl'));
-           }
-           else
-           {
-               $main->assign('body', 'You require System Administrator level access to view this section.');
-           }
+            $main->assign('body', $t_form->fetch('view_form_library.tpl'));
+        } else {
+            $main->assign('body', 'You require System Administrator level access to view this section.');
+        }
 
-           $tabText = 'LEAF Library';
+        $tabText = 'LEAF Library';
 
-           break;
+        break;
     case 'importForm':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
