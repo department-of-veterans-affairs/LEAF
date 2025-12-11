@@ -614,6 +614,15 @@ class Email
 
             $format = trim(strtolower(explode(PHP_EOL, $field["format"])[0] ?? ""));
             switch($format) {
+                case "text":
+                case "number":
+                case "currency":
+                case "date":
+                    $data = strip_tags($data);
+                    break;
+                case "textarea":
+                    $data = XSSHelpers::sanitizeHTML($data);
+                    break;
                 case "grid":
                     if(!empty($data) && is_array(unserialize($data))){
                         $data = $this->buildGrid(unserialize($data));
@@ -631,11 +640,13 @@ class Email
                 case "dropdown":
                     if ($data == "no") {
                         $data = "";
+                    } else {
+                        $data = strip_tags($data);
                     }
                     break;
                 case "fileupload":
                 case "image":
-                    $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"], $recordID);
+                    $data = $this->buildFileLink(strip_tags($data), (int) $field["indicatorID"], (int) $field["series"], $recordID);
                     break;
                 case "orgchart_group":
                     if(is_numeric($data)) {
@@ -653,6 +664,7 @@ class Email
                     $emailValue = $employeeData["employeeEmail"];
                     break;
                 default:
+                $data = strip_tags($data);
                 break;
             }
 
@@ -680,7 +692,8 @@ class Email
 
         foreach($headers as $header) {
             if ($header !== " ") {
-                $grid .= "<th style=\"border: 1px solid #000; background: #e0e0e0; padding: 6px;font-size: 11px; font-family: verdana; text-align: center; width: 100px; \">{$header}</th>";
+                $sHeader = strip_tags($header);
+                $grid .= "<th style=\"border: 1px solid #000; background: #e0e0e0; padding: 6px;font-size: 11px; font-family: verdana; text-align: center; width: 100px; \">{$sHeader}</th>";
             }
         }
         $grid .= "</tr>";
@@ -688,7 +701,8 @@ class Email
         foreach($cells as $row) {
             $grid .= "<tr>";
             foreach($row as $column) {
-                $grid .= "<td  style=\"border: 1px solid #000; background: #fff; padding: 6px;font-size: 11px; font-family: verdana; text-align: center; \">{$column}</td>";
+                $sColumn = strip_tags($column);
+                $grid .= "<td  style=\"border: 1px solid #000; background: #fff; padding: 6px;font-size: 11px; font-family: verdana; text-align: center; \">{$sColumn}</td>";
             }
             $grid .= "</tr>";
         }
@@ -705,14 +719,14 @@ class Email
         $formattedData = "<ul>";
         $formattedEmails = "";
         foreach($data as $item) {
-            $formattedData .= "<li>".$item."</li>";
-            $formattedEmails .= $item."\r\n";
+            $formattedData .= "<li>". strip_tags($item) ."</li>";
+            $formattedEmails .= strip_tags($item) . "\r\n";
         }
         $formattedData .= "</ul>";
         return array("content" => $formattedData, "to_cc_content" => $formattedEmails);
     }
 
-    private function buildFileLink(string $data, string $id, string $series, int $recordID): string
+    private function buildFileLink(string $data, int $id, int $series, int $recordID): string
     {
         // split the file names out into an array
         $data = explode("\n", $data);
