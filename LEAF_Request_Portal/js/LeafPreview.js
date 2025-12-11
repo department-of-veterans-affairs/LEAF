@@ -1,9 +1,11 @@
 var LeafPreview = function(domID) {
     let numSection = 1;
     let rawForm = {};
-    let LEAF_NEXUS_URL = 'https://LEAF_NEXUS_URL/';
-
-    $('#' + domID).html('');
+    let LEAF_DOMAIN = 'https://LEAF_DOMAIN/';
+    let mountEl = document.getElementById(domID);
+    if(mountEl !== null) {
+        mountEl.innerHTML = '';
+    }
 
     /*
     * Backward compatibility: certain name properties are pre-sanitized server-side, and must be decoded before rendering
@@ -15,8 +17,8 @@ var LeafPreview = function(domID) {
        return tmp.value;
     }
     function renderField(field, isChild) {
-        const required = field.required == 1 ? '<span style="color:#b00;">* Required</span>': '';
-        const sensitive = field.is_sensitive == 1 ? '<span style="color:#b00;">* Sensitive</span>': '';
+        const required = field.required == 1 ? '<span style="color:#b00;">* Required&nbsp;</span>': '';
+        const sensitive = field.is_sensitive == 1 ? '<span class="sensitiveIndicator" style="color:#b00;">* Sensitive</span>': '';
         const labelledById = `leaf_library_preview_${field.indicatorID}`;
         const inputId = `leaf_library_input_${field.indicatorID}`;
         const indName = decodeHTMLEntities(field.name);
@@ -24,7 +26,7 @@ var LeafPreview = function(domID) {
         if(isChild == undefined) {
             style_isChild = 'font-weight:bold;';
         }
-        let out = `<div style="margin-bottom:4px;${style_isChild}" id="${labelledById}">${indName}<span> ${required} ${sensitive}</span></div>`;
+        let out = `<div style="margin-bottom:4px;${style_isChild}" id="${labelledById}">${indName}&nbsp; ${required} ${sensitive}</div>`;
         const f = field.format;
         const checkStyle = 'style="margin:2px 4px;width:16px;height:16px;vertical-align:middle;"';
         switch(f) {
@@ -112,7 +114,7 @@ var LeafPreview = function(domID) {
     function load(recordID, indicatorID, fileID, callback) {
     	$.ajax({
         	type: 'GET',
-            url: LEAF_NEXUS_URL + 'LEAF/library/file.php?form='+ recordID +'&id='+ indicatorID +'&series=1&file=' + fileID,
+            url: LEAF_DOMAIN + 'LEAF/library/file.php?form='+ recordID +'&id='+ indicatorID +'&series=1&file=' + fileID,
             dataType: 'json',
             xhrFields: {withCredentials: true},
             success: function(res) {
@@ -121,9 +123,13 @@ var LeafPreview = function(domID) {
                 numSection = 1;
                 for(let i in form) {
                     const field = renderSection(form[i]);
-                    $('#' + domID).append(field);
+                    if(mountEl !== null) {
+                        const curHTML = mountEl.innerHTML;
+                        const newHTML = curHTML + field;
+                        mountEl.innerHTML = newHTML;
+                    }
                 }
-                if(callback != undefined) {
+                if(callback != undefined && typeof callback === 'function') {
                 	callback();
                 }
             }
@@ -134,6 +140,6 @@ var LeafPreview = function(domID) {
         load: load,
         renderSection,
         getRawForm: function() { return rawForm; },
-        setNexusURL: function(url) { LEAF_NEXUS_URL = url; }
+        setLeafDomain: function(url) { LEAF_DOMAIN = url; }
     };
 }

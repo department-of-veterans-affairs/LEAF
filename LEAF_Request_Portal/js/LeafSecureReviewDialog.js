@@ -2,30 +2,41 @@ var LeafSecureReviewDialog = function(domId) {
     const prefixID = 'LeafSecureReviewDialog' + Math.floor(Math.random()*1000) + '_';
     const previewPath = './js/LeafPreview.js';
     const previewID = 'leafsFormPreview';
+    const sensitiveGridMountID = prefixID + 'sensitiveFields';
+    const nonSensitiveGridMountID = prefixID + 'nonSensitiveFields';
     let leafPreview = null;
     let formPreviews = {};
 
+    let domEl = document.getElementById(domId);
+    if(domEl !== null) {
+        domEl.innerHTML =
+        `<div id="${sensitiveGridMountID}">Loading field list for review...</div>` +
+        `<div id="${nonSensitiveGridMountID}"></div>`;
+    } else {
+        return;
+    }
 
-    $('#' + domId).html('<div id="'+ prefixID +'sensitiveFields">Loading field list for review...</div>'
-                + '<div id="'+ prefixID +'nonSensitiveFields"></div>');
+    let sensitiveGridContainer = document.getElementById(sensitiveGridMountID);
+    let nonsensitiveGridContainer = document.getElementById(nonSensitiveGridMountID);
 
-    $.ajax({
-        type: 'GET',
-        url: 'api/form/indicator/list',
-        cache: false
-    })
-    .then(function(res) {
-
-        var sensitiveFields = [];
-        var nonSensitiveFields = [];
-        for(var i in res) {
-            var temp = {};
-            temp = res[i];
-            temp.recordID = res[i].indicatorID;
-            if(res[i].is_sensitive == '1') {
+    fetch(
+        "api/form/indicator/list", { cache: "no-store" }
+    ).then(res => {
+        if (res.status !== 200) {
+            throw new Error(`res status not ok, code: ${res.status}`);
+        } else {
+            return res.json();
+        }
+    }).then(data => {
+        let sensitiveFields = [];
+        let nonSensitiveFields = [];
+        for(let i in data) {
+            let temp = {};
+            temp = data[i];
+            temp.recordID = data[i].indicatorID;
+            if(data[i].is_sensitive == '1') {
                 sensitiveFields.push(temp);
-            }
-            else {
+            } else {
                 if(temp.categoryID.indexOf('leaf_') == -1) {
                     nonSensitiveFields.push(temp);
                 }
@@ -34,21 +45,16 @@ var LeafSecureReviewDialog = function(domId) {
 
         if(sensitiveFields.length > 0) {
             buildSensitiveGrid(sensitiveFields);
-        }
-        else {
-            $('#'+ prefixID +'sensitiveFields').html('<h2>No data fields have been marked as sensitive.</h2>');
-            if($('#'+ prefixID).val() == '') {
-                $('#'+ prefixID).val('N/A');
-            }
+        } else {
+            sensitiveGridContainer.innerHTML = '<h2>No data fields have been marked as sensitive.</h2>';
         }
 
         if(nonSensitiveFields.length > 0) {
             buildNonSensitiveGrid(nonSensitiveFields);
+        } else {
+            nonsensitiveGridContainer.innerHTML = '';
         }
-        else {
-            $('#'+ prefixID +'nonSensitiveFields').html('');
-        }
-    });
+    }).catch(err => console.log("err", err));
 
     const buildFormPreview = async (formName, formTree = []) => {
         if(typeof dialog_message !== 'undefined' && typeof dialog_message.show === 'function') {
@@ -75,6 +81,17 @@ var LeafSecureReviewDialog = function(domId) {
             buffer += "</div>";
             dialog_message.setTitle(formName);
             dialog_message.setContent(buffer);
+            Array.from(document.querySelectorAll('.card')).forEach(c => c.style.fontSize = '14px');
+            Array.from(document.querySelectorAll('.card .sensitiveIndicator')).forEach(
+                el => {
+                    el.textContent = 'Sensitive'
+                    el.style.color = '#58585b';
+                    el.style.border = '1px solid #58585b80';
+                    el.style.backgroundColor = '#FEFFD2';
+                    el.style.disabled = 'inline-block';
+                    el.style.padding = '0.125em 0.25em';
+                }
+            );
             dialog_message.setSaveHandler(() => {
                 dialog_message.clearDialog();
                 dialog_message.hide();
@@ -97,59 +114,119 @@ var LeafSecureReviewDialog = function(domId) {
         }
     }
     function buildSensitiveGrid(sensitiveFields) {
-        let gridSensitive = new LeafFormGrid(prefixID +'sensitiveFields');
+        let gridSensitive = new LeafFormGrid(sensitiveGridMountID);
         gridSensitive.hideIndex();
         gridSensitive.setData(sensitiveFields);
         gridSensitive.setDataBlob(sensitiveFields);
         gridSensitive.setHeaders([
-        {name: 'Form', indicatorID: 'formName', editable: false, callback: function(data, blob) {
-            const formConfig = gridSensitive.getDataByIndex(data.index);
-            const formName = formConfig.categoryName;
-
-            let content = formName; //only display the form name on the edit view
-            if (domId === 'leafSecureDialogContentPrint') {
-                const formID = formConfig.categoryID;
-                const listener = makeScopedPreviewFormListener(formID, formName);
-                const styles = `style="display:flex;gap:1rem;justify-content:space-between;"`;
-                const btnID = `print_${formID}_${data.index}`;
-                content = `<div ${styles}>
-                    ${formName}
-                    <button id="${btnID}" type="button" class="buttonNorm">Preview Form</button>
-                </div>`;
-                $('#'+data.cellContainerID).html(content);
-                document.getElementById(btnID)?.addEventListener('click', listener);
-            } else {
-                $('#'+data.cellContainerID).html(content);
-            }
-        }},
-        {name: 'Field Name', indicatorID: 'fieldName', editable: false, callback: function(data, blob) {
-            $('#'+data.cellContainerID).html(gridSensitive.getDataByIndex(data.index).name);
-            $('#'+data.cellContainerID).css('font-size', '14px');
-        }}
+            {
+                name: 'Form',
+                indicatorID: 'formName',
+                editable: false,
+                callback: function(data, blob) {
+                    let container = document.getElementById(data.cellContainerID);
+                    if (container !== null) {
+                        const formConfig = gridSensitive.getDataByIndex(data.index);
+                        const formName = formConfig.categoryName;
+                        let content = formName; //only display the form name button on the edit view
+                        if (domId === 'leafSecureDialogContentPrint') {
+                            if(typeof XSSHelpers !== 'undefined') {
+                                content = XSSHelpers.stripTag(content, 'script');
+                            }
+                            const formID = formConfig.categoryID;
+                            const listener = makeScopedPreviewFormListener(formID, formName);
+                            const styles = `style="display:flex;gap:1rem;justify-content:space-between;align-items:center"`;
+                            const btnID = `print_${formID}_${data.index}`;
+                            content = `<div ${styles}>
+                                ${formName}
+                                <button id="${btnID}" type="button" class="buttonNorm">
+                                    Preview Form
+                                </button>
+                            </div>`;
+                            container.innerHTML = content;
+                            document.getElementById(btnID)?.addEventListener('click', listener);
+                        } else {
+                            container.textContent = content;
+                        }
+                    }
+                }
+            },
+            {
+                name: 'Field Name',
+                indicatorID: 'fieldName',
+                editable: false,
+                callback: function(data, blob) {
+                    let container = document.getElementById(data.cellContainerID);
+                    if (container !== null) {
+                        let indName = gridSensitive.getDataByIndex(data.index)?.name ?? '';
+                        if(typeof XSSHelpers !== 'undefined') {
+                            indName = XSSHelpers.stripTag(indName, 'script');
+                        }
+                        container.innerHTML = indName;
+                        container.style.fontSize = '14px';
+                    }
+                }
+            },
         ]);
         gridSensitive.sort('fieldName', 'desc');
         gridSensitive.renderBody();
-        $('#'+ prefixID +'sensitiveFields').prepend('<h2>The following fields have been marked as sensitive.</h2>'
-                                                + '<p>Sensitive fields automatically enable and enforce "Need to know" data restrictions in this system.</p>');
+
+        let el = document.createElement('p');
+        let t = document.createTextNode(
+            'Sensitive fields automatically enable and enforce "Need to know" data restrictions in this system.'
+        );
+        el.appendChild(t);
+        sensitiveGridContainer.insertBefore(el, sensitiveGridContainer.childNodes[0]);
+        el = document.createElement('h2');
+        t = document.createTextNode('The following fields have been marked as sensitive.');
+        el.appendChild(t);
+        sensitiveGridContainer.insertBefore(el, sensitiveGridContainer.childNodes[0]);
     }
 
     function buildNonSensitiveGrid(nonSensitiveFields) {
-        var gridNonSensitive = new LeafFormGrid(prefixID + 'nonSensitiveFields');
+        let gridNonSensitive = new LeafFormGrid(nonSensitiveGridMountID);
         gridNonSensitive.hideIndex();
         gridNonSensitive.setData(nonSensitiveFields);
         gridNonSensitive.setDataBlob(nonSensitiveFields);
         gridNonSensitive.setHeaders([
-        {name: 'Form', indicatorID: 'formName', editable: false, callback: function(data, blob) {
-            $('#'+data.cellContainerID).html(gridNonSensitive.getDataByIndex(data.index).categoryName);
-        }},
-        {name: 'Field Name', indicatorID: 'fieldName', editable: false, callback: function(data, blob) {
-            $('#'+data.cellContainerID).html(gridNonSensitive.getDataByIndex(data.index).name);
-            $('#'+data.cellContainerID).css('font-size', '14px');
-        }}
+            {
+                name: 'Form',
+                indicatorID: 'formName',
+                editable: false,
+                callback: function(data, blob) {
+                    let container = document.getElementById(data.cellContainerID);
+                    if (container !== null) {
+                        container.textContent = gridNonSensitive.getDataByIndex(data.index).categoryName
+                    }
+                }
+            },
+            {
+                name: 'Field Name',
+                indicatorID: 'fieldName',
+                editable: false,
+                callback: function(data, blob) {
+                    let container = document.getElementById(data.cellContainerID);
+                    if (container !== null) {
+                        let indName = gridNonSensitive.getDataByIndex(data.index)?.name ?? '';
+                        if(typeof XSSHelperss !== 'undefined') {
+                            indName = XSSHelpers.stripTag(indName, 'script');
+                        }
+                        container.innerHTML = indName;
+                        container.style.fontSize = '14px';
+                    }
+                }
+            }
         ]);
         gridNonSensitive.sort('fieldName', 'desc');
         gridNonSensitive.renderBody();
-        $('#'+ prefixID +'nonSensitiveFields').prepend('<br /><h2 style="color:#c00;">Please verify the remaining fields are not sensitive.</h2>');
+        let el = document.createElement('h2');
+        el.style.marginTop = '2rem';
+        el.style.color = '#c00';
+        let t = document.createTextNode(
+            'Please verify the remaining fields are not sensitive.'
+        );
+        el.appendChild(t);
+        nonsensitiveGridContainer.insertBefore(el, nonsensitiveGridContainer.childNodes[0]);
     }
 
     const validateInput = () => {
@@ -169,7 +246,11 @@ var LeafSecureReviewDialog = function(domId) {
     const elJustifyInput = document.getElementById('-2');
     // for now we will remove the wysiwyg editor as a variable.
     $('#-2').trumbowyg('destroy');
-    $('#textarea_format_button_-2').hide();
+    let formatOptionEl = document.getElementById('textarea_format_button_-2')
+    if (formatOptionEl !== null) {
+        formatOptionEl.style.display = 'none';
+    }
+
     if(elJustifyInput !== null) {
         
         validateInput();
@@ -180,7 +261,8 @@ var LeafSecureReviewDialog = function(domId) {
     function validateForm() {
 
       let validresponse = false;
-      if (textArea.value.length < minLength) {
+      const currVal = (textArea?.value ?? '').trim();
+      if (currVal.length < minLength) {
         // Display error message
         errorMessage.textContent = `Please provide a more detailed justification. Minimum ${minLength} characters required. `;
         $('.nextQuestion').off('click');
@@ -209,17 +291,18 @@ var LeafSecureReviewDialog = function(domId) {
 
       return validresponse;
     }
-
-    $('.nextQuestion').off('click');
     
     // Optional: Real-time character count and feedback (improves user experience)
     const textArea = document.getElementById('-2');
     const errorMessage = document.getElementById('-2_required'); //Element to display character count
     const minLength = 25;
-    validateForm();
+    if(textArea !== null) {
+        $('.nextQuestion').off('click');
+        validateForm();
 
-    textArea.addEventListener('input', function() {
-      validateForm();
-    });
+        textArea.addEventListener('input', function() {
+            validateForm();
+        });
+    }
 
 };
