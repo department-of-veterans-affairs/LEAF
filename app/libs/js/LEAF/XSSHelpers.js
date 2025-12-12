@@ -149,29 +149,6 @@ var XSSHelpers = function () {
     },
 
     /**
-     * Escapes HTML attribute values to prevent XSS attacks.
-     * More comprehensive than escapeHTML, as it also encodes forward slashes.
-     * Use this when inserting untrusted data into HTML attribute values.
-     *
-     * @param str  string|null|undefined  The string to escape
-     *
-     * @return string  The escaped string safe for HTML attribute values
-     */
-    escapeHTMLAttribute = function(str) {
-        if (str === null || str === undefined) {
-            return '';
-        }
-
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#x27;')
-            .replace(/\//g, '&#x2F;');
-    },
-
-    /**
      * Sanitizes database content for safe HTML display, handling both
      * already-encoded and raw data. This prevents double-encoding issues
      * while still protecting against XSS.
@@ -183,7 +160,7 @@ var XSSHelpers = function () {
      *
      * @return string  The sanitized string safe for HTML insertion
      */
-    sanitizeForDisplay = function(str) {
+    sanitize = function(str) {
         if (str === null || str === undefined) {
             return '';
         }
@@ -204,9 +181,7 @@ var XSSHelpers = function () {
         stripTag: stripTag,
         stripTags: stripTags,
         decodeHTMLEntities: decodeHTMLEntities,
-        escapeHTML: escapeHTML,
-        escapeHTMLAttribute: escapeHTMLAttribute,
-        sanitizeForDisplay: sanitizeForDisplay
+        sanitize: sanitize
     };
 }();
 
