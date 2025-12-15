@@ -56,6 +56,17 @@ var LeafSecureReviewDialog = function(domId) {
         }
     }).catch(err => console.log("err", err));
 
+    function scrubHTML(input) {
+        if(input == undefined) {
+            return '';
+        }
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while(input != t.textContent) {
+            return scrubHTML(t.textContent);
+        }
+        return t.textContent;
+    }
+
     const buildFormPreview = async (formName, formTree = []) => {
         if(typeof dialog_message !== 'undefined' && typeof dialog_message.show === 'function') {
             //fetch leafpreview file and init if needed
@@ -79,7 +90,7 @@ var LeafSecureReviewDialog = function(domId) {
                 buffer += leafPreview.renderSection(page, idx === 0);
             });
             buffer += "</div>";
-            dialog_message.setTitle(formName);
+            dialog_message.setTitle(scrubHTML(formName));
             dialog_message.setContent(buffer);
             Array.from(document.querySelectorAll('.card')).forEach(c => c.style.fontSize = '14px');
             Array.from(document.querySelectorAll('.card .sensitiveIndicator')).forEach(
@@ -196,7 +207,8 @@ var LeafSecureReviewDialog = function(domId) {
                 callback: function(data, blob) {
                     let container = document.getElementById(data.cellContainerID);
                     if (container !== null) {
-                        container.textContent = gridNonSensitive.getDataByIndex(data.index).categoryName
+                        const formName = scrubHTML(gridNonSensitive.getDataByIndex(data.index).categoryName);
+                        container.textContent = formName;
                     }
                 }
             },

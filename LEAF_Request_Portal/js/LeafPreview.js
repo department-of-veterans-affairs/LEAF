@@ -16,12 +16,25 @@ var LeafPreview = function(domID) {
        tmp.innerHTML = txt;
        return tmp.value;
     }
+    function scrubHTML(input) {
+        if(input == undefined) {
+            return '';
+        }
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while(input != t.textContent) {
+            return scrubHTML(t.textContent);
+        }
+        return t.textContent;
+    }
     function renderField(field, isChild) {
         const required = field.required == 1 ? '<span style="color:#b00;">* Required&nbsp;</span>': '';
         const sensitive = field.is_sensitive == 1 ? '<span class="sensitiveIndicator" style="color:#b00;">* Sensitive</span>': '';
         const labelledById = `leaf_library_preview_${field.indicatorID}`;
         const inputId = `leaf_library_input_${field.indicatorID}`;
-        const indName = decodeHTMLEntities(field.name);
+        let indName = decodeHTMLEntities(field.name);
+        if(typeof XSSHelperss !== 'undefined') {
+            indName = XSSHelpers.stripTag(indName, 'script');
+        }
         let style_isChild = '';
         if(isChild == undefined) {
             style_isChild = 'font-weight:bold;';
@@ -41,21 +54,24 @@ var LeafPreview = function(domID) {
             case 'radio':
                 const r = Math.random();
                 for(let i in field.options) {
+                    const o = scrubHTML(field.options[i]);
                     out += `<input type="radio" id="${inputId}_${i}"
-                        aria-labelledby="${labelledById}" name="${r}" ${checkStyle}>${field.options[i]}<br>`;
+                        aria-labelledby="${labelledById}" name="${r}" ${checkStyle}>${o}<br>`;
                 }
                 break;
             case 'multiselect':
                 out += `<select id="${inputId}" aria-labelledby="${labelledById}" style="min-width:185px;" multiple>`;
                 for(let i in field.options) {
-                    out += `<option>${field.options[i]}</option>`;
+                    const o = scrubHTML(field.options[i]);
+                    out += `<option>${o}</option>`;
                 }
                 out += '</select>';
                 break;
             case 'dropdown':
                 out += `<select id="${inputId}" aria-labelledby="${labelledById}" style="min-width:185px;">`;
                 for(let i in field.options) {
-                    out += `<option>${field.options[i]}</option>`;
+                    const o = scrubHTML(field.options[i]);
+                    out += `<option>${o}</option>`;
                 }
                 out += '</select>';
                 break;
@@ -70,7 +86,8 @@ var LeafPreview = function(domID) {
             case 'checkbox':
             case 'checkboxes':
                 for(let i in field.options) {
-                    out += `<input type="checkbox" id="${inputId}_${i}" aria-labelledby="${labelledById}" ${checkStyle}>${field.options[i]}<br>`;
+                    const o = scrubHTML(field.options[i]);
+                    out += `<input type="checkbox" id="${inputId}_${i}" aria-labelledby="${labelledById}" ${checkStyle}>${o}<br>`;
                 }
                 break;
             case 'fileupload':
@@ -106,7 +123,8 @@ var LeafPreview = function(domID) {
             numSection = 1;
         }
         const temp = renderField(field);
-        const out = '<div style="font-size: 120%;padding:4px; background-color: black; color: white">Section '+ numSection +'</div><div class="card" style="margin:0;padding: 16px;line-height:1.3">'+ temp +'</div><br />';
+        const out = '<div style="font-size: 120%;padding:4px; background-color: black; color: white">Section '+ numSection +'</div>' +
+            '<div class="card" style="margin:0;padding: 16px;line-height:1.3">'+ temp +'</div><br>';
         numSection++;
         return out;
     }
@@ -122,10 +140,11 @@ var LeafPreview = function(domID) {
                 const form = res.packet.form;
                 numSection = 1;
                 for(let i in form) {
-                    const field = renderSection(form[i]);
+                    //HTML content for each section is from renderField
+                    const formSection = renderSection(form[i]);
                     if(mountEl !== null) {
                         const curHTML = mountEl.innerHTML;
-                        const newHTML = curHTML + field;
+                        const newHTML = curHTML + formSection;
                         mountEl.innerHTML = newHTML;
                     }
                 }
