@@ -75,6 +75,17 @@ var LeafSecureReviewDialog = function(domId) {
             buffer += "</div>";
             dialog_message.setTitle(formName);
             dialog_message.setContent(buffer);
+            Array.from(document.querySelectorAll('.card')).forEach(c => c.style.fontSize = '14px');
+            Array.from(document.querySelectorAll('.card .sensitiveIndicator')).forEach(
+                el => {
+                    el.textContent = 'Sensitive'
+                    el.style.color = '#58585b';
+                    el.style.border = '1px solid #58585b80';
+                    el.style.backgroundColor = '#FEFFD2';
+                    el.style.disabled = 'inline-block';
+                    el.style.padding = '0.125em 0.25em';
+                }
+            );
             dialog_message.setSaveHandler(() => {
                 dialog_message.clearDialog();
                 dialog_message.hide();
@@ -216,10 +227,12 @@ var LeafSecureReviewDialog = function(domId) {
     const textArea = document.getElementById('-2');
     const errorMessage = document.getElementById('-2_required'); //Element to display character count
     const minLength = 25;
-    validateForm();
+    if(textArea !== null) {
+        validateForm();
 
-    textArea.addEventListener('input', function() {
-      validateForm();
-    });
+        textArea?.addEventListener('input', function() {
+            validateForm();
+        });
+    }
 
 };

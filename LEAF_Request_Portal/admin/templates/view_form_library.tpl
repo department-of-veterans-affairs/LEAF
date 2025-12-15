@@ -20,10 +20,12 @@
     text-align:left;
     margin-bottom:1rem;
 }
-#menu .buttonNorm:hover, #menu .buttonNorm:focus, #menu .buttonNorm:active {
+#menu .buttonNorm:hover, #menu .buttonNorm:focus, #menu .buttonNorm:active, #menu .searchfilter.active {
     color: white;
+    background-color: #2372b0;
 }
 </style>
+
 <script>
 function showPreview(recordID) {
 	var formData = grid.getDataByRecordID(recordID);
@@ -47,7 +49,7 @@ function showPreview(recordID) {
 	dialog_simple.show();
 
     preview = new LeafPreview('preview');
-    preview.setNexusURL('<!--{$LEAF_DOMAIN}-->');
+    preview.setLeafDomain('<!--{$LEAF_DOMAIN}-->');
     preview.load(recordID, 1, 0);
 
     $('#btn_download').one('click', function() {
@@ -66,12 +68,25 @@ function showPreview(recordID) {
     });
 }
 
-function applyFilter(search) {
-    query.updateDataTerm('data', '3', 'LIKE', '*' + search + '*');
-    query.execute();
-    announceFilter(search);
+function applyFilter(search, btnEl) {
+    const filters = [ '', 'Administrative', 'Human Resources', 'Information Technology', 'Logistics', 'Fiscal' ];
+    const isFilter = filters.some(f => f === search);
+    if(isFilter === true && filter_id !== search) {
+        filter_id = search;
+        document.querySelectorAll('.searchfilter').forEach(el => el.classList.remove('active'));
+        btnEl.classList.add('active');
+        query.updateDataTerm('data', '3', 'LIKE', '*' + search + '*');
+        query.execute();
+        announceFilter(search);
+    }
+}
+function announceFilter(id) {
+    document.getElementById('filterStatus')?.setAttribute(
+        'aria-label', 'Filtering results by ' + id
+    );
 }
 
+let filter_id = '';
 var query;
 var grid;
 var preview;
@@ -184,7 +199,6 @@ $(function() {
 </script>
 
 <section class="leaf-width-100pct" style="padding: 0 0.5em;">
-
     <h2 id="page_breadcrumbs">
         <a href="../admin" class="leaf-crumb-link" title="to Admin Home">Admin</a>
         <i class="fas fa-caret-right leaf-crumb-caret"></i>LEAF Library
@@ -195,13 +209,31 @@ $(function() {
         <a class="buttonNorm" href="<!--{$LEAF_DOMAIN}-->LEAF/library/?a=newform" style="display: inherit;text-decoration: none"><img aria-hidden="true" src="../dynicons/?img=list-add.svg&amp;w=32" alt="" title="Contribute my Form"> Contribute my Form</a>
 
         <div class="leaf-marginBot-halfRem">Filter by Business Lines:</div>
-        <button type="button" class="buttonNorm" onclick="applyFilter('')"><img aria-hidden="true" src="../dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="" title="All Business Lines"> All Business Lines</button>
+        <button type="button" class="buttonNorm searchfilter active" onclick="applyFilter('', this)">
+            <img aria-hidden="true" src="../dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="" title="All Business Lines">
+            All Business Lines
+        </button>
 
-        <button type="button" class="buttonNorm" onclick="applyFilter('Administrative')"><img aria-hidden="true" src="../dynicons/?img=applications-office.svg&amp;w=32" alt="" title="Administrative"> Administrative</button>
-        <button type="button" class="buttonNorm" onclick="applyFilter('Human Resources')"><img aria-hidden="true" src="../dynicons/?img=system-users.svg&amp;w=32" alt="" title="Human Resources"> Human Resources</button>
-        <button type="button" class="buttonNorm" onclick="applyFilter('Information Technology')"><img aria-hidden="true" src="../dynicons/?img=network-idle.svg&amp;w=32" alt="" title="Information Technology"> Information Technology</button>
-        <button type="button" class="buttonNorm" onclick="applyFilter('Logistics')"><img aria-hidden="true" src="../dynicons/?img=package-x-generic.svg&amp;w=32" alt="" title="Logistics"> Logistics</button>
-        <button type="button" class="buttonNorm" onclick="applyFilter('Fiscal')"><img aria-hidden="true" src="../dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="" title="Fiscal"> Fiscal</button>
+        <button type="button" class="buttonNorm searchfilter" onclick="applyFilter('Administrative', this)">
+            <img aria-hidden="true" src="../dynicons/?img=applications-office.svg&amp;w=32" alt="" title="Administrative">
+            Administrative
+        </button>
+        <button type="button" class="buttonNorm searchfilter" onclick="applyFilter('Human Resources', this)">
+            <img aria-hidden="true" src="../dynicons/?img=system-users.svg&amp;w=32" alt="" title="Human Resources">
+            Human Resources
+        </button>
+        <button type="button" class="buttonNorm searchfilter" onclick="applyFilter('Information Technology', this)">
+            <img aria-hidden="true" src="../dynicons/?img=network-idle.svg&amp;w=32" alt="" title="Information Technology">
+            Information Technology
+        </button>
+        <button type="button" class="buttonNorm searchfilter" onclick="applyFilter('Logistics', this)">
+            <img aria-hidden="true" src="../dynicons/?img=package-x-generic.svg&amp;w=32" alt="" title="Logistics">
+            Logistics
+        </button>
+        <button type="button" class="buttonNorm searchfilter" onclick="applyFilter('Fiscal', this)">
+            <img aria-hidden="true" src="../dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="" title="Fiscal">
+            Fiscal
+        </button>
     </div>
     <div id="formEditor_content" style="margin-left: 238px; padding-left: 8px">
 
@@ -213,16 +245,3 @@ $(function() {
     <div id="previewShim" style="display: none"></div>
 
 </section>
-
-<script>
-    var filter_id;
-
-    function announceFilter(id) {
-        if(filter_id !== id) {
-            $('#filterStatus').attr('aria-label', 'Filtering results by ' + id);
-            filter_id = id;
-        } else {
-            alert('Filter already active');
-        }
-    }
-</script>
