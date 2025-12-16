@@ -1,4 +1,7 @@
 <?php
+
+use App\Leaf\Setting;
+
 ini_set('display_errors', 0); // Set to 1 to display errors
 
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
@@ -82,7 +85,7 @@ function importTable($db, $tempFolder, $table) {
     $fieldSQL = '`'. implode("`, `", $fields) . '`';
 
     $file = file_get_contents($tempFolder . $table . '.sql');
-    $data = unserialize($file);
+    $data = Setting::safeDecodeData($file);
     foreach($data as $row) {
         $vars = [];
         foreach($fields as $described) {

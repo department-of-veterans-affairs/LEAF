@@ -10,6 +10,7 @@
 */
 
 use App\Leaf\XSSHelpers;
+use App\Leaf\Setting;
 
 set_time_limit(10);
 $currDir = dirname(__FILE__);
@@ -33,7 +34,7 @@ clearstatcache();
 
 if (strlen($file) == 40) {
     if (file_exists($folder . $file)) {
-        $email = unserialize(file_get_contents($folder . $file));
+        $email = Setting::safeDecodeData(file_get_contents($folder . $file));
 
         if (mail($email['recipient'], $email['subject'], $email['body'], $email['headers'])) {
             unlink($folder . $file);
@@ -51,7 +52,7 @@ foreach ($queue as $item) {
     if (strlen($item) == 40) {
         // attempt to resend email if its 5 minutes old
         if (file_exists($folder . $item) && time() - filemtime($folder . $item) >= 300) {
-            $email = unserialize(file_get_contents($folder . $item));
+            $email = Setting::safeDecodeData(file_get_contents($folder . $item));
 
             if (strlen(trim($email['recipient'])) == 0) {
                 // delete invalid cache
