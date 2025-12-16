@@ -1,4 +1,5 @@
 <?php
+use App\Leaf\XSSHelpers;
 // give coaches admin access
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
@@ -17,6 +18,14 @@ $login->setBaseDir('../');
 $login->loginUser();
 
 $userID = $login->getUserID();
+
+// Validates Active Directory username format only contains letters, numbers, periods, hyphens, underscores, single quotes
+// Must start with a letter or number and cannot end with a period
+if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9.\'_-]*[a-zA-Z0-9\'_-]$|^[a-zA-Z0-9]$/', $userID)) {
+    echo 'Error: Invalid username format';
+    http_response_code(400);
+    exit;
+}
 
 $vars = array(':userName' => $userID);
 $resEmpID = $db_national->prepared_query('SELECT * FROM employee WHERE userName=:userName', $vars);
