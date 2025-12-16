@@ -1077,6 +1077,12 @@ var printer = function () {
           typeof indicator.child !== "undefined" &&
           indicator.child !== null
         ) {
+          let arrChild = [];
+          for(let indIDkey in indicator.child) {
+            arrChild.push(indicator.child[indIDkey]);
+          }
+          arrChild.sort((ca, cb) => ca.sort - cb.sort);
+          indicator.child = arrChild;
           subCount = 0;
           $.each(indicator.child, function () {
             subCount += 1;
