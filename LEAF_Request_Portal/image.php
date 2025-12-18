@@ -40,7 +40,7 @@ if ($realUploadDir === false) {
 }
 
 $fileHash = Portal\Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
-$filename = $realUploadDir . $fileHash;
+$filename = $realUploadDir . '/' . $fileHash;
 
 if (!XSSHelpers::isPathSafe($filename, $realUploadDir)) {
     echo 'Invalid file path';
