@@ -17,9 +17,13 @@ namespace App\Leaf;
 
 class Dynicon
 {
-    private $cacheDir = __DIR__ . '/../libs/dynicons/cache/';
+    private const CACHE_DIR = __DIR__ . '/../libs/dynicons/cache/';
+    private const SVG_SOURCE_DIR = __DIR__ . '/../libs/dynicons/svg/';
+    private const ALLOWED_EXTENSION = '.svg';
+    private const FALLBACK_ICON = 'emblem-unreadable.svg';
+    private $cacheDir;
 
-    private $svgSourceDir = __DIR__ . '/../libs/dynicons/svg/';
+    private $svgSourceDir;
 
     private $file = '';
 
@@ -31,112 +35,249 @@ class Dynicon
 
     public function __construct($file, $width)
     {
-        $this->file = $file;
-        $this->width = $width;
+        $this->cacheDir = realpath(self::CACHE_DIR);
+        $this->svgSourceDir = realpath(self::SVG_SOURCE_DIR);
 
-        if (!is_numeric($width) || $width <= 0) {
+        if ($this->cacheDir === false || $this->svgSourceDir === false) {
+            $this->outputError('Configuration error');
             exit();
         }
 
-        if ($width <= 32) {
+        if (!is_numeric($width) || $width <= 0 || $width > 10000) {
+            $this->outputError('Invalid width');
+            exit();
+        }
+
+        $this->width = (int)$width;
+
+        $sanitizedFile = $this->sanitizeFilename($file);
+
+        if (!$this->isValidIconFile($sanitizedFile)) {
+            $sanitizedFile = self::FALLBACK_ICON;
+        }
+
+        $this->file = $sanitizedFile;
+
+        if ($this->width <= 32) {
             $this->preferFormat = 'png';
         }
 
-        $this->cachedFile = $this->cacheDir . $file . $width . '.';
+        $this->cachedFile = $this->cacheDir . '/' . $this->file . $this->width . '.';
 
-        if (strpos($file, '..') === false && strpos($file, '.svg')) {
-            if (file_exists($this->cachedFile . $this->preferFormat)) {
-                $this->cachedFile = $this->cachedFile . $this->preferFormat;
+        if (file_exists($this->cachedFile . $this->preferFormat)) {
+            $this->cachedFile = $this->cachedFile . $this->preferFormat;
+
+            if (XSSHelpers::isPathSafe($this->cachedFile, $this->cacheDir)) {
                 $this->output();
             } else {
-                $this->preferFormat = 'svg';
-                $this->cachedFile = $this->cachedFile . 'svg';
-                clearstatcache();
-
-                if (file_exists($this->cachedFile)) {
-                    $this->output();
-                } else {
-                    if ($this->convert()) {
-                        $this->output();
-                    }
-                }
+                $this->outputError('Invalid file path');
             }
         } else {
-            $this->file = 'emblem-unreadable.svg';
-            $this->convert();
-            $this->output();
+            $this->preferFormat = 'svg';
+            $this->cachedFile = $this->cachedFile . 'svg';
+            clearstatcache();
+
+            if (file_exists($this->cachedFile) && XSSHelpers::isPathSafe($this->cachedFile, $this->cacheDir)) {
+                $this->output();
+            } else {
+                if ($this->convert()) {
+                    if (XSSHelpers::isPathSafe($this->cachedFile, $this->cacheDir)) {
+                        $this->output();
+                    } else {
+                        $this->outputError('Invalid cached file path');
+                    }
+                } else {
+                    $this->outputError('conversion failed');
+                }
+            }
         }
+    }
+
+    /**
+     * Sanitize filename to remove dangerous characters
+     * @param string $filename
+     * @return string
+     */
+    private function sanitizeFilename(string $filename): string
+    {
+        // Remove path separators and other dangerous characters
+        $filename = preg_replace('/[\/\\\:\*\?\"\<\>\|]/', '', $filename);
+
+        // Remove multiple consecutive dots
+        $filename = preg_replace('/\.{2,}/', '.', $filename);
+
+        // Remove leading dots
+        $filename = ltrim($filename, '.');
+
+        // Remove trailing dots
+        $filename = rtrim($filename, '.');
+
+        return $filename;
+    }
+
+    /**
+     * Validate that the icon file is safe to use
+     * @param string $filename
+     * @return bool
+     */
+    private function isValidIconFile(string $filename): bool
+    {
+        $isValid = true;
+
+        // Must not be empty
+        if (empty($filename)) {
+            $isValid = false;
+        }
+
+        // Must contain .svg extension
+        if (strpos($filename, self::ALLOWED_EXTENSION) === false) {
+            $isValid = false;
+        }
+
+        // Must not contain path separators
+        if (strpos($filename, '/') !== false || strpos($filename, '\\') !== false) {
+            $isValid = false;
+        }
+
+        // Must not contain parent directory references
+        if (strpos($filename, '..') !== false) {
+            $isValid = false;
+        }
+
+        // Must end with .svg
+        if (substr($filename, -4) !== self::ALLOWED_EXTENSION) {
+            $isValid = false;
+        }
+
+        // Only allow alphanumeric, underscores, hyphens, and dots
+        if (!preg_match('/^[a-zA-Z0-9_.-]+\.svg$/', $filename)) {
+            $isValid = false;
+        }
+
+        return $isValid;
+    }
+
+    /**
+     * Output error message or placeholder image
+     * @param string $message
+     */
+    private function outputError(string $message): void
+    {
+        // Log error for debugging
+        error_log("Dynicon error: {$message} - File: {$this->file}");
+
+        // Output a 1x1 transparent PNG as fallback
+        header('Content-Type: image/png');
+        header('Cache-Control: no-cache');
+        echo base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
     }
 
     private function output()
     {
-        $time = filemtime($this->cachedFile);
-        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $_SERVER['HTTP_IF_MODIFIED_SINCE'] == gmdate('D, d M Y H:i:s T', $time))
-        {
-            header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $time), true, 304);
+        $shouldOutput = true;
+        $content = null;
+
+        if (!XSSHelpers::isPathSafe($this->cachedFile, $this->cacheDir)) {
+            $this->outputError('Path validation failed');
+            $shouldOutput = false;
         }
-        else
-        {
-            header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $time), true);
-            header('Expires: ' . gmdate('D, d M Y H:i:s T', time() + 604800));
-            if ($this->preferFormat == 'svg')
-            {
-                header('Content-Type: image/svg+xml');
+
+        if (!file_exists($this->cachedFile)) {
+            $this->outputError('File not found');
+            $shouldOutput = false;
+        }
+
+        if ($shouldOutput) {
+            $time = filemtime($this->cachedFile);
+
+            if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $_SERVER['HTTP_IF_MODIFIED_SINCE'] == gmdate('D, d M Y H:i:s T', $time)) {
+                header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $time), true, 304);
+            } else {
+                header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $time), true);
+                header('Expires: ' . gmdate('D, d M Y H:i:s T', time() + 604800));
+
+                if ($this->preferFormat == 'svg') {
+                    header('Content-Type: image/svg+xml');
+                } else {
+                    header('Content-Type: image/png');
+                }
+
+                $content = file_get_contents($this->cachedFile);
+
+                if ($content !== false) {
+                    echo $content;
+                } else {
+                    $this->outputError('Failed to read file');
+                }
             }
-            else
-            {
-                header('Content-Type: image/png');
-            }
-            echo file_get_contents($this->cachedFile);
         }
     }
 
     private function convert()
     {
-        $this->file = escapeshellcmd($this->file);
-        if (file_exists($this->svgSourceDir . $this->file))
-        {
-            $xml = simplexml_load_file($this->svgSourceDir . $this->file);
-            $rawWidth = trim($xml->attributes()->width);
-            $rawHeight = trim($xml->attributes()->height);
+        $sanitizedFile = $this->sanitizeFilename($this->file);
+        $sourceFile = $this->svgSourceDir . '/' . $sanitizedFile;
 
-            $unit_of_measure = 'px';
-
-            if (is_numeric($rawWidth)) {
-                $xmlWidth = $rawWidth;
-            } elseif (strpos($rawWidth, 'px')) {
-                $xmlWidth = substr($rawWidth, 0, strpos($rawWidth, 'px'));
-            } elseif (strpos($rawWidth, 'mm')) {
-                $xmlWidth = substr($rawWidth, 0, strpos($rawWidth, 'mm'));
-                $unit_of_measure = 'mm';
-            } else {
-                $xmlWidth = 1;
-            }
-
-            if (is_numeric($rawHeight)) {
-                $xmlHeight = $rawHeight;
-            } elseif (strpos($rawHeight, 'px')) {
-                $xmlHeight = substr($rawHeight, 0, strpos($rawHeight, 'px'));
-            } elseif (strpos($rawHeight, 'mm')) {
-                $xmlHeight = substr($rawHeight, 0, strpos($rawHeight, 'mm'));
-                $unit_of_measure = 'mm';
-            } else {
-                $xmlHeight = 1;
-            }
-
-
-            $ratio = $this->width / $xmlWidth;
-            $newHeight = $ratio * $xmlHeight;
-
-            $xml->attributes()->width = $this->width . $unit_of_measure;
-            $xml->attributes()->height = $newHeight . $unit_of_measure;
-            $xml->addAttribute('viewBox', "0 0 {$xmlWidth} {$xmlHeight}");
-
-            file_put_contents("{$this->cacheDir}{$this->file}{$this->width}.svg", $xml->asXML());
-
-            return true;
+        if (!XSSHelpers::isPathSafe($sourceFile, $this->svgSourceDir)
+            || !file_exists($sourceFile)
+        ) {
+            return false;
         }
 
-        return false;
+        libxml_use_internal_errors(true);
+        $xml = simplexml_load_file($sourceFile);
+        libxml_clear_errors();
+
+        if ($xml === false) {
+            return false;
+        }
+
+        $rawWidth = trim((string) $xml->attributes()->width);
+        $rawHeight = trim((string) $xml->attributes()->height);
+
+        $unit_of_measure = 'px';
+
+        if (is_numeric($rawWidth)) {
+            $xmlWidth = $rawWidth;
+        } elseif (strpos($rawWidth, 'px') !== false) {
+            $xmlWidth = substr($rawWidth, 0, strpos($rawWidth, 'px'));
+        } elseif (strpos($rawWidth, 'mm') !== false) {
+            $xmlWidth = substr($rawWidth, 0, strpos($rawWidth, 'mm'));
+            $unit_of_measure = 'mm';
+        } else {
+            $xmlWidth = 1;
+        }
+
+        if (is_numeric($rawHeight)) {
+            $xmlHeight = $rawHeight;
+        } elseif (strpos($rawHeight, 'px') !== false) {
+            $xmlHeight = substr($rawHeight, 0, strpos($rawHeight, 'px'));
+        } elseif (strpos($rawHeight, 'mm') !== false) {
+            $xmlHeight = substr($rawHeight, 0, strpos($rawHeight, 'mm'));
+            $unit_of_measure = 'mm';
+        } else {
+            $xmlHeight = 1;
+        }
+
+        $ratio = $this->width / $xmlWidth;
+        $newHeight = $ratio * $xmlHeight;
+
+        $xml->attributes()->width = $this->width . $unit_of_measure;
+        $xml->attributes()->height = $newHeight . $unit_of_measure;
+        $xml->addAttribute('viewBox', "0 0 {$xmlWidth} {$xmlHeight}");
+
+        $outputFile = $this->cacheDir . '/' . $sanitizedFile . $this->width . '.svg';
+
+        if (!XSSHelpers::isPathSafe($outputFile, $this->cacheDir)) {
+            return false;
+        }
+
+        $result = file_put_contents($outputFile, $xml->asXML());
+
+        if ($result === false) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -923,27 +923,40 @@ class Form
 
             $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
 
-            if (is_array($value) && isset($value[$index])) {
-                $_POST['overwrite'] = true;
-                $_POST['series'] = 1;
-                $_POST[$indicatorID] = '';
+            $realUploadDir = realpath($uploadDir);
 
-                for ($i = 0; $i < count($value); $i++) {
-                    if ($i != $index) {
-                        $_POST[$indicatorID] .= $value[$i] . "\n";
+            if ($realUploadDir === false) {
+                $return_value = false;
+            } else if (is_array($value) && isset($value[$index])) {
+                $filePath = $realUploadDir . '/' . $file;
+
+                if (!XSSHelpers::isPathSafe($filePath, $realUploadDir)) {
+                    $return_value = false;
+                } else {
+                    $_POST['overwrite'] = true;
+                    $_POST['series'] = 1;
+                    $_POST[$indicatorID] = '';
+
+                    for ($i = 0; $i < count($value); $i++) {
+                        if ($i != $index) {
+                            $_POST[$indicatorID] .= $value[$i] . "\n";
+                        }
+                    }
+
+                    $this->doModify($recordID);
+
+                    if (file_exists($filePath)) {
+                        if (is_file($filePath)) {
+                            unlink($filePath);
+                            $return_value = true;
+                        } else {
+                            $return_value = false;
+                        }
+                    } else {
+                        $return_value = true;
                     }
                 }
-
-                $this->doModify($recordID);
-
-                if (file_exists($uploadDir . $file)) {
-                    unlink($uploadDir . $file);
-                }
-
-                $return_value = true;
             }
-
-            $return_value = false;
         }
 
         return $return_value;
@@ -1102,7 +1115,7 @@ class Form
      */
     private function writeDataField($recordID, $key, $series)
     {
-        
+
         if (is_array($_POST[$key])) //multiselect, checkbox, grid items
         {
             $_POST[$key] = XSSHelpers::scrubObjectOrArray($_POST[$key]);
@@ -1267,9 +1280,35 @@ class Form
                             mkdir($uploadDir, 0755, true);
                         }
 
+                        $realUploadDir = realpath($uploadDir);
+
+                        if ($realUploadDir === false) {
+                            http_response_code(500);
+                            error_log("File upload error: Upload directory does not exist: {$uploadDir}");
+                            return 'Upload directory not found';
+                        }
+
                         $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, XSSHelpers::scrubFilename(XSSHelpers::sanitizeHTML($_FILES[$indicator]['name'])));
 
-                        move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
+                        $targetPath = $realUploadDir . '/' . $sanitizedFileName;
+
+                        if (!XSSHelpers::isPathSafe($targetPath, $realUploadDir)) {
+                            http_response_code(500);
+                            error_log("File upload error: Path traversal attempt detected. File: {$targetPath}, Upload Dir: {$realUploadDir}");
+                            return 'Invalid file path';
+                        }
+
+                        if (!is_uploaded_file($_FILES[$indicator]['tmp_name'])) {
+                            http_response_code(500);
+                            error_log("File upload error: Not a valid uploaded file");
+                            return 'Invalid uploaded file';
+                        }
+
+                        if (!move_uploaded_file($_FILES[$indicator]['tmp_name'], $targetPath)) {
+                            http_response_code(500);
+                            error_log("File upload error: Failed to move uploaded file to: {$targetPath}");
+                            return 'Failed to move uploaded file';
+                        }
                     }
                     else
                     {
@@ -3149,14 +3188,14 @@ class Form
      */
     private function isLargeQuery(array $query): bool
     {
-        
+
         $externalProcessQuery = false;
         // No limit parameter set
         if (isset($query['limit']) && is_numeric($query['limit'])) {
 
             // Limit is > 10,000 records
             if ($query['limit'] > 10000) {
-               
+
                 $externalProcessQuery = true;
 
             // Limit is > 1000 and <= 10,000 records AND more than 10 indicators are requested
@@ -3167,7 +3206,7 @@ class Form
             // no limit parameter set
             $externalProcessQuery = true;
         }
-    
+
         return $externalProcessQuery;
     }
 
@@ -3661,8 +3700,8 @@ class Form
                             // loops within a workflow, and people can take different actions later
                             $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
                                                     LEFT OUTER JOIN action_history sFA_ah{$count}
-                                                        ON (ah.recordID = sFA_ah{$count}.recordID 
-                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                        ON (ah.recordID = sFA_ah{$count}.recordID
+                                                            AND ah.stepID = sFA_ah{$count}.stepID
                                                             AND ah.time < sFA_ah{$count}.time)
                                             WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL) lj_action_history{$count}
                                             USING (recordID) ";
@@ -3683,7 +3722,7 @@ class Form
                             $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
                                                     LEFT OUTER JOIN action_history sFA_ah{$count}
                                                         ON (ah.recordID = sFA_ah{$count}.recordID
-                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                            AND ah.stepID = sFA_ah{$count}.stepID
                                                             AND ah.time < sFA_ah{$count}.time)
                                             WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL AND ah.actionType=:stepAction{$count}) lj_action_history{$count}
                                             USING (recordID) ";
@@ -4691,15 +4730,54 @@ class Form
         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
         $uploadDir = $uploadDir === UPLOAD_DIR ? '../' . UPLOAD_DIR : $uploadDir;
 
+        $realUploadDir = realpath($uploadDir);
+
+        if ($realUploadDir === false) {
+            http_response_code(500);
+            error_log("Copy attachment error: Upload directory does not exist: {$uploadDir}");
+            return ['message' => 'Upload directory not found'];
+        }
+
         $cleanedFile = XSSHelpers::scrubFilename($fileName);
 
-        $sourceFile = $uploadDir . $recordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
-        $destFile = $uploadDir . $newRecordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
+
+        $sourceFileName = $recordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
+        $destFileName = $newRecordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
+
+        $sourceFile = $realUploadDir . '/' . $sourceFileName;
+        $destFile = $realUploadDir . '/' . $destFileName;
+
+        if (!XSSHelpers::isPathSafe($sourceFile, $realUploadDir)) {
+            http_response_code(500);
+            error_log("Copy attachment error: Source path traversal attempt detected. File: {$sourceFile}, Upload Dir: {$realUploadDir}");
+            return ['message' => "Copy attachment error: Source path traversal attempt detected. File: {$sourceFile}, Upload Dir: {$realUploadDir}"];
+        }
+
+        if (!XSSHelpers::isPathSafe($destFile, $realUploadDir)) {
+            http_response_code(500);
+            error_log("Copy attachment error: Destination path traversal attempt detected. File: {$destFile}, Upload Dir: {$realUploadDir}");
+            return ['message' => "Copy attachment error: Destination path traversal attempt detected. File: {$destFile}, Upload Dir: {$realUploadDir}"];
+        }
+
+        // Verify source file exists and is a regular file
+        if (!file_exists($sourceFile)) {
+            http_response_code(404);
+            error_log("Copy attachment error: Source file not found: {$sourceFile}");
+            return ['message' => "Copy attachment error: Source file not found: {$sourceFile}"];
+        }
+
+        if (!is_file($sourceFile)) {
+            http_response_code(500);
+            error_log("Copy attachment error: Source is not a regular file: {$sourceFile}");
+            return ['message' => "Copy attachment error: Source is not a regular file: {$sourceFile}"];
+        }
 
         if (!copy($sourceFile, $destFile)) {
+            http_response_code(500);
             $errors = error_get_last();
             return $errors;
         }
+
         return 1;
     }
 
