@@ -50,6 +50,7 @@ class Email
     private bool $orgchartInitialized = false;
 
     private int $recordID;
+    private array $fieldsInUse = array();
 
     private string $emailRegex = "/(\w+@[a-z_\-]+?\.[a-z]{2,6})$/i";
 
@@ -463,7 +464,7 @@ class Email
      * @param int $emailTemplateID emailTemplateID from email_templates table
      * @return void
      */
-    function setTemplateByID(int $emailTemplateID): void
+    function setTemplateByID(int $emailTemplateID, int $recordID): void
     {
         $vars = array(':emailTemplateID' => $emailTemplateID);
         $strSQL = "SELECT `emailTo`, `emailCc`,`subject`, `body`
@@ -471,11 +472,216 @@ class Email
                 WHERE `emailTemplateID` = :emailTemplateID";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo'] == null ? '' : $res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc'] == null ? '' : $res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject'] == null ? '' : $res[0]['subject']));
-        $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body'] == null ? '' : $res[0]['body']));
+        if(count($res) === 1) {
+            $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo'] == null ? '' : $res[0]['emailTo']));
+            $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc'] == null ? '' : $res[0]['emailCc']), true);
+
+            $this->addRequestFieldProperties($res[0]);
+
+            if(count($this->fieldsInUse) > 0) {
+                $recordInfo = $this->getRecord($recordID);
+                $isNeedToKnow = (int)$recordInfo[0]['needToKnow'] === 1;
+                //if need to know, confirm all email addresses are associated with users with read access
+                if($isNeedToKnow === true) {
+                    $this->confirmReadAccessAddData($recordID);
+                } else {
+                    $plogin = new \Portal\Login($this->nexus_db, $this->portal_db);
+                    $form = new Form($this->portal_db, $plogin);
+
+                    $inds = $this->getFieldIndicatorIDs();
+                    $q = '{"terms":[{"id":"recordID","operator":"=","match":"' . $recordID . '","gate":"AND"}],' .
+                        '"joins":[],"sort":{},"limit":1,"getData":[' . $inds . ']}';
+
+                    $fData = $form->query($q)[$recordID]['s1'] ?? [];
+                    $this->addFormattedData($fData, $recordID);
+                }
+            }
+
+            $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject'] == null ? '' : $res[0]['subject']));
+            $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body'] == null ? '' : $res[0]['body']));
+        }
     }
+
+    private function getFieldIndicatorIDs(): string
+    {
+        $indKeys = array_keys($this->fieldsInUse);
+        $indicatorIDs = implode(
+            ',', array_filter($indKeys, function($k) { return is_numeric($k); })
+        );
+        return $indicatorIDs;
+    }
+
+    /**
+     * Checks setTemplate res to determine if request fields are being used.
+     * Add matches field IDs, format and sensitive setting to the private fieldsInUse array.
+     * @param array $templateSections email_templates record
+     * @return void
+     */
+    private function addRequestFieldProperties(array $templateSections): void
+    {
+        $this->fieldsInUse = array();
+
+        $templateKeys = [ 'subject', 'body' ];
+        foreach($templateKeys as $section) {
+            $fname = XSSHelpers::xscrub($templateSections[$section]);
+            $fpath = $this->getFilepath($fname, $section);
+            if (str_starts_with($fpath, 'custom_override/')) {
+                $fullPath = __DIR__ . '/../templates/email/' . $fpath;
+                if (file_exists($fullPath) && is_readable($fullPath)) {
+                    $content = file_get_contents($fullPath);
+                    preg_match_all('/\$field\.\d+/', $content, $requestFields);
+
+                    $matches = $requestFields[0] ?? [];
+                    foreach ($matches as $idx => $field) {
+                        $fieldID = substr($field, 7);
+                        if(is_numeric($fieldID)) {
+                            $this->fieldsInUse[$fieldID] = array(
+                                'value' => '',
+                            );
+                        }
+                    }
+                }
+            }
+        }
+        $inds = $this->getFieldIndicatorIDs();
+        $SQLformat = "SELECT `indicatorID`, `format`, `is_sensitive` FROM `indicators`
+            WHERE `indicatorID` IN ({$inds})";
+
+        $indInfo = $this->portal_db->prepared_query($SQLformat, array());
+        foreach ($indInfo as $rec) {
+            $id = $rec['indicatorID'];
+            $f = explode("\n", $rec['format'])[0] ?? '';
+            $this->fieldsInUse[$id]['format'] = $f;
+            $this->fieldsInUse[$id]['is_sensitive'] = $rec['is_sensitive'];
+            if((int)$rec['is_sensitive'] === 1) {
+                $this->fieldsInUse[$id]['value'] = '**********';
+            }
+        }
+    }
+
+    /**
+     * format field data for use in email subject or body based on question type
+     */
+    private function addFormattedData(array $fData, int $recordID): void
+    {
+        foreach($this->fieldsInUse as $k => $entry) {
+            if ((int)$entry['is_sensitive'] === 0 && isset($fData['id' . $k])) {
+                $data = $fData['id' . $k];
+                $f = trim($entry['format']);
+                switch($f) {
+                    case "grid": //process to table
+                        break;
+                    case "fileupload":
+                    case "image":
+                        $data = explode("\n", $data);
+                        $buffer = [];
+                        foreach($data as $index => $file) {
+                            $file = XSSHelpers::scrubFilename($file);
+                            $buffer[] = "<a href=\"{$this->siteRoot}file.php?form={$recordID}&id={$k}&series=1&file={$index}\">{$file}</a>";
+                        }
+                        $this->fieldsInUse[$k]['value'] = implode(", ", $buffer);
+                        break;
+                    case "checkboxes": //multiple option arrays
+                    case "multiselect":
+                        if(isset($fData['id' . $k . '_array'])) {
+                            $data = $fData['id' . $k . '_array'];
+                            $this->fieldsInUse[$k]['value'] = '<ul>';
+                            foreach($data as $option) {
+                                $o = trim(strip_tags(
+                                    htmlspecialchars_decode($option, ENT_QUOTES | ENT_HTML5)
+                                ));
+                                $this->fieldsInUse[$k]['value'] .= '<li>' . $o . '</li>';
+                            }
+                            $this->fieldsInUse[$k]['value'] .= '</ul>';
+                        }
+                        break;
+                    case "textarea": //text with some html
+                        $t = trim(XSSHelpers::sanitizeHTML(
+                            htmlspecialchars_decode($data, ENT_QUOTES | ENT_HTML5)
+                        ));
+                        $this->fieldsInUse[$k]['value'] = $t;
+                        break;
+                    default:
+                        $this->fieldsInUse[$k]['value'] = trim(strip_tags(
+                            htmlspecialchars_decode($data, ENT_QUOTES | ENT_HTML5)
+                        ));
+                        break;
+                }
+            }
+        }
+
+        $fields = array();
+        foreach ($this->fieldsInUse as $k => $entry) {
+            $fields[$k] = $entry['value'];
+        }
+        $this->addSmartyVariables(array('field' => $fields));
+    }
+
+    /**
+     * confirm recipient has access to a need to know request, add field data if true
+     */
+    private function confirmReadAccessAddData(int $recordID): void
+    {
+        $to = explode(',', $this->emailRecipient);
+        $ccs = array_merge($this->emailCc ?? [], $this->emailBCC ?? []);
+
+        $allEmails = array_merge($to, $ccs);
+        $count = 0;
+
+        $varsEmails = array();
+        $placeholders = '';
+
+        foreach ($allEmails as $address) {
+            $qKey = ':email_'. $count;
+            $varsEmails[$qKey] = XSSHelpers::xscrub(trim($address));
+            $placeholders .= $count === 0 ? $qKey : ', ' . $qKey;
+            $count += 1;
+        }
+
+        $sql = "SELECT `userName`, `data` as userEmail FROM `employee_data` JOIN `employee` USING (empUID)
+            WHERE `employee`.`deleted`=0 AND `employee_data`.`indicatorID`=6 AND
+            `employee_data`.`data` IN({$placeholders})";
+
+        $empInfo = $this->nexus_db->prepared_query($sql, $varsEmails) ?? [];
+
+        $allHaveAccess = true;
+
+        $empMap = array();
+        foreach ($empInfo as $rec) {
+            $user = $rec['userName'];
+            $email = XSSHelpers::xscrub(trim($rec['userEmail']));
+            $empMap[$email] = $user;
+        }
+
+        $field_login = new \Portal\Login($this->nexus_db, $this->portal_db);
+        foreach ($allEmails as $address) {
+            $address = XSSHelpers::xscrub(trim($address));
+            if (!isset($empMap[$address])) {
+                $allHaveAccess = false;
+                break;
+            }
+            $user = $empMap[$address];
+            $field_login->loginUser($user);
+            $form = new Form($this->portal_db, $field_login);
+            $hasRead = (int)$form->hasReadAccess($recordID);
+            if($hasRead !== 1) {
+                $allHaveAccess = false;
+                break;
+            }
+        }
+
+        if ($allHaveAccess === true) {
+            $inds = $this->getFieldIndicatorIDs();
+            $q = '{"terms":[{"id":"recordID","operator":"=","match":"' . $recordID . '","gate":"AND"}],' .
+                '"joins":[],"sort":{},"limit":1,"getData":[' . $inds . ']}';
+
+            $fData = $form->query($q)[$recordID]['s1'] ?? [];
+            $this->addFormattedData($fData, $recordID);
+            unset($fData);
+        }
+        $field_login->logout();
+    }
+
 
     /**
      * Gets template filenames from the db based on label and sets the properties
@@ -678,10 +884,6 @@ class Email
                 "siteRoot" => $this->siteRoot
             ));
 
-            if ($emailTemplateID < 2) {
-                $this->setTemplateByID($emailTemplateID);
-            }
-
             $dir = new VAMC_Directory;
 
             foreach ($approvers as $approver) {
@@ -805,6 +1007,9 @@ class Email
                     }
                 }
             }
+            if ($emailTemplateID < 2) {
+                $this->setTemplateByID($emailTemplateID, $recordID);
+            }
             $return_value = $this->sendMail($recordID);
         } elseif ($emailTemplateID === -4) {
             // Record has no approver so if it is sent from Mass Action Email Reminder, notify user
@@ -836,8 +1041,6 @@ class Email
                 "field" => null
             ));
 
-            $this->setTemplateByID($emailTemplateID);
-
             $dir = new VAMC_Directory;
 
             // Get user email and send
@@ -845,6 +1048,7 @@ class Email
             if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
                 $this->addRecipient($tmp[0]['Email']);
             }
+            $this->setTemplateByID($emailTemplateID, $recordID);
             $return_value = $this->sendMail($recordID);
         } elseif ($emailTemplateID === -7) { //Cancel Notification
             $recordInfo = $this->getRecord($recordID);
@@ -889,7 +1093,7 @@ class Email
                 if ($authorEmail != '') {
                     $this->addRecipient($authorEmail);
                 }
-                $this->setTemplateByID($emailTemplateID);
+                $this->setTemplateByID($emailTemplateID, $recordID);
                 $this->sendMail($recordID);
             }
         } elseif ($emailTemplateID > 1) {

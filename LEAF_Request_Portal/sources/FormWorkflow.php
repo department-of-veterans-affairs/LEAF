@@ -1430,12 +1430,10 @@ class FormWorkflow
                 "stepTitle" => $groupName[0]['stepTitle'],
                 "comment" => $comment,
                 "siteRoot" => $this->siteRoot,
-                "field" => $fields
             ));
             $email->addSmartyVariables(array(
                 "field" => $emailAddresses
             ), true);
-            $email->setTemplateByID(Email::SEND_BACK);
 
             $dir = $this->getDirectory();
 
@@ -1464,7 +1462,7 @@ class FormWorkflow
                   $email->addRecipient($theirBackup[0]['Email']);
               }
             }
-
+            $email->setTemplateByID(Email::SEND_BACK, $this->recordID);
             $email->setSender($author[0]['Email']);
             $email->sendMail($this->recordID);
         }
@@ -1483,7 +1481,6 @@ class FormWorkflow
 
                     $email->addSmartyVariables(array(
                         "comment" => $comment,
-                        "field" => $fields
                     ));
                     $email->addSmartyVariables(array(
                         "field" => $emailAddresses
@@ -1548,12 +1545,10 @@ class FormWorkflow
                             "lastStatus" => $requestRecords[0]['lastStatus'],
                             "comment" => $comment,
                             "siteRoot" => $this->siteRoot,
-                            "field" => $fields
                         ));
                         $email->addSmartyVariables(array(
                             "field" => $emailAddresses
                         ), true);
-                        $email->setTemplateByID(Email::NOTIFY_COMPLETE);
 
                         $dir = $this->getDirectory();
 
@@ -1578,7 +1573,7 @@ class FormWorkflow
 
                         $tmp = $dir->lookupLogin($requestRecords[0]['userID']);
                         $email->addRecipient($tmp[0]['Email']);
-
+                        $email->setTemplateByID(Email::NOTIFY_COMPLETE, $this->recordID);
                         $email->sendMail($this->recordID);
                     }
                     break;
@@ -1633,13 +1628,11 @@ class FormWorkflow
                             "lastStatus" => $requestRecords[0]['lastStatus'],
                             "comment" => $comment,
                             "siteRoot" => $this->siteRoot,
-                            "field" => $fields
                         ));
                         $email->addSmartyVariables(array(
                             "field" => $emailAddresses
                         ), true);
                         $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
-                        $email->setTemplateByID($emailTemplateID);
 
                         $dir = $this->getDirectory();
 
@@ -1673,7 +1666,7 @@ class FormWorkflow
                             $email->addGroupRecipient($eventData->NotifyGroup);
                         }
 
-
+                        $email->setTemplateByID($emailTemplateID, $this->recordID);
                         if ($eventData->NotifyNext === 'true') {
                             $email->attachApproversAndEmail($this->recordID, $emailTemplateID, $this->login);
 
