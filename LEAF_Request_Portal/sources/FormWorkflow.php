@@ -1368,14 +1368,6 @@ class FormWorkflow
             ORDER BY eventID ASC';
         $resEvents = $this->db->prepared_query($strSQL, $varEvents);
 
-        $fields = array();
-        $emailAddresses = array();
-        if(count($resEvents) > 0 || $actionType == 'sendback') {
-            $formattedData = $this->getFields();
-            $fields = $formattedData["content"];
-            $emailAddresses = $formattedData["to_cc_content"];
-        }
-
         // Take care of special events (sendback)
         if ($actionType == 'sendback')
         {
@@ -1431,9 +1423,6 @@ class FormWorkflow
                 "comment" => $comment,
                 "siteRoot" => $this->siteRoot,
             ));
-            $email->addSmartyVariables(array(
-                "field" => $emailAddresses
-            ), true);
 
             $dir = $this->getDirectory();
 
@@ -1482,9 +1471,6 @@ class FormWorkflow
                     $email->addSmartyVariables(array(
                         "comment" => $comment,
                     ));
-                    $email->addSmartyVariables(array(
-                        "field" => $emailAddresses
-                    ), true);
 
                     $dir = $this->getDirectory();
 
@@ -1546,9 +1532,6 @@ class FormWorkflow
                             "comment" => $comment,
                             "siteRoot" => $this->siteRoot,
                         ));
-                        $email->addSmartyVariables(array(
-                            "field" => $emailAddresses
-                        ), true);
 
                         $dir = $this->getDirectory();
 
@@ -1629,9 +1612,6 @@ class FormWorkflow
                             "comment" => $comment,
                             "siteRoot" => $this->siteRoot,
                         ));
-                        $email->addSmartyVariables(array(
-                            "field" => $emailAddresses
-                        ), true);
                         $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
 
                         $dir = $this->getDirectory();
@@ -1689,7 +1669,6 @@ class FormWorkflow
                                            'stepID' => $stepID,
                                            'actionType' => $actionType,
                                            'comment' => $comment,
-                                           "field" => $fields
                         );
 
                         $customClassName = "Portal\\CustomEvent_{$event['eventID']}";
@@ -1712,191 +1691,6 @@ class FormWorkflow
         return array('status' => 1, 'errors' => $errors);
     }
 
-    /**
-     * Get the field values of the current record
-     */
-    private function getFields(): array
-    {
-        $vars = array(':recordID' => $this->recordID);
-        $strSQL = 'SELECT `data`.`indicatorID`, `data`.`series`, `data`.`data`, `indicators`.`format`, `indicators`.`default`, `indicators`.`is_sensitive` FROM `data`
-            JOIN `indicators` USING (`indicatorID`)
-            WHERE `recordID` = :recordID';
-
-        $fields = $this->db->prepared_query($strSQL, $vars);
-
-        $formattedFields = array();
-        $formattedFields["content"] = array();
-        $formattedFields["to_cc_content"] = array();
-
-        foreach($fields as $field)
-        {
-            if ($field["is_sensitive"] == 1) {
-                $formattedFields["content"][$field['indicatorID']] = "**********";
-                $formattedFields["to_cc_content"][$field['indicatorID']] = "";
-                continue;
-            }
-
-            $data = $field["data"];
-            $emailValue = "";
-
-            $format = trim(strtolower(explode(PHP_EOL, $field["format"])[0] ?? ""));
-            switch($format) {
-                case "grid":
-                    if(!empty($data) && is_array(unserialize($data))){
-                        $data = $this->buildGrid(unserialize($data));
-                    }
-                    break;
-                case "checkboxes":
-                case "multiselect":
-                    if(!empty($data) && is_array(unserialize($data))){
-                        $formatted = $this->buildMultiOption(unserialize($data));
-                        $data = $formatted["content"];
-                    }
-                    break;
-                case "radio":
-                case "checkbox":
-                case "dropdown":
-                    if ($data == "no") {
-                        $data = "";
-                    }
-                    break;
-                case "fileupload":
-                case "image":
-                    $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
-                    break;
-                case "orgchart_group":
-                    if(is_numeric($data)) {
-                        $groupInfo = $this->getGroupInfoForTemplate((int) $data);
-                        $data = $groupInfo["groupName"];
-                        $emailValue = $groupInfo["groupEmails"];
-                    }
-                    break;
-                case "orgchart_position":
-                    $data = $this->getOrgchartPosition((int) $data);
-                    break;
-                case "orgchart_employee":
-                    $employeeData = $this->getOrgchartEmployee((int) $data);
-                    $data = $employeeData["employeeName"];
-                    $emailValue = $employeeData["employeeEmail"];
-                    break;
-                default:
-                break;
-            }
-
-            $formattedFields["content"][$field['indicatorID']] = $data !== "" ? $data : $field["default"];
-            $formattedFields["to_cc_content"][$field['indicatorID']] = $emailValue;
-        }
-
-        return $formattedFields;
-    }
-
-    private function isJsonString(mixed $data): bool
-    {
-        json_decode($data);
-
-        return json_last_error() === 0;
-    }
-
-    // method for building grid
-    private function buildGrid(array $data): string
-    {
-        // get the grid in the form of array
-        $cells = $data['cells'];
-        $headers = $data['names'];
-
-        // build the grid
-        $grid = "<table style=\"border-collapse: collapse; margin: 2px;\"><tr>";
-
-        foreach($headers as $header) {
-            if ($header !== " ") {
-                $grid .= "<th style=\"border: 1px solid #000; background: #e0e0e0; padding: 6px;font-size: 11px; font-family: verdana; text-align: center; width: 100px; \">{$header}</th>";
-            }
-        }
-        $grid .= "</tr>";
-
-        foreach($cells as $row) {
-            $grid .= "<tr>";
-            foreach($row as $column) {
-                $grid .= "<td  style=\"border: 1px solid #000; background: #fff; padding: 6px;font-size: 11px; font-family: verdana; text-align: center; \">{$column}</td>";
-            }
-            $grid .= "</tr>";
-        }
-        $grid .= "</table>";
-
-        return $grid;
-    }
-
-    private function buildMultiOption(array $data): array
-    {
-        // filter out non-selected selections
-        $data = array_filter($data, function($x) { return $x !== "no"; });
-        // list to be readable in email
-        $formattedData = "<ul>";
-        $formattedEmails = "";
-        foreach($data as $item) {
-            $formattedData .= "<li>".$item."</li>";
-            $formattedEmails .= $item."\r\n";
-        }
-        $formattedData .= "</ul>";
-        return array("content" => $formattedData, "to_cc_content" => $formattedEmails);
-    }
-
-    private function buildFileLink(string $data, string $id, string $series): string
-    {
-        // split the file names out into an array
-        $data = explode("\n", $data);
-        $buffer = [];
-
-        // parse together the links to each file
-        foreach($data as $index => $file) {
-            $buffer[] = "<a href=\"{$this->siteRoot}file.php?form={$this->recordID}&id={$id}&series={$series}&file={$index}\">{$file}</a>";
-        }
-
-        // separate the links by comma
-        $formattedData = implode(", ", $buffer);
-        return $formattedData;
-    }
-
-    // method for building orgchart group, position, employee template info
-
-    /**
-     * get email body content and email ToCc field content from an orgchart_group field entry
-     * @param int $groupID
-     * @return array
-     */
-    private function getGroupInfoForTemplate(int $groupID): array
-    {
-        $group = new Group($this->db, $this->login);
-        $groupName = $group->getGroupName($groupID);
-        $groupMembers = $group->getMembers($groupID)['data'] ?? [];
-        $userEmails = array_column($groupMembers, 'email') ?? [];
-        $emailValues = implode("\r\n", $userEmails);
-
-        $returnVal = array(
-            "groupName" => $groupName,
-            "groupEmails" => $emailValues
-        );
-
-        return $returnVal;
-    }
-
-    private function getOrgchartPosition(int $data): string
-    {
-        $position = new \Orgchart\Position($this->oc_db, $this->login);
-        $positionName = $position->getTitle($data);
-
-        return $positionName;
-    }
-
-    private function getOrgchartEmployee(int $data): array
-    {
-        $employee = new \Orgchart\Employee($this->oc_db, $this->login);
-        $employeeData = $employee->lookupEmpUID($data)[0];
-        $employeeEmail = $employeeData["email"];
-        $employeeName = $employeeData["firstName"]." ".$employeeData["lastName"];
-
-        return array("employeeName" => $employeeName,"employeeEmail" => $employeeEmail);
-    }
 
     /**
      * Set the the current record to a specific step

@@ -51,6 +51,7 @@ class Email
 
     private int $recordID;
     private array $fieldsInUse = array();
+    private array $emailFieldsInUse = array();
 
     private string $emailRegex = "/(\w+@[a-z_\-]+?\.[a-z]{2,6})$/i";
 
@@ -472,11 +473,13 @@ class Email
                 WHERE `emailTemplateID` = :emailTemplateID";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
+        $this->fieldsInUse = array();
+        $this->emailFieldsInUse = array();
         if(count($res) === 1) {
+            $this->addRequestFieldProperties($res[0], $recordID);
+            $this->addEmailRequestFieldVariables($recordID);
             $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo'] == null ? '' : $res[0]['emailTo']));
             $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc'] == null ? '' : $res[0]['emailCc']), true);
-
-            $this->addRequestFieldProperties($res[0]);
 
             if(count($this->fieldsInUse) > 0) {
                 $recordInfo = $this->getRecord($recordID);
@@ -485,7 +488,7 @@ class Email
                 if($isNeedToKnow === true) {
                     $this->confirmReadAccessAddData($recordID);
                 } else {
-                    $plogin = new \Portal\Login($this->nexus_db, $this->portal_db);
+                    $plogin = new Login($this->nexus_db, $this->portal_db);
                     $form = new Form($this->portal_db, $plogin);
 
                     $inds = $this->getFieldIndicatorIDs();
@@ -513,15 +516,14 @@ class Email
 
     /**
      * Checks setTemplate res to determine if request fields are being used.
-     * Add matches field IDs, format and sensitive setting to the private fieldsInUse array.
+     * Add match field IDs, format and sensitive setting to the private fieldsInUse array.
+     * Adds additinional entries to emailFieldsInUse for To/Cc for those templates.
      * @param array $templateSections email_templates record
      * @return void
      */
-    private function addRequestFieldProperties(array $templateSections): void
+    private function addRequestFieldProperties(array $templateSections, int $recordID): void
     {
-        $this->fieldsInUse = array();
-
-        $templateKeys = [ 'subject', 'body' ];
+        $templateKeys = [ 'emailTo', 'emailCc', 'subject', 'body' ];
         foreach($templateKeys as $section) {
             $fname = XSSHelpers::xscrub($templateSections[$section]);
             $fpath = $this->getFilepath($fname, $section);
@@ -535,14 +537,18 @@ class Email
                     foreach ($matches as $idx => $field) {
                         $fieldID = substr($field, 7);
                         if(is_numeric($fieldID)) {
-                            $this->fieldsInUse[$fieldID] = array(
-                                'value' => '',
-                            );
+                            //all fields (including To/Cc)
+                            $this->fieldsInUse[$fieldID] = array('value' => '');
+                            //To/Cc only
+                            if($section === 'emailTo' || $section === 'emailCc') {
+                                $this->emailFieldsInUse[$fieldID] = array();
+                            }
                         }
                     }
                 }
             }
         }
+
         $inds = $this->getFieldIndicatorIDs();
         $SQLformat = "SELECT `indicatorID`, `format`, `is_sensitive` FROM `indicators`
             WHERE `indicatorID` IN ({$inds})";
@@ -551,16 +557,69 @@ class Email
         foreach ($indInfo as $rec) {
             $id = $rec['indicatorID'];
             $f = explode("\n", $rec['format'])[0] ?? '';
+            $isSensitive = (int)$rec['is_sensitive'];
             $this->fieldsInUse[$id]['format'] = $f;
-            $this->fieldsInUse[$id]['is_sensitive'] = $rec['is_sensitive'];
-            if((int)$rec['is_sensitive'] === 1) {
+            $this->fieldsInUse[$id]['is_sensitive'] = $isSensitive;
+            if($isSensitive === 1) {
                 $this->fieldsInUse[$id]['value'] = '**********';
+            }
+            if(isset($this->emailFieldsInUse[$id])) {
+                $this->emailFieldsInUse[$id]['format'] = $f;
             }
         }
     }
 
     /**
-     * format field data for use in email subject or body based on question type
+     * Add smarty variables for email To/Cc content based on request data (emp/grp IDs).
+     * Can only be used for non sensitive orgchart emp and grp fields.
+     */
+    private function addEmailRequestFieldVariables(int $recordID): void
+    {
+        $empGrpIDs = '';
+        foreach($this->emailFieldsInUse as $indID => $entry) {
+            $isAllowedFormat = $entry['format'] === 'orgchart_employee' || $entry['format'] === 'orgchart_group';
+            if(is_numeric($indID) && $isAllowedFormat) {
+                $empGrpIDs .= $empGrpIDs === '' ? $indID : ', ' . $indID;
+            }
+        }
+
+        if ($empGrpIDs !== '') {
+            $vars = array(
+                ':recordID' => $recordID
+            );
+            $strSQL = "SELECT `indicators`.`format`, `data`.`indicatorID`, `data`.`data` FROM `data`
+                JOIN `indicators` USING (`indicatorID`)
+                WHERE `recordID` = :recordID
+                AND `indicators`.`is_sensitive`=0
+                AND `indicators`.`indicatorID` IN ({$empGrpIDs})";
+
+            $empGrpData = $this->portal_db->prepared_query($strSQL, $vars) ?? [];
+            $plogin = new Login($this->nexus_db, $this->portal_db);
+
+            $emailFields = array();
+            foreach($empGrpData as $rec) {
+                $indID = $rec['indicatorID'];
+                $dataID = $rec['data'];
+                $f = $rec['format'];
+                if ($f === 'orgchart_group') {
+                    $group = new \Portal\Group($this->portal_db, $plogin);
+                    $groupMembers = $group->getMembers($dataID)['data'] ?? [];
+                    $userEmails = array_column($groupMembers, 'email') ?? [];
+                    $emailFields[$indID] = implode("\r\n", $userEmails);
+                }
+                if ($f === 'orgchart_employee') {
+                    $employee = new \Orgchart\Employee($this->nexus_db, $plogin);
+                    $employeeData = $employee->lookupEmpUID($dataID)[0];
+                    $emailFields[$indID] = $employeeData["email"];
+                }
+            }
+            $this->addSmartyVariables(array("field" => $emailFields), true);
+        }
+        $this->emailFieldsInUse = array();
+    }
+
+    /**
+     * format non sensitive data for use in email subject or body based on question type
      */
     private function addFormattedData(array $fData, int $recordID): void
     {
