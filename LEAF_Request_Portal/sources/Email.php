@@ -570,6 +570,36 @@ class Email
                 $f = trim($entry['format']);
                 switch($f) {
                     case "grid": //process to table
+                        if(isset($fData['id' . $k . '_gridInput'])) {
+                            $data = $fData['id' . $k . '_gridInput'];
+                            $cells = $data['cells'];
+                            $headers = $data['names'];
+
+                            $grid = "<table style=\"border-collapse:collapse;margin:2px;\"><thead><tr>";
+                            foreach($headers as $header) {
+                                if ($header !== " ") {
+                                    $h = trim(strip_tags(
+                                        htmlspecialchars_decode($header, ENT_QUOTES | ENT_HTML5)
+                                    ));
+                                    $grid .= "<th style=\"border:1px solid #000;background:#e0e0e0;padding:6px;" .
+                                        "font-size:12px;font-family:verdana;text-align:center;width:100px; \">{$h}</th>";
+                                }
+                            }
+                            $grid .= "</tr></thead><tbody>";
+                            foreach($cells as $row) {
+                                $grid .= "<tr>";
+                                foreach($row as $column) {
+                                    $c = trim(strip_tags(
+                                        htmlspecialchars_decode($column, ENT_QUOTES | ENT_HTML5)
+                                    ));
+                                    $grid .= "<td style=\"border:1px solid #000;background:#fff;padding:6px;" .
+                                        "font-size: 11px; font-family: verdana; text-align: center; \">{$c}</td>";
+                                }
+                                $grid .= "</tr>";
+                            }
+                            $grid .= "</tbody></table>";
+                            $this->fieldsInUse[$k]['value'] = $grid;
+                        }
                         break;
                     case "fileupload":
                     case "image":
