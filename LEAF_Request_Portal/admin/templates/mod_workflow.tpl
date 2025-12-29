@@ -2182,7 +2182,11 @@
                     jsPlumb.draggable('step_-1', { allowNegative: false });
                 }
                 if (endPoints[0] == undefined) {
-                    endPoints[0] = jsPlumb.addEndpoint('step_0', {anchor: 'Continuous'}, endpointOptions);
+                    endPoints[0] = jsPlumb.addEndpoint(
+                        'step_0',
+                        { anchor: 'Continuous'},
+                        { ...endpointOptions, isSource: false }
+                    );
                     jsPlumb.draggable('step_0', { allowNegative: false });
                 }
 
