@@ -624,7 +624,7 @@ class Email
     private function addFormattedData(array $fData, int $recordID): void
     {
         foreach($this->fieldsInUse as $k => $entry) {
-            if ((int)$entry['is_sensitive'] === 0 && isset($fData['id' . $k])) {
+            if ($entry['is_sensitive'] === 0 && isset($fData['id' . $k])) {
                 $data = $fData['id' . $k];
                 $f = trim($entry['format']);
                 switch($f) {
@@ -636,7 +636,7 @@ class Email
 
                             $grid = "<table style=\"border-collapse:collapse;margin:2px;\"><thead><tr>";
                             foreach($headers as $header) {
-                                if ($header !== " ") {
+                                if (trim($header) !== " ") { //excluded invis char from grid control column that gets saved
                                     $h = trim(strip_tags(
                                         htmlspecialchars_decode($header, ENT_QUOTES | ENT_HTML5)
                                     ));
@@ -750,6 +750,7 @@ class Email
                 break;
             }
             $user = $empMap[$address];
+            //TODO: cannot log in this way outside of CLI, need input
             $field_login->loginUser($user);
             $form = new Form($this->portal_db, $field_login);
             $hasRead = (int)$form->hasReadAccess($recordID);
