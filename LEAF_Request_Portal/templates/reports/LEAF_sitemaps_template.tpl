@@ -175,16 +175,16 @@
         var dialog = createNewButtonDialog();
         dialog.setTitle('Add Site');
         dialog.setContent('<div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Title</div><input id="button-title" size="48" maxlength="27"/></div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Description</div><input aria-label="Enter group name" id="button-description" size="48" maxlength="48"/></div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input id="button-target" size="48"/></div>' +
+            '<div class="leaf-marginAll-1rem"><label for="button-title">Site Title</label><br><input id="button-title" size="48" maxlength="27"></div>' +
+            '<div class="leaf-marginAll-1rem"><label for="button-description">Site Description</label><br><input aria-label="Enter group name" id="button-description" size="48" maxlength="48"></div>' +
+            '<div class="leaf-marginAll-1rem"><label for="button-target">Target Site Address</label><br><input id="button-target" size="48"></div>' +
             '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
             '<label for="btnColor" class="leaf-bold" style="display: block;">Site Color</label>' +
-            '<input type="color" name="btnColor" style="display: block;" value="#ffffff" />' +
+            '<input type="color" id="btnColor" name="btnColor" style="display: block;" value="#ffffff">' +
             '</div>' +
             '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
             '<label for="btnFntColor" class="leaf-bold" style="display: block;">Font Color</label>' +
-            '<input type="color" name="btnFntColor" style="display: block;" value="#000000" />' +
+            '<input type="color" id="btnFntColor" name="btnFntColor" style="display: block;" value="#000000">' +
             '</div>' +
             '<div class="leaf-marginAll-1rem" style="width: 90%; float: left;">' +
             '<label for="iconpicker" class="leaf-bold" style="display: inline-block;">Icon (Optional)</label>' +
@@ -365,49 +365,50 @@
     }
 </script>
 
-<div class="leaf-center-content">
+<section style="padding:0.5rem 1rem;">
+    <h1>
+        <a href="./admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>
+        Sitemap Editor
+        <span id="sitemap-alert" class="leaf-sitemap-alert"><i class="fas fa-check"></i> Sitemap updated</span>
+    </h1>
+    <div class="leaf-center-content">
 
-    <aside class="sidenav">
-        <h3 class="navhead">
-            <!--{$city}--> Sitemap
-        </h3>
-        <ul class="usa-sidenav leaf-border-bottom">
-        </ul>
-        <div>
-            <button class="usa-button leaf-btn-green leaf-marginTopBot-halfRem leaf-width100pct"
-                onclick="createGroup();"><i class="fas fa-plus leaf-font0-7rem" title="Delete Site"></i> Add
-                Site</button>
-        </div>
-        <div>
-            <a href="./?a=sitemap" target="_blank"
-                class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View Sitemap</a>
-        </div>
-        <div>
-            <a href="./report.php?a=LEAF_Inbox" target="_blank"
-                class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View Combined
-                Inbox</a>
-        </div>
+        <aside class="sidenav" style="margin-top:0.5rem;">
+            <h2 class="navhead" style="margin-top:0;">
+                <!--{$city}--> Sitemap
+            </h2>
+            <ul class="usa-sidenav leaf-border-bottom">
+            </ul>
+            <div>
+                <button class="usa-button leaf-btn-green leaf-marginTopBot-halfRem leaf-width100pct"
+                    onclick="createGroup();"><i class="fas fa-plus leaf-font0-7rem" title="Delete Site"></i> Add
+                    Site</button>
+            </div>
+            <div>
+                <a href="./?a=sitemap" target="_blank"
+                    class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View Sitemap</a>
+            </div>
+            <div>
+                <a href="./report.php?a=LEAF_Inbox" target="_blank"
+                    class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View Combined
+                    Inbox</a>
+            </div>
 
-        <!--<div class="leaf-sidenav-bottomBtns">
-            <button class="usa-button usa-button--outline">Move Up</button>
-            <button class="usa-button usa-button--outline leaf-float-right">Move Down</button>
-        </div>-->
-    </aside>
+            <!--<div class="leaf-sidenav-bottomBtns">
+                <button class="usa-button usa-button--outline">Move Up</button>
+                <button class="usa-button usa-button--outline leaf-float-right">Move Down</button>
+            </div>-->
+        </aside>
 
-    <div class="main-content-noRight">
+        <div class="main-content-noRight">
+            <div id="sortable" class="leaf-displayFlexRow">
+            </div>
+            <div style="border: 2px solid black; text-align: center; font-size: 16px; font-weight: bold; background: white; padding: 16px; width: 95%"
+                id="spinner">
+                Loading... <img src="./images/largespinner.gif" alt="" />
+            </div>
 
-        <h1>
-            <a href="./admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>
-            Sitemap Editor
-            <span id="sitemap-alert" class="leaf-sitemap-alert"><i class="fas fa-check"></i> Sitemap updated</span>
-        </h1>
-        <div id="sortable" class="leaf-displayFlexRow">
-        </div>
-        <div style="border: 2px solid black; text-align: center; font-size: 16px; font-weight: bold; background: white; padding: 16px; width: 95%"
-            id="spinner">
-            Loading... <img src="./images/largespinner.gif" alt="" />
         </div>
 
     </div>
-
-</div>
+</section>
