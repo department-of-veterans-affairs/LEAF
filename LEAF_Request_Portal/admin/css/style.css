@@ -810,6 +810,12 @@ div#subordinate_site_warning {
   padding: 0.25rem 0.5rem;
   background-color: #ffffc0;
 }
+.entry_info, .entry_error, .entry_warning {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
 
 @media (max-width: 520px) {
   #header:not(.usa-header) {
