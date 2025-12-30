@@ -446,7 +446,8 @@ class Inbox
         									  LEFT JOIN users USING (groupID)
         									  LEFT JOIN records_dependencies USING (recordID, dependencyID)
         									  WHERE userID=:userID
-        										AND filled=0', $vars);
+        										AND filled=0
+                                                AND `active` = 1', $vars);
 
         // if the initial search is empty, check for special cases (service chief, quadrad)
         if ($res[0]['COUNT(*)'] == 0)
@@ -552,7 +553,8 @@ class Inbox
         									  LEFT JOIN step_dependencies USING (stepID)
         									  LEFT JOIN dependency_privs USING (dependencyID)
         									  LEFT JOIN users USING (groupID)
-        									  WHERE userID=:userID', $vars);
+        									  WHERE userID=:userID
+                                              AND `active` = 1', $vars);
 
         // if the initial search is empty, check for special cases (service chief, quadrad)
         if ($res[0]['COUNT(*)'] == 0)

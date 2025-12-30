@@ -1102,7 +1102,7 @@ class Form
      */
     private function writeDataField($recordID, $key, $series)
     {
-        
+
         if (is_array($_POST[$key])) //multiselect, checkbox, grid items
         {
             $_POST[$key] = XSSHelpers::scrubObjectOrArray($_POST[$key]);
@@ -1930,7 +1930,8 @@ class Form
         												LEFT JOIN dependency_privs USING (dependencyID)
                                                         LEFT JOIN users USING (groupID)
         												LEFT JOIN records USING (recordID)
-                                                        WHERE recordID=:recordID', $vars);
+                                                        WHERE recordID=:recordID
+                                                        AND `active` = 1', $vars);
         foreach ($resRecordPrivs as $priv)
         {
             if ($this->hasDependencyAccess($priv['dependencyID'], $priv))
@@ -3149,14 +3150,14 @@ class Form
      */
     private function isLargeQuery(array $query): bool
     {
-        
+
         $externalProcessQuery = false;
         // No limit parameter set
         if (isset($query['limit']) && is_numeric($query['limit'])) {
 
             // Limit is > 10,000 records
             if ($query['limit'] > 10000) {
-               
+
                 $externalProcessQuery = true;
 
             // Limit is > 1000 and <= 10,000 records AND more than 10 indicators are requested
@@ -3167,7 +3168,7 @@ class Form
             // no limit parameter set
             $externalProcessQuery = true;
         }
-    
+
         return $externalProcessQuery;
     }
 
@@ -3661,8 +3662,8 @@ class Form
                             // loops within a workflow, and people can take different actions later
                             $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
                                                     LEFT OUTER JOIN action_history sFA_ah{$count}
-                                                        ON (ah.recordID = sFA_ah{$count}.recordID 
-                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                        ON (ah.recordID = sFA_ah{$count}.recordID
+                                                            AND ah.stepID = sFA_ah{$count}.stepID
                                                             AND ah.time < sFA_ah{$count}.time)
                                             WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL) lj_action_history{$count}
                                             USING (recordID) ";
@@ -3683,7 +3684,7 @@ class Form
                             $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
                                                     LEFT OUTER JOIN action_history sFA_ah{$count}
                                                         ON (ah.recordID = sFA_ah{$count}.recordID
-                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                            AND ah.stepID = sFA_ah{$count}.stepID
                                                             AND ah.time < sFA_ah{$count}.time)
                                             WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL AND ah.actionType=:stepAction{$count}) lj_action_history{$count}
                                             USING (recordID) ";

@@ -6,7 +6,7 @@
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $vars = array();
-$res = $db->prepared_query('SELECT * FROM users WHERE groupID=1', $vars);
+$res = $db->prepared_query('SELECT * FROM users WHERE groupID=1 AND `active` = 1', $vars);
 
 if (count($res) == 0) {
     if (strlen(DATABASE_DB_ADMIN) > 0) {

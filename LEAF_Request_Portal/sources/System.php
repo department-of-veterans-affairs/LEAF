@@ -350,7 +350,7 @@ class System
                                                         ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
 
                     // include the backups of employees
-                    $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+                    $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID AND `active` = 1', $vars);
                     if ($res[0]['active'] == 1) {
                         $backups = $employee->getBackups($emp['empUID']);
                         foreach ($backups as $backup) {
@@ -618,7 +618,7 @@ class System
                 }
                 else {
                     $stats = stat('../files/' . $item);
-                    $out[] = ['file' => $item, 
+                    $out[] = ['file' => $item,
                             'modifiedTime' => $stats['mtime'],
                             'size' => $stats['size']];
                 }
@@ -699,7 +699,7 @@ class System
     public function getPrimaryAdmin()
     {
         $primaryAdminRes = $this->db->prepared_query('SELECT * FROM `users`
-                                    WHERE `primary_admin` = 1', array());
+                                    WHERE `primary_admin` = 1 AND `active` = 1', array());
         $result = array();
         if(count($primaryAdminRes))
         {
@@ -743,7 +743,8 @@ class System
         $res = $this->db->prepared_query('SELECT *
                                             FROM `users`
                                             WHERE `userID` = :userID
-                                            AND `groupID` = 1', $vars);
+                                            AND `groupID` = 1
+                                            AND `active` = 1', $vars);
         $resultArray = array();
         if(count($res))
         {
@@ -1342,7 +1343,8 @@ class System
         $sql = 'SELECT `userID`
                 FROM `users`
                 WHERE `groupID` = :groupID
-                AND `backupID` = ""';
+                AND `backupID` = ""
+                AND `active` = 1';
 
         $return_value = $this->db->pdo_select_query($sql, $vars);
 

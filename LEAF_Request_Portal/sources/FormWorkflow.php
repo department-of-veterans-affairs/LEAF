@@ -845,7 +845,8 @@ class FormWorkflow
         $strSQL = 'SELECT * FROM dependency_privs
             LEFT JOIN users USING (groupID)
             WHERE dependencyID = :dependencyID
-            AND userID = :userID';
+            AND userID = :userID
+            AND `active` = 1';
         $res = $this->db->prepared_query($strSQL, $vars);
 
 
