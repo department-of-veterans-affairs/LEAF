@@ -147,13 +147,13 @@ div [id^="LeafFormGrid"] table {
                 <div id="newEmployeeSelector"></div>
             </div>
         </div>
-        <button class="buttonNorm" id="run">Preview Changes</button>
+        <button type="button" class="buttonNorm" id="run">Preview Changes</button>
         <div id="reassign_reset" style="display:none; margin-bottom:3rem;">
             <h3>Review the results below and activate the button to update selections with the new account.</h3>
             <br />
             <div style="display:flex;">
-                <button id="reassign" class="buttonNorm" style="margin-right: 1rem">Update Records</button>
-                <button id="reset" class="buttonNorm">Start Over</button>
+                <button type="button" id="reassign" class="buttonNorm" style="margin-right: 1rem">Update Records</button>
+                <button type="button" id="reset" class="buttonNorm">Start Over</button>
             </div>
         </div>
     </div>
@@ -236,11 +236,11 @@ function startQueueListener(event, queue) {
 
 function checkAll(event = {}) {
     const target = event?.currentTarget || null;
-    const selectionString = target?.classList?.value || '';
+    const selectionString = target?.id || '';
     if (selectionString !== '') {
         const checkboxChecked = target.checked === true;
         const checkboxes = Array.from(document.querySelectorAll(`td input[id^="${selectionString}"]`));
-        const headerCheckboxes = Array.from(document.querySelectorAll(`th input.${selectionString}`));
+        const headerCheckboxes = Array.from(document.querySelectorAll(`th input#${selectionString}`));
         checkboxes.forEach(cb => cb.checked = checkboxChecked);
         headerCheckboxes.forEach(cb => cb.checked = checkboxChecked);
     }
@@ -423,7 +423,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                         },
                         {
                             name: `<label for='confirm_group_updates'>Select All Groups
-                                <input type='checkbox' class='confirm_group_updates' onclick='checkAll(event)' checked />
+                                <input type='checkbox' id='confirm_group_updates' onclick='checkAll(event)' checked />
                             </label>`,
                             indicatorID: 'addToGroupOptions',
                             editable: false,
@@ -465,7 +465,6 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
             .then(data => {
                 let positionInfo = {};
                 const userPositions = data.filter(p => p.employeeList.some(emp => emp.userName === oldAccount));
-console.log(userPositions);
                 if (userPositions.length > 0) {
                     let recordIDs = '';
                     userPositions.forEach(ele => {
@@ -506,7 +505,7 @@ console.log(userPositions);
                         },
                         {
                             name: `<label for='confirm_position_updates'>Select All Positions
-                                <input type='checkbox' class='confirm_position_updates' onclick='checkAll(event)' checked />
+                                <input type='checkbox' id='confirm_position_updates' onclick='checkAll(event)' checked />
                             </label>`,
                             sortable: false,
                             indicatorID: 'addToPositionOptions',
@@ -923,7 +922,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                 },
                 {
                     name: `<label for='confirm_indicator_updates'>Select All Requests
-                        <input type='checkbox' class='confirm_indicator_updates' onclick='checkAll(event)' checked />
+                        <input type='checkbox' id='confirm_indicator_updates' onclick='checkAll(event)' checked />
                     </label>`,
                     sortable: false,
                     indicatorID: 'updateIndicatorOptions',
