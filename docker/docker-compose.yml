@@ -203,7 +203,4 @@ volumes:
 
 networks:
     leaf-sql:
-        external: true
     leaf:
-        external: true
-    ui-test:
