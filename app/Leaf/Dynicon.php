@@ -39,7 +39,7 @@ class Dynicon
         $this->svgSourceDir = realpath(self::SVG_SOURCE_DIR);
 
         if ($this->cacheDir === false || $this->svgSourceDir === false) {
-            $this->outputError('Configuration error');
+            $this->outputError('Path directories invalid');
             exit();
         }
 
