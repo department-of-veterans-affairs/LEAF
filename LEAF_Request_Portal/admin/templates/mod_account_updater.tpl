@@ -248,7 +248,7 @@ function checkAll(event = {}) {
 function checkOne(event = {}, type = '') {
     const target = event?.currentTarget || null;
     const id = target?.id || '';
-    const headerCheckboxes = Array.from(document.querySelectorAll(`th input.confirm_${type}_updates`));
+    const headerCheckboxes = Array.from(document.querySelectorAll(`th input#confirm_${type}_updates`));
     const checkboxes = Array.from(document.querySelectorAll(`td input[id^="confirm_${type}_updates"]`));
     const allChecked = checkboxes.every(cb => cb.checked === true);
     if (id !== '' && type !== '') {
