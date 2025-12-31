@@ -219,7 +219,7 @@ class EmailTemplate
 
             $baseDir = realpath(self::CUSTOM_OVERRIDE_DIR);
 
-            if ($baseDir) {
+            if ($baseDir !== false) {
                 // if the body has changed
                 if (isset($_POST['file']) && $currentTemplate['file'] !== $_POST['file']) {
                     $filePath = $baseDir . '/' . $template;
@@ -456,7 +456,7 @@ class EmailTemplate
         if ($validTemplate) {
             $baseDir = realpath(self::CUSTOM_OVERRIDE_DIR);
 
-            if ($baseDir) {
+            if ($baseDir !== false) {
                 $templatePath = $baseDir . '/' . $template;
 
                 if (XSSHelpers::isPathSafe($templatePath, $baseDir) && file_exists($templatePath)) {

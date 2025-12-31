@@ -69,7 +69,7 @@ $mimetype = mime_content_type($filename) ?: "application/octet-stream";
 header('Content-Type: '. $mimetype);
 
 if(!isset($_GET['inline'])) {
-    $originalFilename = basename($value[$fileIndex]);
+    $originalFilename = basename($value[$_GET['file']]);
     $safeFilename = str_replace('"', '\\"', $originalFilename);
 
     header('Content-Disposition: attachment; filename="' . $safeFilename . '"');
