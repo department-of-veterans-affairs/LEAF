@@ -520,7 +520,7 @@
             return 'Invalid parameter(s): events must be an array.';
         }
 
-        let content = '<label id="event_label">Add an event: </label>';
+        let content = '<label id="event_label" for="eventID">Add an event: </label>';
         content += `<br /><div>
             <span id="event_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
             <select id="eventID" name="eventID" title="Select Event" onchange="updateSelectionStatus(this, 'event_select_status')">`;
@@ -1527,14 +1527,14 @@
                 buffer = 'Select action for ';
                 buffer += '<b>' + sourceTitle + '</b> to <b>' + targetTitle + '</b>:';
                 buffer +=
-                    '<br /><br /><br />Use an existing action type: <select id="actionType" name="actionType">';
+                    '<br><br><br><label id="actionType_label" for="actionType">Use an existing action type:</label><br><select id="actionType" name="actionType">';
 
                 for (let i in res) {
                     allWorkflowActionMap[res[i].actionType.toLowerCase()] = 1;
                     buffer += '<option value="' + res[i].actionType + '">' + res[i].actionText + '</option>';
                 }
 
-                buffer += '</select>';
+                buffer += '</select><br>';
                 buffer +=
                     '<br />- OR -<br /><br /><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25rem;" onclick="newAction();">Create a new Action Type</button>';
 
@@ -1542,6 +1542,7 @@
                 dialog.setContent(buffer);
                 $('#xhrDialog').css('overflow', 'visible');
                 $('#actionType').chosen({disable_search_threshold: 5});
+                updateChosenAttributes("actionType", "actionType_label", "Select an Action");
                 let saving = false;
                 dialog.setCancelHandler(function() {
                     if(reopenStepID !== null && saving === false) {
