@@ -1,3 +1,6 @@
+html, body {
+  min-width: fit-content;
+}
 #workflow_editor {
   margin-top:0.5rem;
   display:flex;
