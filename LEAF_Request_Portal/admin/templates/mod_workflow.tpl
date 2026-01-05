@@ -1212,16 +1212,20 @@
     */
     function renderActionInputModal(action = {}) {
         return `<div id="action_input_modal">
-            <div>
-                <label for="actionText" id="action_label">Action <span style="color: #c00">*Required</span></label><br>
-                <div class="helper_text">e.g., Approve</div>
-                <div id="actionText_error_message" class="error_message"></div>
-                <input id="actionText" type="text" maxlength="50" value="${action?.actionText || ''}">
+            <div class="info_wrapper">
+                <div>
+                    <label for="actionText" id="action_label">Action <span style="color: #c00">*Required</span></label><br>
+                    <div class="helper_text">e.g., Approve</div>
+                    <div id="actionText_error_message" class="error_message"></div>
+                    <input id="actionText" type="text" maxlength="50" value="${action?.actionText || ''}">
+                </div>
             </div>
-            <div>
-                <label for="actionTextPasttense" id="action_past_tense_label"> Action Past Tense <span style="color: #c00">*Required</span></label><br>
-                <div class="helper_text">e.g., Approved</div>
-                <input id="actionTextPasttense" type="text" maxlength="50" value="${action?.actionTextPasttense || ''}">
+            <div class="info_wrapper">
+                <div>
+                    <label for="actionTextPasttense" id="action_past_tense_label"> Action Past Tense <span style="color: #c00">*Required</span></label><br>
+                    <div class="helper_text">e.g., Approved</div>
+                    <input id="actionTextPasttense" type="text" maxlength="50" value="${action?.actionTextPasttense || ''}">
+                </div>
             </div>
             <div>
                 <label for="actionIcon" id="choose_icon_label">Icon</label><br>
@@ -1374,13 +1378,13 @@
     */
     function validateInputFields(targetID = "", newEntry = false) {
         const setError = (elementID = "", isValid = false) => {
-            let wrapperElement = document.getElementById(elementID)?.parentNode || null;
+            let wrapperElement = document.getElementById(elementID)?.closest('.info_wrapper') ?? null;
             if (wrapperElement !== null && isValid === false) {
                 wrapperElement.classList.add("entry_error");
             }
         }
 
-        let parentWrapper = document.getElementById(targetID)?.parentElement ?? null;
+        let parentWrapper = document.getElementById(targetID)?.closest('.info_wrapper') ?? null;
         if (parentWrapper !== null) {
             parentWrapper.classList.remove("entry_error");
         }
@@ -1685,12 +1689,12 @@
                     }
                 }
                 dialog.setContent(
-                    '<br>Select the data field that will be used to route to selected individual.<br><br>' +
+                    '<div id="set_indicator_modal"><br>' +
+                    '<div class="entry_info bg-blue-5v">' +
+                    'Select the data field that will be used to route to the selected individual.<br>' +
+                    'Your form must have a field with the "Orgchart Employee" or "Raw Data" input format.</div><br>' +
                     '<label for="indicatorID">Data Field:</label><br><select id="indicatorID">' +
                     indicatorList + '</select><br><br>' +
-                    '<div class="entry_info bg-blue-5v">' +
-                    '<span role="img" aria-hidden="true" alt="">ℹ️</span>' +
-                    'Your form must have a field with the "Orgchart Employee" or "Raw Data" input format' +
                     '</div>'
                 );
             },
@@ -1726,12 +1730,12 @@
                     }
                 }
                 dialog.setContent(
-                    '<br>Select a field that the requestor fills out. The workflow will route to the group they select.<br><br>' +
-                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID">' +
-                    indicatorList + '</select><br><br >' +
+                    '<div id="set_indicator_modal"><br>' +
                     '<div class="entry_info bg-blue-5v">' +
-                    '<span role="img" aria-hidden="true" alt="">ℹ️</span>' +
-                    'Your form must have a field with the "Orgchart Group" input format' +
+                    'Select the data field that will be used to route to the selected group.<br>' +
+                    'Your form must have a field with the "Orgchart Group" or "Raw Data" input format.</div><br>' +
+                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID">' +
+                    indicatorList + '</select><br><br>' +
                     '</div>'
                 );
             },

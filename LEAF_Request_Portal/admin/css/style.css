@@ -816,6 +816,15 @@ div#subordinate_site_warning {
     align-items: center;
     gap: 0.5rem;
 }
+.entry_error {
+  border-left: 4px solid #B50909;
+}
+.entry_warning {
+  border-left: 4px solid #ffbe2e;
+}
+.entry_info {
+  border-left: 4px solid #00bde3;
+}
 
 @media (max-width: 520px) {
   #header:not(.usa-header) {
