@@ -78,12 +78,12 @@ var LeafSecureReviewDialog = function(domId) {
             Array.from(document.querySelectorAll('.card')).forEach(c => c.style.fontSize = '14px');
             Array.from(document.querySelectorAll('.card .sensitiveIndicator')).forEach(
                 el => {
-                    el.innerHTML = 'Sensitive<span role="img" aria-hidden="true" alt="">🔒</span>';
+                    el.innerHTML = '<span role="img" aria-hidden="true" alt="">🔒</span>Sensitive';
                     el.style.color = '#58585b';
                     el.style.border = '1px solid #58585b80';
                     el.style.backgroundColor = '#FEFFD2';
                     el.style.disabled = 'inline-block';
-                    el.style.padding = '2px 0 2px 4px';
+                    el.style.padding = '2px 4px 2px 0';
                 }
             );
             dialog_message.setSaveHandler(() => {
