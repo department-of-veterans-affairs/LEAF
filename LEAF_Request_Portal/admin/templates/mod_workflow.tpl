@@ -1688,15 +1688,23 @@
                             ')</option>';
                     }
                 }
+
+                const currentValue = steps[stepID]?.indicatorID_for_assigned_empUID;
                 dialog.setContent(
                     '<div id="set_indicator_modal"><br>' +
                     '<div class="entry_info bg-blue-5v">' +
                     'Select the data field that will be used to route to the selected individual.<br>' +
                     'Your form must have a field with the "Orgchart Employee" or "Raw Data" input format.</div><br>' +
-                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID">' +
+                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID" style="max-width:400px;">' +
                     indicatorList + '</select><br><br>' +
                     '</div>'
                 );
+                if(currentValue > 0) {
+                    let selEl = document.getElementById('indicatorID');
+                    if(selEl !== null) {
+                        selEl.value = currentValue;
+                    }
+                }
             },
             error: (err) => console.log(err),
             cache: false
@@ -1729,15 +1737,22 @@
                             ')</option>';
                     }
                 }
+                const currentValue = steps[stepID]?.indicatorID_for_assigned_groupID
                 dialog.setContent(
                     '<div id="set_indicator_modal"><br>' +
                     '<div class="entry_info bg-blue-5v">' +
                     'Select the data field that will be used to route to the selected group.<br>' +
                     'Your form must have a field with the "Orgchart Group" or "Raw Data" input format.</div><br>' +
-                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID">' +
+                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID" style="max-width:400px;">' +
                     indicatorList + '</select><br><br>' +
                     '</div>'
                 );
+                if(currentValue > 0) {
+                    let selEl = document.getElementById('indicatorID');
+                    if(selEl !== null) {
+                        selEl.value = currentValue;
+                    }
+                }
             },
             error: (err) => console.log(err),
             cache: false
