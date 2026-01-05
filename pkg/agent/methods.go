@@ -2,7 +2,6 @@ package agent
 
 import (
 	"errors"
-	"io"
 	"log"
 	"net/url"
 	"strconv"
@@ -35,9 +34,8 @@ func (a Agent) TakeAction(siteURL string, recID int, stepID string, actionType s
 		log.Println("Action taken successfully: " + siteURL + "?a=printview&recordID=" + recordID)
 		return nil
 	} else {
-		errMsg, _ := io.ReadAll(res.Body)
-		log.Println("Failed to take action:", endpoint, res.StatusCode, string(errMsg))
-		return errors.New("Failed to take action: " + string(errMsg))
+		log.Println("Failed to take action:", endpoint, res.StatusCode, string(res.BodyBytes))
+		return errors.New("Failed to take action: " + string(res.BodyBytes))
 	}
 }
 
@@ -66,9 +64,8 @@ func (a Agent) UpdateRecord(siteURL string, recID int, data map[int]string) erro
 		log.Println("Record updated:", siteURL+"?a=printview&recordID="+recordID)
 		return nil
 	} else {
-		errMsg, _ := io.ReadAll(res.Body)
-		log.Println("Failed to update record:", siteURL, recordID, res.StatusCode, string(errMsg))
-		return errors.New("Failed to update record: " + string(errMsg))
+		log.Println("Failed to update record:", siteURL, recordID, res.StatusCode, string(res.BodyBytes))
+		return errors.New("Failed to update record: " + string(res.BodyBytes))
 	}
 }
 
@@ -93,8 +90,7 @@ func (a Agent) UpdateTitle(siteURL string, recID int, title string) error {
 		log.Println("Record title updated:", siteURL+"?a=printview&recordID="+recordID)
 		return nil
 	} else {
-		errMsg, _ := io.ReadAll(res.Body)
-		log.Println("Failed to update record title:", siteURL, recordID, res.StatusCode, string(errMsg))
-		return errors.New("Failed to update record title: " + string(errMsg))
+		log.Println("Failed to update record title:", siteURL, recordID, res.StatusCode, string(res.BodyBytes))
+		return errors.New("Failed to update record title: " + string(res.BodyBytes))
 	}
 }

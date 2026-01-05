@@ -16,7 +16,14 @@ import (
 	"github.com/department-of-veterans-affairs/LEAF/pkg/workflow"
 )
 
-func (a Agent) HttpPost(url string, values url.Values) (res *http.Response, err error) {
+type StaticHTTPResponse struct {
+	StatusCode int
+	Header     http.Header
+
+	BodyBytes []byte
+}
+
+func (a Agent) HttpPost(url string, values url.Values) (ret *StaticHTTPResponse, err error) {
 	req, err := http.NewRequest("POST", url, strings.NewReader(values.Encode()))
 	if err != nil {
 		return nil, err
@@ -25,10 +32,25 @@ func (a Agent) HttpPost(url string, values url.Values) (res *http.Response, err 
 	req.Header.Set("Authorization", a.authToken)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	return a.httpClient.Do(req)
+	resp, err := a.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	ret.StatusCode = resp.StatusCode
+	ret.Header = resp.Header
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return ret, err
+	}
+	ret.BodyBytes = b
+
+	return ret, nil
 }
 
-func (a Agent) HttpGet(url string) (res *http.Response, err error) {
+func (a Agent) HttpGet(url string) (ret *StaticHTTPResponse, err error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -37,7 +59,22 @@ func (a Agent) HttpGet(url string) (res *http.Response, err error) {
 	req.Header.Set("Authorization", a.authToken)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	return a.httpClient.Do(req)
+	resp, err := a.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	ret.StatusCode = resp.StatusCode
+	ret.Header = resp.Header
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return ret, err
+	}
+	ret.BodyBytes = b
+
+	return ret, nil
 }
 
 // FormQuery uses the api/form/query endpoint to fetch matching records
@@ -66,15 +103,10 @@ func (a Agent) FormQuery(siteURL string, q query.Query, params string) (query.Re
 			return nil, err
 		}
 
-		b, err := io.ReadAll(res.Body)
-		if err != nil {
-			return nil, err
-		}
-
 		var batch query.Response
-		err = json.Unmarshal(b, &batch)
+		err = json.Unmarshal(res.BodyBytes, &batch)
 		if err != nil {
-			return nil, fmt.Errorf("unmarshal: %w (%v)", err, string(b))
+			return nil, fmt.Errorf("unmarshal: %w (%v)", err, string(res.BodyBytes))
 		}
 
 		maps.Copy(response, batch)
@@ -104,13 +136,8 @@ func (a Agent) GetIndicatorMap(siteURL string) (map[int]form.Indicator, error) {
 		return nil, err
 	}
 
-	b, err := io.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	var data []form.Indicator
-	err = json.Unmarshal(b, &data)
+	err = json.Unmarshal(res.BodyBytes, &data)
 	if err != nil {
 		return nil, err
 	}
@@ -150,13 +177,8 @@ func (a Agent) GetActions(siteURL string, stepID string) ([]workflow.Action, err
 		return nil, err
 	}
 
-	b, err := io.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	var actions []workflow.Action
-	json.Unmarshal(b, &actions)
+	json.Unmarshal(res.BodyBytes, &actions)
 
 	return actions, nil
 }
@@ -176,11 +198,7 @@ func (a Agent) GetAdmins(siteURL string) ([]group.Member, error) {
 	// marshal JSON response into []group.Members
 	var admins []group.Member
 
-	b, err := io.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-	err = json.Unmarshal(b, &admins)
+	err = json.Unmarshal(res.BodyBytes, &admins)
 	if err != nil {
 		log.Println("Error unmarshaling admins:", err)
 		return nil, err
