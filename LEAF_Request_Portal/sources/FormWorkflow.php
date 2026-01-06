@@ -1643,7 +1643,7 @@ class FormWorkflow
                         }
 
                         if ($eventData->NotifyGroup !== 'None') {
-                            $email->addGroupRecipient($eventData->NotifyGroup);
+                            $email->addGroupRecipient($eventData->NotifyGroup, true);
                         }
 
                         $email->setTemplateByID($emailTemplateID, $this->recordID);

@@ -52,6 +52,8 @@ class Email
     private int $recordID;
     private array $fieldsInUse = array();
     private array $emailFieldsInUse = array();
+    private bool $hasCustomToCc = false;
+    private int $eventGroupNotified = 0;
 
     private string $emailRegex = "/(\w+@[a-z_\-]+?\.[a-z]{2,6})$/i";
 
@@ -259,7 +261,7 @@ class Email
      * Adds all users in a given Group to the reeeipient object variable list
      * @param int $groupID
      */
-    public function addGroupRecipient(int $groupID): void
+    public function addGroupRecipient(int $groupID, bool $isEventGroup = false): void
     {
         $dir = new VAMC_Directory;
 
@@ -274,6 +276,9 @@ class Email
             if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
                 $this->addRecipient($tmp[0]['Email']);
             }
+        }
+        if($isEventGroup === true) {
+            $this->eventGroupNotified = $groupID;
         }
     }
 
@@ -484,10 +489,40 @@ class Email
             if(count($this->fieldsInUse) > 0) {
                 $recordInfo = $this->getRecord($recordID);
                 $isNeedToKnow = (int)$recordInfo[0]['needToKnow'] === 1;
-                //if need to know, confirm all email addresses are associated with users with read access
                 if($isNeedToKnow === true) {
-                    $this->confirmReadAccessAddData($recordID);
+                    // if NTK, check that there are no custom emails (cannot verify individual access)
+                    // Do not get data for Cancel since it emails all prev notified
+                    if ($emailTemplateID !== -7 && $this->hasCustomToCc === false) {
+
+                        if($this->eventGroupNotified > 0) {
+                            $eventGroupHasRead = false;
+                            $recWorkflowID = $recordInfo['workflowID'];
+
+                            $vars = array(
+                                ':workflowID' => $recWorkflowID
+                            ); 
+                            $strSQL = 'SELECT DISTINCT `groupID`
+                                FROM `workflows`
+                                JOIN `workflow_steps` USING (workflowID)
+                                JOIN `step_dependencies` USING (stepID)
+                                JOIN `dependency_privs` USING (dependencyID)
+                                WHERE `workflowID`=:workflowID';
+                            $grpRes = $this->portal_db->prepared_query($strSQL, $vars);
+
+                            foreach ($grpRes as $rec) {
+                                if($rec['groupID'] === $this->eventGroupNotified) {
+                                    $eventGroupHasRead = true;
+                                    break;
+                                }
+                            }
+                            error_log("GROUP HAS READ: " . $eventGroupHasRead);
+
+                        }
+                        $this->confirmActiveAddData($recordID);
+                    }
+                    
                 } else {
+                    //if need to know is not on, get data with default login
                     $plogin = new Login($this->nexus_db, $this->portal_db);
                     $form = new Form($this->portal_db, $plogin);
 
@@ -517,7 +552,7 @@ class Email
     /**
      * Checks setTemplate res to determine if request fields are being used.
      * Add match field IDs, format and sensitive setting to the private fieldsInUse array.
-     * Adds additinional entries to emailFieldsInUse for To/Cc for those templates.
+     * Adds additional entries to emailFieldsInUse for To/Cc for those templates.
      * @param array $templateSections email_templates record
      * @return void
      */
@@ -615,7 +650,6 @@ class Email
             }
             $this->addSmartyVariables(array("field" => $emailFields), true);
         }
-        $this->emailFieldsInUse = array();
     }
 
     /**
@@ -707,9 +741,9 @@ class Email
     }
 
     /**
-     * confirm recipient has access to a need to know request, add field data if true
+     * confirm recipient is active before getting data with form->query with logged in user
      */
-    private function confirmReadAccessAddData(int $recordID): void
+    private function confirmActiveAddData(int $recordID): void
     {
         $to = explode(',', $this->emailRecipient);
         $ccs = array_merge($this->emailCc ?? [], $this->emailBCC ?? []);
@@ -733,7 +767,7 @@ class Email
 
         $empInfo = $this->nexus_db->prepared_query($sql, $varsEmails) ?? [];
 
-        $allHaveAccess = true;
+        $allActiveUsers = true;
 
         $empMap = array();
         foreach ($empInfo as $rec) {
@@ -742,25 +776,19 @@ class Email
             $empMap[$email] = $user;
         }
 
-        $field_login = new \Portal\Login($this->nexus_db, $this->portal_db);
         foreach ($allEmails as $address) {
             $address = XSSHelpers::xscrub(trim($address));
             if (!isset($empMap[$address])) {
-                $allHaveAccess = false;
-                break;
-            }
-            $user = $empMap[$address];
-            //TODO: cannot log in this way outside of CLI, need input
-            $field_login->loginUser($user);
-            $form = new Form($this->portal_db, $field_login);
-            $hasRead = (int)$form->hasReadAccess($recordID);
-            if($hasRead !== 1) {
-                $allHaveAccess = false;
+                $allActiveUsers = false;
                 break;
             }
         }
 
-        if ($allHaveAccess === true) {
+        if ($allActiveUsers === true) {
+            $field_login = new \Portal\Login($this->nexus_db, $this->portal_db);
+            $field_login->loginUser();
+            $form = new Form($this->portal_db, $field_login);
+
             $inds = $this->getFieldIndicatorIDs();
             $q = '{"terms":[{"id":"recordID","operator":"=","match":"' . $recordID . '","gate":"AND"}],' .
                 '"joins":[],"sort":{},"limit":1,"getData":[' . $inds . ']}';
@@ -810,6 +838,7 @@ class Email
                 $eAddress = trim(strip_tags(htmlspecialchars_decode($emailAddress, ENT_QUOTES | ENT_HTML5 )));
                 //filter blanks.  addCcBcc and addRec both have email regex checks with set start and end vals
                 if($eAddress !== "") {
+                    $this->hasCustomToCc = true;
                     if ($isCc) {
                         $this->addCcBcc($eAddress, true);
                     } else {
@@ -1197,7 +1226,7 @@ class Email
     {
         $vars = array(':recordID' => $recordID);
         $strSQL =  "SELECT `rec`.`userID`, `rec`.`submitted`, `rec`.`serviceID`, `rec`.`userMetadata`, `ser`.`service`, `rec`.`title`,
-                        `rec`.`lastStatus`,`needToKnow`,`categoryName`
+                        `rec`.`lastStatus`,`needToKnow`,`categoryName`, `categories`.`workflowID`
                     FROM `records` AS `rec`
                     LEFT JOIN category_count USING (recordID)
                     LEFT JOIN categories USING (categoryID)
