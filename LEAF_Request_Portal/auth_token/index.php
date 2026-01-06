@@ -18,9 +18,8 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
 {
     $protocol = 'https://';
 
-    $hostWithoutSuffix = substr(HTTP_HOST, 0, -4);
-    $defaultRedirect = $protocol . $hostWithoutSuffix . dirname($_SERVER['PHP_SELF']). '/../';
-    $redirect = Security::getSafeRedirectFromRequest($hostWithoutSuffix, $defaultRedirect, $protocol);
+    $defaultRedirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']). '/../';
+    $redirect = Security::getSafeRedirectFromRequest(HTTP_HOST, $defaultRedirect, $protocol);
 
     $vars = array(':email' => $_SERVER['SSL_CLIENT_S_DN_UID']);
     $sql = 'SELECT `userName`
