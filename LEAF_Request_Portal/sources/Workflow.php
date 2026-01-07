@@ -1771,8 +1771,9 @@ class Workflow
                     SET `indicatorID_for_assigned_groupID` = NULL
                     WHERE `stepID` = :stepID';
         }
-
-        $this->db->prepared_query($sql2, $vars);
+        if ($dependencyID === -1 || $dependencyID === -3) {
+            $this->db->prepared_query($sql2, $vars);
+        }
     }
 
     /**
