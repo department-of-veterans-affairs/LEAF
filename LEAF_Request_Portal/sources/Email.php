@@ -470,7 +470,7 @@ class Email
      * @param int $emailTemplateID emailTemplateID from email_templates table
      * @return void
      */
-    function setTemplateByID(int $emailTemplateID, int $recordID): void
+    function setTemplateByID(int $emailTemplateID, int $recordID, mixed $loggedInUser): void
     {
         $vars = array(':emailTemplateID' => $emailTemplateID);
         $strSQL = "SELECT `emailTo`, `emailCc`,`subject`, `body`
@@ -481,58 +481,117 @@ class Email
         $this->fieldsInUse = array();
         $this->emailFieldsInUse = array();
         if(count($res) === 1) {
-            $this->addRequestFieldProperties($res[0], $recordID);
+            $this->processFieldMatches($res[0], $recordID);
             $this->addEmailRequestFieldVariables($recordID);
             $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo'] == null ? '' : $res[0]['emailTo']));
             $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc'] == null ? '' : $res[0]['emailCc']), true);
 
             if(count($this->fieldsInUse) > 0) {
                 $recordInfo = $this->getRecord($recordID);
-                $isNeedToKnow = (int)$recordInfo[0]['needToKnow'] === 1;
-                if($isNeedToKnow === true) {
-                    // if NTK, check that there are no custom emails (cannot verify individual access)
-                    // Do not get data for Cancel since it emails all prev notified
+                $isNeedToKnow = (int)$recordInfo[0]['needToKnow'];
+                if($isNeedToKnow === 1) {
+                    // If NTK, do not add fields if there are custom emails (cannot verify individual access)
+                    // or if the template is Cancel Notification because it emails all prev notified
                     if ($emailTemplateID !== -7 && $this->hasCustomToCc === false) {
+                        //nothing further if there is no other customization of recipients
+                        if ($this->eventGroupNotified === 0 && count($this->emailFieldsInUse) === 0) {
+                            $this->addFieldDataValues($recordID, $loggedInUser);
 
-                        if($this->eventGroupNotified > 0) {
-                            $eventGroupHasRead = false;
-                            $recWorkflowID = $recordInfo['workflowID'];
-
-                            $vars = array(
-                                ':workflowID' => $recWorkflowID
-                            ); 
-                            $strSQL = 'SELECT DISTINCT `groupID`
+                        } else {
+                            //if the event is used to notify a group, confirm group is a workflow requirement
+                            //set initial value to true if there is no notify group config on the custom event
+                            $eventGroupHasRead = $this->eventGroupNotified > 0 ? false : true;
+                            //TODO: feedback and potentially move dependency and pd/gd related to method in FWF?
+                            $grpDepSQL = 'SELECT `groupID`
                                 FROM `workflows`
                                 JOIN `workflow_steps` USING (workflowID)
                                 JOIN `step_dependencies` USING (stepID)
                                 JOIN `dependency_privs` USING (dependencyID)
-                                WHERE `workflowID`=:workflowID';
-                            $grpRes = $this->portal_db->prepared_query($strSQL, $vars);
+                                WHERE `workflowID`=:wfID AND `groupID`=:groupID';
 
-                            foreach ($grpRes as $rec) {
-                                if($rec['groupID'] === $this->eventGroupNotified) {
+                            if($this->eventGroupNotified > 0) {
+                                $vars = array(
+                                    ':wfID' => (int)$recordInfo[0]['workflowID'],
+                                    ':groupID' => $this->eventGroupNotified
+                                );
+
+                                $grpRes = $this->portal_db->prepared_query($grpDepSQL, $vars);
+
+                                if (count($grpRes) > 0) {
                                     $eventGroupHasRead = true;
-                                    break;
                                 }
                             }
-                            error_log("GROUP HAS READ: " . $eventGroupHasRead);
 
+                            if($eventGroupHasRead) { //don't bother checking further if this is already false
+                                $fieldCount = count($this->emailFieldsInUse);
+                                $accessCount = 0;
+                                foreach($this->emailFieldsInUse as $indID => $fieldInfo) {
+                                    $format = $fieldInfo['format'];
+                                    $value = $fieldInfo['value'];
+                                    if($format === 'orgchart_group') {
+                                        $vars = array(
+                                            ':wfID' => (int)$recordInfo[0]['workflowID'],
+                                            ':groupID' => $value
+                                        );
+                                        $grpRes = $this->portal_db->prepared_query($grpDepSQL, $vars) ?? [];
+
+                                        if (count($grpRes) > 0) {
+                                            $accessCount += 1;
+                                        } else {
+                                            error_log("GRP NOT DEP, check gdIndID");
+                                            $vars = array(
+                                                ':wfID' => (int)$recordInfo[0]['workflowID'],
+                                                ':gdIndID' => $indID
+                                            );
+                                            $gdSQL = 'SELECT stepID
+                                                FROM workflow_steps
+                                                WHERE workflowID=:wfID AND
+                                                indicatorID_for_assigned_groupID=:gdIndID';
+
+                                            $gdRes = $this->portal_db->prepared_query($gdSQL, $vars) ?? [];
+                                            if(count($gdRes) === 0) {
+                                                break;
+                                            } else {
+                                                $accessCount += 1;
+                                            }
+                                        }
+                                    }
+                                    if($format === 'orgchart_employee') {
+                                        $vars = array(
+                                            ':wfID' => (int)$recordInfo[0]['workflowID'],
+                                            ':pdIndID' => $indID
+                                        );
+                                        $pdSQL = 'SELECT stepID
+                                            FROM workflow_steps
+                                            WHERE workflowID=:wfID AND
+                                            indicatorID_for_assigned_empUID=:pdIndID';
+
+                                        $pdRes = $this->portal_db->prepared_query($pdSQL, $vars) ?? [];
+                                        if(count($pdRes) === 0) {
+                                            break;
+                                        } else {
+                                            $accessCount += 1;
+                                        }
+                                    }
+                                }
+
+                                $emailFieldsHaveRead = $accessCount === $fieldCount;
+                                if($emailFieldsHaveRead) {
+                                    $this->addFieldDataValues($recordID, $loggedInUser);
+                                }
+                            }
                         }
-                        $this->confirmActiveAddData($recordID);
                     }
-                    
+
                 } else {
-                    //if need to know is not on, get data with default login
-                    $plogin = new Login($this->nexus_db, $this->portal_db);
-                    $form = new Form($this->portal_db, $plogin);
-
-                    $inds = $this->getFieldIndicatorIDs();
-                    $q = '{"terms":[{"id":"recordID","operator":"=","match":"' . $recordID . '","gate":"AND"}],' .
-                        '"joins":[],"sort":{},"limit":1,"getData":[' . $inds . ']}';
-
-                    $fData = $form->query($q)[$recordID]['s1'] ?? [];
-                    $this->addFormattedData($fData, $recordID);
+                    $this->addFieldDataValues($recordID, $loggedInUser);
                 }
+
+                $fields = array();
+                foreach ($this->fieldsInUse as $indID => $entry) {
+                    $fields[$indID] = $entry['value'];
+                }
+                $this->addSmartyVariables(array('field' => $fields));
             }
 
             $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject'] == null ? '' : $res[0]['subject']));
@@ -540,43 +599,62 @@ class Email
         }
     }
 
-    private function getFieldIndicatorIDs(): string
+    /**
+     * return a string of comma sep numeric indicatorID values for use in subquery
+     */
+    private function getFieldIndicatorSubquery(): string
     {
         $indKeys = array_keys($this->fieldsInUse);
         $indicatorIDs = implode(
-            ',', array_filter($indKeys, function($k) { return is_numeric($k); })
+            ',', array_filter($indKeys, function($indID) { return is_numeric($indID); })
         );
         return $indicatorIDs;
     }
 
     /**
      * Checks setTemplate res to determine if request fields are being used.
-     * Add match field IDs, format and sensitive setting to the private fieldsInUse array.
-     * Adds additional entries to emailFieldsInUse for To/Cc for those templates.
+     * Adds match field IDs, format and sensitive setting to the fieldsInUse array.
+     * Adds additional entries to emailFieldsInUse for To/Cc for ToCc templates.
      * @param array $templateSections email_templates record
      * @return void
      */
-    private function addRequestFieldProperties(array $templateSections, int $recordID): void
+    private function processFieldMatches(array $templateSections, int $recordID): void
     {
+        $fieldPattern = '/\$field\.\d+/';
+        $subStrIdx = strlen('$field.');
+
         $templateKeys = [ 'emailTo', 'emailCc', 'subject', 'body' ];
         foreach($templateKeys as $section) {
-            $fname = XSSHelpers::xscrub($templateSections[$section]);
+            $fname = XSSHelpers::xscrub($templateSections[$section] ?? '');
             $fpath = $this->getFilepath($fname, $section);
             if (str_starts_with($fpath, 'custom_override/')) {
                 $fullPath = __DIR__ . '/../templates/email/' . $fpath;
                 if (file_exists($fullPath) && is_readable($fullPath)) {
                     $content = file_get_contents($fullPath);
-                    preg_match_all('/\$field\.\d+/', $content, $requestFields);
+                    //To/Cc are one entry per line and should be either an address or field.id entry
+                    if($section === 'emailTo' || $section === 'emailCc') {
+                        $emailList = explode(PHP_EOL, trim($content));
+                        foreach ($emailList as $entry) {
+                            preg_match($fieldPattern, $entry, $fieldMatch);
+                            $field = $fieldMatch[0] ?? '';
+                            if(!empty($field)) {
+                                $fieldID = substr($field, $subStrIdx);
+                                if(is_numeric($fieldID)) {
+                                    $this->fieldsInUse[$fieldID] = array();
+                                    $this->emailFieldsInUse[$fieldID] = array();
+                                }
+                            } else {
+                                $this->hasCustomToCc = true;
+                            }
+                        }
 
-                    $matches = $requestFields[0] ?? [];
-                    foreach ($matches as $idx => $field) {
-                        $fieldID = substr($field, 7);
-                        if(is_numeric($fieldID)) {
-                            //all fields (including To/Cc)
-                            $this->fieldsInUse[$fieldID] = array('value' => '');
-                            //To/Cc only
-                            if($section === 'emailTo' || $section === 'emailCc') {
-                                $this->emailFieldsInUse[$fieldID] = array();
+                    } else {
+                        preg_match_all($fieldPattern, $content, $fieldMatches);
+                        $matches = $fieldMatches[0] ?? [];
+                        foreach ($matches as $idx => $field) {
+                            $fieldID = substr($field, $subStrIdx);
+                            if(is_numeric($fieldID)) {
+                                $this->fieldsInUse[$fieldID] = array();
                             }
                         }
                     }
@@ -584,22 +662,27 @@ class Email
             }
         }
 
-        $inds = $this->getFieldIndicatorIDs();
-        $SQLformat = "SELECT `indicatorID`, `format`, `is_sensitive` FROM `indicators`
+        //get and add information about format and sensitivity.
+        $inds = $this->getFieldIndicatorSubquery();
+        $SQLformat = "SELECT `indicatorID`, `format`, `is_sensitive`
+            FROM `indicators`
             WHERE `indicatorID` IN ({$inds})";
 
         $indInfo = $this->portal_db->prepared_query($SQLformat, array());
+
         foreach ($indInfo as $rec) {
             $id = $rec['indicatorID'];
-            $f = explode("\n", $rec['format'])[0] ?? '';
+            $format = explode("\n", $rec['format'])[0] ?? '';
             $isSensitive = (int)$rec['is_sensitive'];
-            $this->fieldsInUse[$id]['format'] = $f;
+            $this->fieldsInUse[$id]['format'] = $format;
             $this->fieldsInUse[$id]['is_sensitive'] = $isSensitive;
             if($isSensitive === 1) {
                 $this->fieldsInUse[$id]['value'] = '**********';
+            } else {
+                $this->fieldsInUse[$id]['value'] = '';
             }
             if(isset($this->emailFieldsInUse[$id])) {
-                $this->emailFieldsInUse[$id]['format'] = $f;
+                $this->emailFieldsInUse[$id]['format'] = $format;
             }
         }
     }
@@ -612,8 +695,7 @@ class Email
     {
         $empGrpIDs = '';
         foreach($this->emailFieldsInUse as $indID => $entry) {
-            $isAllowedFormat = $entry['format'] === 'orgchart_employee' || $entry['format'] === 'orgchart_group';
-            if(is_numeric($indID) && $isAllowedFormat) {
+            if(is_numeric($indID)) {
                 $empGrpIDs .= $empGrpIDs === '' ? $indID : ', ' . $indID;
             }
         }
@@ -622,8 +704,8 @@ class Email
             $vars = array(
                 ':recordID' => $recordID
             );
-            $strSQL = "SELECT `indicators`.`format`, `data`.`indicatorID`, `data`.`data` FROM `data`
-                JOIN `indicators` USING (`indicatorID`)
+            $strSQL = "SELECT `indicators`.`format`, `indicators`.`indicatorID`, `data`.`data` FROM `data`
+                JOIN `indicators` USING (indicatorID)
                 WHERE `recordID` = :recordID
                 AND `indicators`.`is_sensitive`=0
                 AND `indicators`.`indicatorID` IN ({$empGrpIDs})";
@@ -635,14 +717,16 @@ class Email
             foreach($empGrpData as $rec) {
                 $indID = $rec['indicatorID'];
                 $dataID = $rec['data'];
-                $f = $rec['format'];
-                if ($f === 'orgchart_group') {
+                $format = $rec['format'];
+                if ($format === 'orgchart_group' && is_numeric($dataID)) {
+                    $this->emailFieldsInUse[$indID]['value'] = $dataID;
                     $group = new \Portal\Group($this->portal_db, $plogin);
                     $groupMembers = $group->getMembers($dataID)['data'] ?? [];
                     $userEmails = array_column($groupMembers, 'email') ?? [];
                     $emailFields[$indID] = implode("\r\n", $userEmails);
                 }
-                if ($f === 'orgchart_employee') {
+                if ($format === 'orgchart_employee' && is_numeric($dataID)) {
+                    $this->emailFieldsInUse[$indID]['value'] = $dataID;
                     $employee = new \Orgchart\Employee($this->nexus_db, $plogin);
                     $employeeData = $employee->lookupEmpUID($dataID)[0];
                     $emailFields[$indID] = $employeeData["email"];
@@ -655,16 +739,17 @@ class Email
     /**
      * format non sensitive data for use in email subject or body based on question type
      */
-    private function addFormattedData(array $fData, int $recordID): void
+    private function formatFieldValues(array $requestData, int $recordID): void
     {
-        foreach($this->fieldsInUse as $k => $entry) {
-            if ($entry['is_sensitive'] === 0 && isset($fData['id' . $k])) {
-                $data = $fData['id' . $k];
-                $f = trim($entry['format']);
-                switch($f) {
-                    case "grid": //process to table
-                        if(isset($fData['id' . $k . '_gridInput'])) {
-                            $data = $fData['id' . $k . '_gridInput'];
+        foreach($this->fieldsInUse as $indID => $entry) {
+            if ($entry['is_sensitive'] === 0 && isset($requestData['id' . $indID])) {
+                $data = $requestData['id' . $indID];
+
+                $format = trim($entry['format']);
+                switch($format) {
+                    case "grid":
+                        if(isset($requestData['id' . $indID . '_gridInput'])) {
+                            $data = $requestData['id' . $indID . '_gridInput'];
                             $cells = $data['cells'];
                             $headers = $data['names'];
 
@@ -691,7 +776,7 @@ class Email
                                 $grid .= "</tr>";
                             }
                             $grid .= "</tbody></table>";
-                            $this->fieldsInUse[$k]['value'] = $grid;
+                            $this->fieldsInUse[$indID]['value'] = $grid;
                         }
                         break;
                     case "fileupload":
@@ -700,104 +785,54 @@ class Email
                         $buffer = [];
                         foreach($data as $index => $file) {
                             $file = XSSHelpers::scrubFilename($file);
-                            $buffer[] = "<a href=\"{$this->siteRoot}file.php?form={$recordID}&id={$k}&series=1&file={$index}\">{$file}</a>";
+                            $buffer[] = "<a href=\"{$this->siteRoot}file.php?form={$recordID}&id={$indID}&series=1&file={$index}\">{$file}</a>";
                         }
-                        $this->fieldsInUse[$k]['value'] = implode(", ", $buffer);
+                        $this->fieldsInUse[$indID]['value'] = implode(", ", $buffer);
                         break;
                     case "checkboxes": //multiple option arrays
                     case "multiselect":
-                        if(isset($fData['id' . $k . '_array'])) {
-                            $data = $fData['id' . $k . '_array'];
-                            $this->fieldsInUse[$k]['value'] = '<ul>';
+                        if(isset($requestData['id' . $indID . '_array'])) {
+                            $data = $requestData['id' . $indID . '_array'];
+                            $this->fieldsInUse[$indID]['value'] = '<ul>';
                             foreach($data as $option) {
                                 $o = trim(strip_tags(
                                     htmlspecialchars_decode($option, ENT_QUOTES | ENT_HTML5)
                                 ));
-                                $this->fieldsInUse[$k]['value'] .= '<li>' . $o . '</li>';
+                                $this->fieldsInUse[$indID]['value'] .= '<li>' . $o . '</li>';
                             }
-                            $this->fieldsInUse[$k]['value'] .= '</ul>';
+                            $this->fieldsInUse[$indID]['value'] .= '</ul>';
                         }
                         break;
                     case "textarea": //text with some html
                         $t = trim(XSSHelpers::sanitizeHTML(
                             htmlspecialchars_decode($data, ENT_QUOTES | ENT_HTML5)
                         ));
-                        $this->fieldsInUse[$k]['value'] = $t;
+                        $this->fieldsInUse[$indID]['value'] = $t;
                         break;
                     default:
-                        $this->fieldsInUse[$k]['value'] = trim(strip_tags(
+                        $this->fieldsInUse[$indID]['value'] = trim(strip_tags(
                             htmlspecialchars_decode($data, ENT_QUOTES | ENT_HTML5)
                         ));
                         break;
                 }
             }
         }
-
-        $fields = array();
-        foreach ($this->fieldsInUse as $k => $entry) {
-            $fields[$k] = $entry['value'];
-        }
-        $this->addSmartyVariables(array('field' => $fields));
     }
 
     /**
-     * confirm recipient is active before getting data with form->query with logged in user
+     * query with the logged in user
      */
-    private function confirmActiveAddData(int $recordID): void
+    private function addFieldDataValues(int $recordID, Login $login): void
     {
-        $to = explode(',', $this->emailRecipient);
-        $ccs = array_merge($this->emailCc ?? [], $this->emailBCC ?? []);
+        $form = new Form($this->portal_db, $login);
 
-        $allEmails = array_merge($to, $ccs);
-        $count = 0;
+        $inds = $this->getFieldIndicatorSubquery();
+        $q = '{"terms":[{"id":"recordID","operator":"=","match":"' . $recordID . '","gate":"AND"}],' .
+            '"joins":[],"sort":{},"limit":1,"getData":[' . $inds . ']}';
 
-        $varsEmails = array();
-        $placeholders = '';
+        $requestData = $form->query($q)[$recordID]['s1'] ?? [];
 
-        foreach ($allEmails as $address) {
-            $qKey = ':email_'. $count;
-            $varsEmails[$qKey] = XSSHelpers::xscrub(trim($address));
-            $placeholders .= $count === 0 ? $qKey : ', ' . $qKey;
-            $count += 1;
-        }
-
-        $sql = "SELECT `userName`, `data` as userEmail FROM `employee_data` JOIN `employee` USING (empUID)
-            WHERE `employee`.`deleted`=0 AND `employee_data`.`indicatorID`=6 AND
-            `employee_data`.`data` IN({$placeholders})";
-
-        $empInfo = $this->nexus_db->prepared_query($sql, $varsEmails) ?? [];
-
-        $allActiveUsers = true;
-
-        $empMap = array();
-        foreach ($empInfo as $rec) {
-            $user = $rec['userName'];
-            $email = XSSHelpers::xscrub(trim($rec['userEmail']));
-            $empMap[$email] = $user;
-        }
-
-        foreach ($allEmails as $address) {
-            $address = XSSHelpers::xscrub(trim($address));
-            if (!isset($empMap[$address])) {
-                $allActiveUsers = false;
-                break;
-            }
-        }
-
-        if ($allActiveUsers === true) {
-            $field_login = new \Portal\Login($this->nexus_db, $this->portal_db);
-            $field_login->loginUser();
-            $form = new Form($this->portal_db, $field_login);
-
-            $inds = $this->getFieldIndicatorIDs();
-            $q = '{"terms":[{"id":"recordID","operator":"=","match":"' . $recordID . '","gate":"AND"}],' .
-                '"joins":[],"sort":{},"limit":1,"getData":[' . $inds . ']}';
-
-            $fData = $form->query($q)[$recordID]['s1'] ?? [];
-            $this->addFormattedData($fData, $recordID);
-            unset($fData);
-        }
-        $field_login->logout();
+        $this->formatFieldValues($requestData, $recordID);
     }
 
 
@@ -838,7 +873,6 @@ class Email
                 $eAddress = trim(strip_tags(htmlspecialchars_decode($emailAddress, ENT_QUOTES | ENT_HTML5 )));
                 //filter blanks.  addCcBcc and addRec both have email regex checks with set start and end vals
                 if($eAddress !== "") {
-                    $this->hasCustomToCc = true;
                     if ($isCc) {
                         $this->addCcBcc($eAddress, true);
                     } else {
@@ -1127,7 +1161,7 @@ class Email
                 }
             }
             if ($emailTemplateID < 2) {
-                $this->setTemplateByID($emailTemplateID, $recordID);
+                $this->setTemplateByID($emailTemplateID, $recordID, $loggedInUser);
             }
             $return_value = $this->sendMail($recordID);
         } elseif ($emailTemplateID === -4) {
@@ -1167,7 +1201,7 @@ class Email
             if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
                 $this->addRecipient($tmp[0]['Email']);
             }
-            $this->setTemplateByID($emailTemplateID, $recordID);
+            $this->setTemplateByID($emailTemplateID, $recordID, $loggedInUser);
             $return_value = $this->sendMail($recordID);
         } elseif ($emailTemplateID === -7) { //Cancel Notification
             $recordInfo = $this->getRecord($recordID);
@@ -1212,7 +1246,7 @@ class Email
                 if ($authorEmail != '') {
                     $this->addRecipient($authorEmail);
                 }
-                $this->setTemplateByID($emailTemplateID, $recordID);
+                $this->setTemplateByID($emailTemplateID, $recordID, $loggedInUser);
                 $this->sendMail($recordID);
             }
         } elseif ($emailTemplateID > 1) {

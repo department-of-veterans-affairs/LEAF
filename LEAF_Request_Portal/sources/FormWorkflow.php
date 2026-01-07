@@ -1451,7 +1451,7 @@ class FormWorkflow
                   $email->addRecipient($theirBackup[0]['Email']);
               }
             }
-            $email->setTemplateByID(Email::SEND_BACK, $this->recordID);
+            $email->setTemplateByID(Email::SEND_BACK, $this->recordID, $this->login);
             $email->setSender($author[0]['Email']);
             $email->sendMail($this->recordID);
         }
@@ -1556,7 +1556,7 @@ class FormWorkflow
 
                         $tmp = $dir->lookupLogin($requestRecords[0]['userID']);
                         $email->addRecipient($tmp[0]['Email']);
-                        $email->setTemplateByID(Email::NOTIFY_COMPLETE, $this->recordID);
+                        $email->setTemplateByID(Email::NOTIFY_COMPLETE, $this->recordID, $this->login);
                         $email->sendMail($this->recordID);
                     }
                     break;
@@ -1646,7 +1646,7 @@ class FormWorkflow
                             $email->addGroupRecipient($eventData->NotifyGroup, true);
                         }
 
-                        $email->setTemplateByID($emailTemplateID, $this->recordID);
+                        $email->setTemplateByID($emailTemplateID, $this->recordID, $this->login);
                         if ($eventData->NotifyNext === 'true') {
                             $email->attachApproversAndEmail($this->recordID, $emailTemplateID, $this->login);
 
