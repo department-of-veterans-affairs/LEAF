@@ -92,7 +92,7 @@ switch ($action) {
            break;
     case 'printview':
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/jsdiff.js'));
+        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/jsdiff.js', APP_JS_PATH . '/LEAF/XSSHelpers.js',));
 
         $form = new Portal\Form($db, $login);
         $t_menu->assign('recordID', (int)$_GET['recordID']);
