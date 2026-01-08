@@ -9,8 +9,9 @@
 */
 
 namespace Portal;
-use App\Leaf\Db;
+
 use App\Leaf\XSSHelpers;
+use App\Leaf\Setting;
 
 class FormWorkflow
 {
@@ -1043,7 +1044,7 @@ class FormWorkflow
                     ':comment' => $comment,
                     ':userMetadata' => $userMetadata,
                 );
-                $logKey = sha1(serialize($vars2));
+                $logKey = sha1(json_encode($vars2));
                 if (!isset($logCache[$logKey]))
                 {
                     // write log
@@ -1749,14 +1750,16 @@ class FormWorkflow
             $format = trim(strtolower(explode(PHP_EOL, $field["format"])[0] ?? ""));
             switch($format) {
                 case "grid":
-                    if(!empty($data) && is_array(unserialize($data))){
-                        $data = $this->buildGrid(unserialize($data));
+                    $decoded = Setting::safeDecodeData($data);
+                    if(!empty($data) && is_array($decoded)){
+                        $data = $this->buildGrid($decoded);
                     }
                     break;
                 case "checkboxes":
                 case "multiselect":
-                    if(!empty($data) && is_array(unserialize($data))){
-                        $formatted = $this->buildMultiOption(unserialize($data));
+                    $decoded = Setting::safeDecodeData($data);
+                    if(!empty($data) && is_array($decoded)){
+                        $formatted = $this->buildMultiOption($decoded);
                         $data = $formatted["content"];
                     }
                     break;
