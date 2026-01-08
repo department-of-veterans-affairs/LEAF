@@ -635,26 +635,28 @@ class Email
                     if($section === 'emailTo' || $section === 'emailCc') {
                         $emailList = explode(PHP_EOL, trim($content));
                         foreach ($emailList as $entry) {
-                            preg_match($fieldPattern, $entry, $fieldMatch);
-                            $field = $fieldMatch[0] ?? '';
-                            if(!empty($field)) {
+                            if (preg_match($fieldPattern, $entry, $fieldMatch) === 1) {
+                                $field = $fieldMatch[0];
                                 $fieldID = substr($field, $subStrIdx);
                                 if(is_numeric($fieldID)) {
                                     $this->fieldsInUse[$fieldID] = array();
                                     $this->emailFieldsInUse[$fieldID] = array();
                                 }
                             } else {
-                                $this->hasCustomToCc = true;
+                                if(!empty(trim($entry))) {
+                                    $this->hasCustomToCc = true;
+                                }
                             }
                         }
 
                     } else {
-                        preg_match_all($fieldPattern, $content, $fieldMatches);
-                        $matches = $fieldMatches[0] ?? [];
-                        foreach ($matches as $idx => $field) {
-                            $fieldID = substr($field, $subStrIdx);
-                            if(is_numeric($fieldID)) {
-                                $this->fieldsInUse[$fieldID] = array();
+                        if (preg_match_all($fieldPattern, $content, $fieldMatches) > 0) {
+                            $matches = $fieldMatches[0];
+                            foreach ($matches as $idx => $field) {
+                                $fieldID = substr($field, $subStrIdx);
+                                if(is_numeric($fieldID)) {
+                                    $this->fieldsInUse[$fieldID] = array();
+                                }
                             }
                         }
                     }
