@@ -614,14 +614,66 @@ class Workflow
 
             $this->db->prepared_query($strSQL, $vars);
 
-            //rename files
-            if (file_exists("../templates/email/custom_override/{$name}_body.tpl")) {
-                rename("../templates/email/custom_override/{$name}_body.tpl", "../templates/email/custom_override/{$newName}_body.tpl");
-                rename("../templates/email/custom_override/{$name}_subject.tpl", "../templates/email/custom_override/{$newName}_subject.tpl");
-                rename("../templates/email/custom_override/{$name}_emailTo.tpl", "../templates/email/custom_override/{$newName}_emailTo.tpl");
-                rename("../templates/email/custom_override/{$name}_emailCc.tpl", "../templates/email/custom_override/{$newName}_emailCc.tpl");
+            $customOverrideDir = realpath('../templates/email/custom_override');
+
+            if ($customOverrideDir === false) {
+                return 'Template directory not found';
+            }
+
+            // Build old file paths
+            $oldBodyFile = $customOverrideDir . '/' . $name . '_body.tpl';
+            $oldSubjectFile = $customOverrideDir . '/' . $name . '_subject.tpl';
+            $oldEmailToFile = $customOverrideDir . '/' . $name . '_emailTo.tpl';
+            $oldEmailCcFile = $customOverrideDir . '/' . $name . '_emailCc.tpl';
+
+            // Build new file paths
+            $newBodyFile = $customOverrideDir . '/' . $newName . '_body.tpl';
+            $newSubjectFile = $customOverrideDir . '/' . $newName . '_subject.tpl';
+            $newEmailToFile = $customOverrideDir . '/' . $newName . '_emailTo.tpl';
+            $newEmailCcFile = $customOverrideDir . '/' . $newName . '_emailCc.tpl';
+
+            if (!XSSHelpers::isPathSafe($oldBodyFile, $customOverrideDir)
+                || !XSSHelpers::isPathSafe($oldSubjectFile, $customOverrideDir)
+                || !XSSHelpers::isPathSafe($oldEmailToFile, $customOverrideDir)
+                || !XSSHelpers::isPathSafe($oldEmailCcFile, $customOverrideDir)
+                || !XSSHelpers::isPathSafe($newBodyFile, $customOverrideDir)
+                || !XSSHelpers::isPathSafe($newSubjectFile, $customOverrideDir)
+                || !XSSHelpers::isPathSafe($newEmailToFile, $customOverrideDir)
+                || !XSSHelpers::isPathSafe($newEmailCcFile, $customOverrideDir)
+            ) {
+                return "One or more paths are invalid";
+            }
+
+            if (file_exists($oldBodyFile)) {
+                $errorMessages = [];
+
+                if (!rename($oldBodyFile, $newBodyFile)) {
+                    error_log("Edit event error: Failed to rename {$oldBodyFile} to {$newBodyFile}");
+                    $errorMessages[] = 'Failed to rename body template';
+                }
+
+                if (!rename($oldSubjectFile, $newSubjectFile)) {
+                    error_log("Edit event error: Failed to rename {$oldSubjectFile} to {$newSubjectFile}");
+                    $errorMessages[] = 'Failed to rename subject template';
+                }
+
+                if (!rename($oldEmailToFile, $newEmailToFile)) {
+                    error_log("Edit event error: Failed to rename {$oldEmailToFile} to {$newEmailToFile}");
+                    $errorMessages[] = 'Failed to rename emailTo template';
+                }
+
+                if (!rename($oldEmailCcFile, $newEmailCcFile)) {
+                    error_log("Edit event error: Failed to rename {$oldEmailCcFile} to {$newEmailCcFile}");
+                    $errorMessages[] = 'Failed to rename emailCc template';
+                }
+
+                // If any errors occurred, combine them into a single message
+                if (count($errorMessages) > 0) {
+                    return implode('; ', $errorMessages);
+                }
             }
         }
+
         return 1;
     }
 
