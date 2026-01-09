@@ -58,7 +58,7 @@ foreach (array_keys($settings) as $key)
 switch ($action) {
     case 'showServiceFTEstatus':
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js'));
+        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', APP_JS_PATH . '/LEAF/XSSHelpers.js',));
 
         $form = new Portal\Form($db, $login);
         $o_login = $t_login->fetch('login.tpl');
@@ -116,6 +116,9 @@ switch ($action) {
             $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
             $t_form->assign('app_css_path', APP_CSS_PATH);
             $t_form->assign('app_js_path', APP_JS_PATH);
+
+            $powerQueryURL = "https://" . AUTH_URL . "/report_auth.php?r=";
+            $t_form->assign('powerQueryURL', $powerQueryURL);
 
             $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
             $tabText = '';

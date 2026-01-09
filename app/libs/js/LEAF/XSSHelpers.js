@@ -6,10 +6,10 @@ var XSSHelpers = function () {
     /**
      * Builds a RegExp that will match the given HTML tag. Also
      * matches even if the tag contains attributes. Can be in
-     * the format "<strong>", or just "strong". 
-     * 
+     * the format "<strong>", or just "strong".
+     *
      * @param string    tag     The tag to build a regex for
-     * 
+     *
      * @return RegExp   a Javascript RegExp object
      */
     buildTagRegex = function(tag) {
@@ -21,9 +21,9 @@ var XSSHelpers = function () {
      * HTML tag. This ensures any regex operations will be working with
      * the same data without concerns of formatting (e.g., "</strong>"
      * will return "strong").
-     * 
+     *
      * @param string    tag     The tag to clean
-     * 
+     *
      * @return string   The cleaned tag
      */
     cleanTag = function(tag) {
@@ -33,10 +33,10 @@ var XSSHelpers = function () {
 
     /**
      * Checks the given text for the specified tag.
-     * 
+     *
      * @param text  string  The text to check for tag
-     * @param tag   string  The tag to search for    
-     * 
+     * @param tag   string  The tag to search for
+     *
      * @return bool If the specified tag was found in the text
      */
     containsTag = function (text, tag) {
@@ -45,12 +45,12 @@ var XSSHelpers = function () {
 
     /**
      * Checks the given text for the specified tags.
-     * 
+     *
      * @param text  string      The text to check for tags
-     * @param tags  string[]    An array of tags to search for    
+     * @param tags  string[]    An array of tags to search for
      * @param bool  containsAll If the given text should contain ALL
-     * 
-     * @return bool If any/all (depends on containsAll) of the 
+     *
+     * @return bool If any/all (depends on containsAll) of the
      *              specified tags were found in the text.
      */
     containsTags = function(text, tags, containsAll) {
@@ -72,9 +72,9 @@ var XSSHelpers = function () {
 
     /**
      * Strips ALL HTML tags from the given text.
-     * 
+     *
      * @param string    text    The text to strip tags from
-     * 
+     *
      * @return string   The stripped text
      */
     stripAllTags = function (text) {
@@ -83,10 +83,10 @@ var XSSHelpers = function () {
 
     /**
      * Strips the given text of the specified tag.
-     * 
+     *
      * @param text  string  The text to strip tags from
-     * @param tag   string  The tag to strip from the text   
-     * 
+     * @param tag   string  The tag to strip from the text
+     *
      * @return string   The stripped text
      */
     stripTag = function (text, tag) {
@@ -95,10 +95,10 @@ var XSSHelpers = function () {
 
     /**
      * Strips the given text of the specified tags.
-     * 
+     *
      * @param text  string  The text to strip tags from
-     * @param tags  string  Array of tags to strip from the text   
-     * 
+     * @param tags  string  Array of tags to strip from the text
+     *
      * @return string   The stripped text
      */
     stripTags = function(text, tags) {
@@ -127,6 +127,52 @@ var XSSHelpers = function () {
         return text;
     };
 
+    /**
+     * Escapes HTML special characters to prevent XSS attacks.
+     * Converts characters like <, >, &, ", ' to their HTML entity equivalents.
+     * Use this when inserting untrusted data (from database, API, user input)
+     * into HTML content.
+     *
+     * @param str  string|null|undefined  The string to escape
+     *
+     * @return string  The escaped string safe for HTML insertion
+     */
+    escapeHTML = function(str) {
+        if (str === null || str === undefined) {
+            return '';
+        }
+
+        // Use browser's native text node escaping
+        var div = document.createElement('div');
+        div.textContent = String(str);
+        return div.innerHTML;
+    },
+
+    /**
+     * Sanitizes database content for safe HTML display, handling both
+     * already-encoded and raw data. This prevents double-encoding issues
+     * while still protecting against XSS.
+     *
+     * Use this when you're uncertain whether database data is already encoded.
+     * It will decode first (to normalize the data), then re-encode safely.
+     *
+     * @param str  string|null|undefined  The string to sanitize
+     *
+     * @return string  The sanitized string safe for HTML insertion
+     */
+    sanitize = function(str) {
+        if (str === null || str === undefined) {
+            return '';
+        }
+
+        // First decode any existing HTML entities to normalize the data
+        var decoded = decodeHTMLEntities(String(str), false);
+
+        // Then escape for safe display
+        return escapeHTML(decoded);
+    };
+
+
     return {
         buildTagRegex: buildTagRegex,
         containsTag: containsTag,
@@ -134,7 +180,8 @@ var XSSHelpers = function () {
         stripAllTags: stripAllTags,
         stripTag: stripTag,
         stripTags: stripTags,
-        decodeHTMLEntities: decodeHTMLEntities
+        decodeHTMLEntities: decodeHTMLEntities,
+        sanitize: sanitize
     };
 }();
 

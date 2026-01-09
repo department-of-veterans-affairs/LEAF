@@ -270,57 +270,6 @@ switch ($action) {
 
         echo 'Redirecting to the Inbox. Please update your bookmarks.';
         exit();
-    case 'inbox_old':
-        $main->assign('useUI', true);
-        $main->assign('stylesheets', array(APP_JS_PATH . '/choicesjs/choices.min.css'));
-        $main->assign('javascripts', array('js/form.js',
-            'js/workflow.js',
-            'js/formGrid.js',
-            'js/gridInput.js',
-            APP_JS_PATH . '/LEAF/XSSHelpers.js',
-            APP_JS_PATH . '/choicesjs/choices.min.js',
-            APP_JS_PATH . '/qr-code/qrcode.min.js'));
-
-        $t_form = new Smarty;
-        $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter = '}-->';
-
-        $inbox = new Portal\Inbox($db, $login);
-
-        $inboxItems = $inbox->getInbox();
-
-        $errors = [];
-        if(array_key_exists("errors", $inboxItems))
-        {
-            $errors = $inboxItems['errors'];
-            unset($inboxItems['errors']);
-        }
-        $depIndex = array_keys($inboxItems);
-        $depColors = array();
-        foreach ($depIndex as $depID)
-        {
-            $color = '';
-            foreach ($inboxItems[$depID]['records'] as $item)
-            {
-                $color = $item['stepBgColor'];
-
-                break;
-            }
-            $depColors[$depID] = $color;
-        }
-
-        $t_form->assign('inbox', $inboxItems);
-        $t_form->assign('depColors', $depColors);
-        $t_form->assign('descriptionID', $config->descriptionID);
-        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('errors', $errors);
-        $t_form->assign('app_js_path', APP_JS_PATH);
-
-        $main->assign('body', $t_form->fetch(customTemplate('view_inbox.tpl')));
-
-        $tabText = 'Inbox';
-
-        break;
     case 'status':
         $form = new Portal\Form($db, $login);
         $view = new Portal\View($db, $login);
