@@ -809,7 +809,7 @@ function doSubmit(recordID) {
     }
 
     function changeTitle() {
-        dialog.setContent('Title: <input type="text" id="title" style="width: 300px" name="title" value="<!--{$title|escape:'quotes'}-->" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
+        dialog.setContent('<label for="title">Title:</label><br><input type="text" id="title" style="width: 300px" name="title" value="<!--{$title|escape:'quotes'}-->" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
 
         dialog.show();
         dialog.setSaveHandler(function() {
@@ -1113,7 +1113,7 @@ function doSubmit(recordID) {
 
     function changeService() {
         dialog.setTitle('Change Service');
-        dialog.setContent('Select new service: <br /><div id="changeService"></div>');
+        dialog.setContent('<label id="newService_label" for="newService">Select new service: </label><br><div id="changeService"></div>');
         dialog.show();
         dialog.indicateBusy();
         dialog.setSaveHandler(function() {
@@ -1130,7 +1130,9 @@ function doSubmit(recordID) {
                 }
                 services += '</select>';
                 $('#changeService').html(services);
-                $('.chosen').chosen({disable_search_threshold: 6});
+                $('.chosen').chosen({ disable_search_threshold: 6 });
+                $(`#newService_chosen input.chosen-search-input`).attr('role', 'combobox');
+                $(`#newService_chosen input.chosen-search-input`).attr('aria-labelledby', 'newService_label');
                 dialog.indicateIdle();
                 dialog.setSaveHandler(function() {
                     $.ajax({

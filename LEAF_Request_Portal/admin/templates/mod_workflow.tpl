@@ -1677,17 +1677,28 @@
             type: 'GET',
             url: '../api/form/indicator/list',
             success: function(res) {
-                let indicatorList = '';
-                for (let i in res) {
-                    if (res[i]['format'] == 'orgchart_employee' ||
-                        res[i]['format'] == 'raw_data') {
-                        let name = XSSHelpers.stripAllTags(res[i].name);
-                        name = name.length <= 50 ? name : name.slice(0, 50) + '...';
-                        indicatorList += '<option value="' + res[i].indicatorID + '">' + res[i]
-                            .categoryName + ': ' + name + ' (id: ' + res[i].indicatorID +
-                            ')</option>';
+                const indOptions = res
+                    .filter(ind => ind?.format === 'orgchart_employee' || ind?.format === 'raw_data')
+                    .sort((indA, indB ) => indA.categoryName.localeCompare(indB.categoryName));
+
+                let indicatorHTML = '';
+                let optGroup = null;
+                indOptions.forEach(ind => {
+                    const catName = XSSHelpers.stripAllTags(ind.categoryName);
+                    let name = XSSHelpers.stripAllTags(ind.name);
+                    name = name.length <= 50 ? name : name.slice(0, 50) + '...';
+
+                    let newOptGroup = false;
+                    if (catName !== optGroup) {
+                        newOptGroup = true;
+                        optGroup = catName;
+                        if (indicatorHTML !== '') {
+                            indicatorHTML += '</optGroup>';
+                        }
                     }
-                }
+                    indicatorHTML += newOptGroup ? `<optGroup label="${catName}">` : '';
+                    indicatorHTML += `<option value="${ind.indicatorID}">${name} (id: ${ind.indicatorID})</option>`;
+                });
 
                 const currentValue = steps[stepID]?.indicatorID_for_assigned_empUID;
                 dialog.setContent(
@@ -1695,8 +1706,8 @@
                     '<div class="entry_info bg-blue-5v">' +
                     'Select the data field that will be used to route to the selected individual.<br>' +
                     'Your form must have a field with the "Orgchart Employee" or "Raw Data" input format.</div><br>' +
-                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID" style="max-width:400px;">' +
-                    indicatorList + '</select><br><br>' +
+                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID" style="max-width:610px;">' +
+                    indicatorHTML + '</select><br><br>' +
                     '</div>'
                 );
                 if(currentValue > 0) {
@@ -1728,23 +1739,37 @@
             type: 'GET',
             url: '../api/form/indicator/list',
             success: function(res) {
-                var indicatorList = '';
-                for (let i in res) {
-                    if (res[i]['format'] == 'orgchart_group' ||
-                        res[i]['format'] == 'raw_data') {
-                        indicatorList += '<option value="' + res[i].indicatorID + '">' + res[i]
-                            .categoryName + ': ' + res[i].name + ' (id: ' + res[i].indicatorID +
-                            ')</option>';
+                const indOptions = res
+                    .filter(ind => ind?.format === 'orgchart_group' || ind?.format === 'raw_data')
+                    .sort((indA, indB ) => indA.categoryName.localeCompare(indB.categoryName));
+
+                let indicatorHTML = '';
+                let optGroup = null;
+                indOptions.forEach(ind => {
+                    const catName = XSSHelpers.stripAllTags(ind.categoryName);
+                    let name = XSSHelpers.stripAllTags(ind.name);
+                    name = name.length <= 50 ? name : name.slice(0, 50) + '...';
+
+                    let newOptGroup = false;
+                    if (catName !== optGroup) {
+                        newOptGroup = true;
+                        optGroup = catName;
+                        if (indicatorHTML !== '') {
+                            indicatorHTML += '</optGroup>';
+                        }
                     }
-                }
+                    indicatorHTML += newOptGroup ? `<optGroup label="${catName}">` : '';
+                    indicatorHTML += `<option value="${ind.indicatorID}">${name} (id: ${ind.indicatorID})</option>`;
+                });
+
                 const currentValue = steps[stepID]?.indicatorID_for_assigned_groupID
                 dialog.setContent(
                     '<div id="set_indicator_modal"><br>' +
                     '<div class="entry_info bg-blue-5v">' +
                     'Select the data field that will be used to route to the selected group.<br>' +
                     'Your form must have a field with the "Orgchart Group" or "Raw Data" input format.</div><br>' +
-                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID" style="max-width:400px;">' +
-                    indicatorList + '</select><br><br>' +
+                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID" style="max-width:610px;">' +
+                    indicatorHTML + '</select><br><br>' +
                     '</div>'
                 );
                 if(currentValue > 0) {
