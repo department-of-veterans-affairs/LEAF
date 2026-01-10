@@ -773,7 +773,16 @@ function doSubmit(recordID) {
 
     function cancelRequest() {
         dialog_confirm.setContent(
-            '<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?<br /><textarea id="cancel_comment" cols=30 rows=3 placeholder="Enter Comment"></textarea>'
+            `<div style="margin-left:-0.75rem;">
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <img src="dynicons/?img=process-stop.svg&amp;w=48" alt="">
+                    Are you sure you want to cancel this request?
+                </div>
+                <br>
+                <label for="cancel_comment" style="font-size:14px;">Comments:</label><br>
+                <textarea id="cancel_comment" cols=30 rows=3 placeholder="Enter Comment"
+                    style="width:100%;resize: vertical;"></textarea>
+            </div>`
         );
 
         dialog_confirm.setSaveHandler(function() {
