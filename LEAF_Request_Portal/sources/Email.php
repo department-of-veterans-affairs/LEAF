@@ -50,10 +50,10 @@ class Email
     private bool $orgchartInitialized = false;
 
     private int $recordID;
-    private array $fieldsInUse = array();
-    private array $emailFieldsInUse = array();
-    private bool $hasCustomToCc = false;
-    private int $eventGroupNotified = 0;
+    private array $fieldsInUse = array();         //all field.id matches found in To, Cc, Subject, and Body email templates
+    private array $emailFieldsInUse = array();    //field id matches specific to the To and Cc fields
+    private array $customToCcAddresses = array(); //specific emails are set in a custom template To/Cc field, NOT including field.id matches
+    private int $eventGroupNotified = 0;          //groupID associated with potential custom email event 'notify group' config
 
     private string $emailRegex = "/(\w+@[a-z_\-]+?\.[a-z]{2,6})$/i";
 
@@ -472,81 +472,81 @@ class Email
      */
     function setTemplateByID(int $emailTemplateID, int $recordID, mixed $loggedInUser): void
     {
-        $vars = array(':emailTemplateID' => $emailTemplateID);
-        $strSQL = "SELECT `emailTo`, `emailCc`,`subject`, `body`
-                FROM `email_templates`
-                WHERE `emailTemplateID` = :emailTemplateID";
-        $res = $this->portal_db->prepared_query($strSQL, $vars);
-
         $this->fieldsInUse = array();
         $this->emailFieldsInUse = array();
+        $this->customToCcAddresses = array();
+
+        $vars = array(':emailTemplateID' => $emailTemplateID);
+        $strSQL = "SELECT `emailTo`, `emailCc`,`subject`, `body` FROM `email_templates`
+            WHERE `emailTemplateID` = :emailTemplateID";
+        $res = $this->portal_db->prepared_query($strSQL, $vars);
+
         if(count($res) === 1) {
             $this->processFieldMatches($res[0], $recordID);
             $this->addEmailRequestFieldVariables($recordID);
             $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo'] == null ? '' : $res[0]['emailTo']));
             $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc'] == null ? '' : $res[0]['emailCc']), true);
 
+            //NOTE: this will be moved to a method
             if(count($this->fieldsInUse) > 0) {
                 $recordInfo = $this->getRecord($recordID);
                 $isNeedToKnow = (int)$recordInfo[0]['needToKnow'];
-                if($isNeedToKnow === 1) {
-                    // If NTK, do not add fields if there are custom emails (cannot verify individual access)
-                    // or if the template is Cancel Notification because it emails all prev notified
-                    if ($emailTemplateID !== -7 && $this->hasCustomToCc === false) {
-                        //nothing further if there is no other customization of recipients
-                        if ($this->eventGroupNotified === 0 && count($this->emailFieldsInUse) === 0) {
-                            $this->addFieldDataValues($recordID, $loggedInUser);
 
-                        } else {
-                            //if the event is used to notify a group, confirm group is a workflow requirement
-                            //set initial value to true if there is no notify group config on the custom event
+                //query with the logged in user to get field.id data for this request
+                $form = new Form($this->portal_db, $loggedInUser);
+                $fieldIDs = $this->getFieldIndicatorSubquery();
+                $q = '{"terms":[{"id":"recordID","operator":"=","match":"' . $recordID . '","gate":"AND"}],' .
+                    '"joins":[],"sort":{},"limit":1,"getData":[' . $fieldIDs . ']}';
+
+                $requestData = $form->query($q)[$recordID]['s1'] ?? [];
+                if(count($requestData) > 0) { //nothing further if there are no results
+                    if($isNeedToKnow !== 1) { //if it's not a NTK form just update
+                        $this->updateFormattedFieldValues($requestData, $recordID);
+                    } else {
+                        //check if potential custom event group and any email fields.ids have read
+                        $workflowID = (int)$recordInfo[0]['workflowID'];
+                        $serviceID = (int)$recordInfo[0]['serviceID'];
+                        $requestor = $recordInfo[0]['userID'];
+
+                        $eventGroupAndEmailFieldsHaveRead = $this->eventGroupNotified === 0 && count($this->emailFieldsInUse) === 0;
+                        if(!$eventGroupAndEmailFieldsHaveRead) {
+                            //if the event is used to notify a group, confirm it has dependency privs.
+                            //NOTE: this is currently only checking req privs, but services can also be configured, research
                             $eventGroupHasRead = $this->eventGroupNotified > 0 ? false : true;
-                            //TODO: feedback and potentially move dependency and pd/gd related to method in FWF?
-                            $grpDepSQL = 'SELECT `groupID`
-                                FROM `workflows`
+
+                            $grpDepSQL = 'SELECT `groupID` FROM `workflows`
                                 JOIN `workflow_steps` USING (workflowID)
                                 JOIN `step_dependencies` USING (stepID)
                                 JOIN `dependency_privs` USING (dependencyID)
                                 WHERE `workflowID`=:wfID AND `groupID`=:groupID';
 
                             if($this->eventGroupNotified > 0) {
-                                $vars = array(
-                                    ':wfID' => (int)$recordInfo[0]['workflowID'],
-                                    ':groupID' => $this->eventGroupNotified
-                                );
-
+                                $vars = array(':wfID' => $workflowID, ':groupID' => $this->eventGroupNotified);
                                 $grpRes = $this->portal_db->prepared_query($grpDepSQL, $vars);
-
                                 if (count($grpRes) > 0) {
                                     $eventGroupHasRead = true;
                                 }
                             }
 
                             if($eventGroupHasRead) { //don't bother checking further if this is already false
+                                //otherwise, check that every ToCc field.id corresponds to a grp or emp with read
                                 $fieldCount = count($this->emailFieldsInUse);
                                 $accessCount = 0;
                                 foreach($this->emailFieldsInUse as $indID => $fieldInfo) {
                                     $format = $fieldInfo['format'];
                                     $value = $fieldInfo['value'];
-                                    if($format === 'orgchart_group') {
-                                        $vars = array(
-                                            ':wfID' => (int)$recordInfo[0]['workflowID'],
-                                            ':groupID' => $value
-                                        );
-                                        $grpRes = $this->portal_db->prepared_query($grpDepSQL, $vars) ?? [];
 
+                                    if($format === 'orgchart_group') {
+                                        $vars = array(':wfID' => $workflowID, ':groupID' => $value);
+                                        $grpRes = $this->portal_db->prepared_query($grpDepSQL, $vars) ?? [];
                                         if (count($grpRes) > 0) {
                                             $accessCount += 1;
+
                                         } else {
-                                            error_log("GRP NOT DEP, check gdIndID");
-                                            $vars = array(
-                                                ':wfID' => (int)$recordInfo[0]['workflowID'],
-                                                ':gdIndID' => $indID
-                                            );
-                                            $gdSQL = 'SELECT stepID
-                                                FROM workflow_steps
-                                                WHERE workflowID=:wfID AND
-                                                indicatorID_for_assigned_groupID=:gdIndID';
+                                            //check if the field.id corresponds to a 'group designated by' id
+                                            $vars = array(':wfID' => $workflowID, ':gdIndID' => $indID);
+                                            $gdSQL = 'SELECT `stepID` FROM `workflow_steps`
+                                                WHERE `workflowID`=:wfID AND `indicatorID_for_assigned_groupID`=:gdIndID';
 
                                             $gdRes = $this->portal_db->prepared_query($gdSQL, $vars) ?? [];
                                             if(count($gdRes) === 0) {
@@ -557,14 +557,9 @@ class Email
                                         }
                                     }
                                     if($format === 'orgchart_employee') {
-                                        $vars = array(
-                                            ':wfID' => (int)$recordInfo[0]['workflowID'],
-                                            ':pdIndID' => $indID
-                                        );
-                                        $pdSQL = 'SELECT stepID
-                                            FROM workflow_steps
-                                            WHERE workflowID=:wfID AND
-                                            indicatorID_for_assigned_empUID=:pdIndID';
+                                        $vars = array(':wfID' => $workflowID,':pdIndID' => $indID);
+                                        $pdSQL = 'SELECT stepID FROM workflow_steps
+                                            WHERE workflowID=:wfID AND indicatorID_for_assigned_empUID=:pdIndID';
 
                                         $pdRes = $this->portal_db->prepared_query($pdSQL, $vars) ?? [];
                                         if(count($pdRes) === 0) {
@@ -575,16 +570,87 @@ class Email
                                     }
                                 }
 
-                                $emailFieldsHaveRead = $accessCount === $fieldCount;
-                                if($emailFieldsHaveRead) {
-                                    $this->addFieldDataValues($recordID, $loggedInUser);
+                                $eventGroupAndEmailFieldsHaveRead = $accessCount === $fieldCount;
+                            }
+                        }
+
+                        if($eventGroupAndEmailFieldsHaveRead) {
+                            if ($emailTemplateID !== self::CANCEL_REQUEST && count($this->customToCcAddresses) === 0) {
+                                $this->updateFormattedFieldValues($requestData, $recordID);
+                            } else {
+                                
+                                // Any custom hard text addresses still need to be checked.
+                                // A Cancel Notification emails all prev emailed users, regardless of how they were emailed.
+                                // For example, potential specific addresses set in other email templates, or groups notified on other events.
+
+
+                                // NOTE: other:
+                                // indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID
+                                // could additionally query all group/emp designated indicators -> then data/metadata for this request
+                                // This is more questionable, though: it is more involving, and resetting group/emp IDs was recently added so this might not always be correct.
+                                // Adding a read step with a custom requirement to the workflow should provide a reasonable workaround.
+
+                                $recipientsToCheck = $this->customToCcAddresses;
+                                if($emailTemplateID === self::CANCEL_REQUEST) {
+                                    $recipientsToCheck = array_merge(explode(',', $this->emailRecipient), $recipientsToCheck);
+                                }
+
+                                $usersForReadCheck = array();
+                                //build out table - stop if a user for any address is not found
+                                $dir = new VAMC_Directory;
+                                $allEmailsFound = true;
+                                foreach($recipientsToCheck as $emailAddress) {
+                                    $addr = trim($emailAddress);
+                                    $user = $dir->search($addr) ?? [];
+                                    $userID = $user[0]['userName'];
+                                    if (isset($userID)) {
+                                        $usersForReadCheck[strtolower($userID)] = 1;
+                                    } else {
+                                        $allEmailsFound = false;
+                                        break;
+                                    }
+                                }
+                                //if all users are active, check if on the workflow
+                                if($allEmailsFound) {
+                                    $wfPrivGroupUsers = "SELECT DISTINCT `groupID`, `userID` FROM `workflows`
+                                        JOIN `workflow_steps` USING (workflowID)
+                                        JOIN `step_dependencies` USING (stepID)
+                                        JOIN `dependency_privs` USING (dependencyID)
+                                        LEFT JOIN `users` USING (groupID)
+                                        WHERE `workflowID`=:wfID AND `active`=1";
+
+                                    $vars = array(':wfID' => $workflowID);
+
+                                    $resGrpUsers = $this->portal_db->prepared_query($wfPrivGroupUsers, $vars) ?? [];
+
+                                    //NOTE: not returned anywhere but ask
+                                    $group = new Group($this->portal_db, $loggedInUser);
+                                    $admins = $group->getMembers(1)['data'] ?? [];
+
+                                    $readLookup = array(strtolower($requestor) => 1);
+                                    foreach($resGrpUsers as $groupUser) {
+                                        $uID = strtolower($groupUser['userID']);
+                                        $readLookup[$uID] = 1;
+                                    }
+                                    foreach($admins as $adminUser) {
+                                        $uID = strtolower($adminUser['userName']);
+                                        $readLookup[$uID] = 1;
+                                    }
+
+                                    $usersHaveRead = true;
+                                    foreach ($usersForReadCheck as $username => $_) {
+                                        if(!isset($readLookup[$username])) {
+                                            $usersHaveRead = false;
+                                            break;
+                                        }
+                                    }
+                                    if($usersHaveRead) {
+                                        $this->updateFormattedFieldValues($requestData, $recordID);
+                                    }
                                 }
                             }
                         }
                     }
-
-                } else {
-                    $this->addFieldDataValues($recordID, $loggedInUser);
                 }
 
                 $fields = array();
@@ -592,6 +658,7 @@ class Email
                     $fields[$indID] = $entry['value'];
                 }
                 $this->addSmartyVariables(array('field' => $fields));
+                unset($requestData);
             }
 
             $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject'] == null ? '' : $res[0]['subject']));
@@ -635,6 +702,7 @@ class Email
                     if($section === 'emailTo' || $section === 'emailCc') {
                         $emailList = explode(PHP_EOL, trim($content));
                         foreach ($emailList as $entry) {
+                            $entry = trim($entry);
                             if (preg_match($fieldPattern, $entry, $fieldMatch) === 1) {
                                 $field = $fieldMatch[0];
                                 $fieldID = substr($field, $subStrIdx);
@@ -644,7 +712,7 @@ class Email
                                 }
                             } else {
                                 if(!empty(trim($entry))) {
-                                    $this->hasCustomToCc = true;
+                                    $this->customToCcAddresses[] = $entry;
                                 }
                             }
                         }
@@ -665,10 +733,10 @@ class Email
         }
 
         //get and add information about format and sensitivity.
-        $inds = $this->getFieldIndicatorSubquery();
+        $fieldIDs = $this->getFieldIndicatorSubquery();
         $SQLformat = "SELECT `indicatorID`, `format`, `is_sensitive`
             FROM `indicators`
-            WHERE `indicatorID` IN ({$inds})";
+            WHERE `indicatorID` IN ({$fieldIDs})";
 
         $indInfo = $this->portal_db->prepared_query($SQLformat, array());
 
@@ -679,9 +747,11 @@ class Email
             $this->fieldsInUse[$id]['format'] = $format;
             $this->fieldsInUse[$id]['is_sensitive'] = $isSensitive;
             if($isSensitive === 1) {
+                //sensitive fields should never be shown in emails
                 $this->fieldsInUse[$id]['value'] = '**********';
             } else {
-                $this->fieldsInUse[$id]['value'] = '';
+                //initial value - conveys why data is not shown if values are not updated due to result of access checking
+                $this->fieldsInUse[$id]['value'] = '[ protected data ]';
             }
             if(isset($this->emailFieldsInUse[$id])) {
                 $this->emailFieldsInUse[$id]['format'] = $format;
@@ -703,6 +773,8 @@ class Email
         }
 
         if ($empGrpIDs !== '') {
+            //queried directly because a form query for a group entry only returns the group name (need the ID from data)
+            //this could be updated if/when an orgchart group entry has a similar associated id#_orgchart entry returned
             $vars = array(
                 ':recordID' => $recordID
             );
@@ -741,7 +813,7 @@ class Email
     /**
      * format non sensitive data for use in email subject or body based on question type
      */
-    private function formatFieldValues(array $requestData, int $recordID): void
+    private function updateFormattedFieldValues(array $requestData, int $recordID): void
     {
         foreach($this->fieldsInUse as $indID => $entry) {
             if ($entry['is_sensitive'] === 0 && isset($requestData['id' . $indID])) {
@@ -819,22 +891,6 @@ class Email
                 }
             }
         }
-    }
-
-    /**
-     * query with the logged in user
-     */
-    private function addFieldDataValues(int $recordID, Login $login): void
-    {
-        $form = new Form($this->portal_db, $login);
-
-        $inds = $this->getFieldIndicatorSubquery();
-        $q = '{"terms":[{"id":"recordID","operator":"=","match":"' . $recordID . '","gate":"AND"}],' .
-            '"joins":[],"sort":{},"limit":1,"getData":[' . $inds . ']}';
-
-        $requestData = $form->query($q)[$recordID]['s1'] ?? [];
-
-        $this->formatFieldValues($requestData, $recordID);
     }
 
 
@@ -978,7 +1034,7 @@ class Email
         if (count($approvers) > 0) {
             $reminderDepArray = array();
             //if reminder, find out how many requirements the step has
-            if($emailTemplateID === -4 || $emailTemplateID === -5) {
+            if($emailTemplateID === self::EMAIL_REMINDER || $emailTemplateID === self::AUTOMATED_EMAIL_REMINDER) {
                 foreach ($approvers as $row) {
                     $dID = $row['dependencyID'];
                     if(!in_array($dID, $reminderDepArray)) {
@@ -1166,7 +1222,7 @@ class Email
                 $this->setTemplateByID($emailTemplateID, $recordID, $loggedInUser);
             }
             $return_value = $this->sendMail($recordID);
-        } elseif ($emailTemplateID === -4) {
+        } elseif ($emailTemplateID === self::EMAIL_REMINDER) {
             // Record has no approver so if it is sent from Mass Action Email Reminder, notify user
             $recordInfo = $this->getRecord($recordID);
             $formType = trim(strip_tags(
@@ -1205,7 +1261,7 @@ class Email
             }
             $this->setTemplateByID($emailTemplateID, $recordID, $loggedInUser);
             $return_value = $this->sendMail($recordID);
-        } elseif ($emailTemplateID === -7) { //Cancel Notification
+        } elseif ($emailTemplateID === self::CANCEL_REQUEST) {
             $recordInfo = $this->getRecord($recordID);
 
             if ((int)$recordInfo[0]['submitted'] > 0) {
