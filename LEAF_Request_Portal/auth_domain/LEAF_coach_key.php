@@ -19,14 +19,6 @@ $login->loginUser();
 
 $userID = $login->getUserID();
 
-// Validates Active Directory username format only contains letters, numbers, periods, hyphens, underscores, single quotes
-// Must start with a letter or number and cannot end with a period
-if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9.\'_-]*[a-zA-Z0-9\'_-]$|^[a-zA-Z0-9]$/', $userID)) {
-    echo 'Error: Invalid username format';
-    http_response_code(400);
-    exit;
-}
-
 $vars = array(':userName' => $userID);
 $resEmpID = $db_national->prepared_query('SELECT * FROM employee WHERE userName=:userName', $vars);
 
@@ -43,7 +35,7 @@ if(count($res) > 0) {
                   ':empUID' => $login->getEmpUID());
     $oc_db->prepared_query('INSERT INTO relation_group_employee (empUID, groupID) VALUES (:empUID, :groupID)', $vars);
 
-    echo "Added {$userID} to Portal and Nexus admin lists";
+    echo "Added " . XSSHelpers::xscrub($userID) . " to Portal and Nexus admin lists";
 }
 else {
     echo 'No action taken';
