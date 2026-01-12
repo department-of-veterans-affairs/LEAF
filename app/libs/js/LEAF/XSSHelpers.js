@@ -127,52 +127,6 @@ var XSSHelpers = function () {
         return text;
     };
 
-    /**
-     * Escapes HTML special characters to prevent XSS attacks.
-     * Converts characters like <, >, &, ", ' to their HTML entity equivalents.
-     * Use this when inserting untrusted data (from database, API, user input)
-     * into HTML content.
-     *
-     * @param str  string|null|undefined  The string to escape
-     *
-     * @return string  The escaped string safe for HTML insertion
-     */
-    escapeHTML = function(str) {
-        if (str === null || str === undefined) {
-            return '';
-        }
-
-        // Use browser's native text node escaping
-        var div = document.createElement('div');
-        div.textContent = String(str);
-        return div.innerHTML;
-    },
-
-    /**
-     * Sanitizes database content for safe HTML display, handling both
-     * already-encoded and raw data. This prevents double-encoding issues
-     * while still protecting against XSS.
-     *
-     * Use this when you're uncertain whether database data is already encoded.
-     * It will decode first (to normalize the data), then re-encode safely.
-     *
-     * @param str  string|null|undefined  The string to sanitize
-     *
-     * @return string  The sanitized string safe for HTML insertion
-     */
-    sanitize = function(str) {
-        if (str === null || str === undefined) {
-            return '';
-        }
-
-        // First decode any existing HTML entities to normalize the data
-        var decoded = decodeHTMLEntities(String(str), false);
-
-        // Then escape for safe display
-        return escapeHTML(decoded);
-    };
-
-
     return {
         buildTagRegex: buildTagRegex,
         containsTag: containsTag,
@@ -180,8 +134,7 @@ var XSSHelpers = function () {
         stripAllTags: stripAllTags,
         stripTag: stripTag,
         stripTags: stripTags,
-        decodeHTMLEntities: decodeHTMLEntities,
-        sanitize: sanitize
+        decodeHTMLEntities: decodeHTMLEntities
     };
 }();
 
