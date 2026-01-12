@@ -11,6 +11,8 @@ if(strpos(ABSOLUTE_PORT_PATH, DOMAIN_PATH.'/platform') !== false) {
     exit;
 }
 
+//Adding for fork test will remove in next PR
+
 $db_national = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 
 $login->setBaseDir('../');
