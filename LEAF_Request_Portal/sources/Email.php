@@ -511,7 +511,7 @@ class Email
                         $eventGroupAndEmailFieldsHaveRead = $this->eventGroupNotified === 0 && count($this->emailFieldsInUse) === 0;
                         if(!$eventGroupAndEmailFieldsHaveRead) {
                             //if the event is used to notify a group, confirm it has dependency privs.
-                            //NOTE: this is currently only checking req privs, but services can also be configured, research
+                            //NOTE: this is currently only checking req privs, but services can also be configured, research - might want to just make lookup here
                             $eventGroupHasRead = $this->eventGroupNotified > 0 ? false : true;
 
                             $grpDepSQL = 'SELECT `groupID` FROM `workflows`
@@ -528,7 +528,7 @@ class Email
                                 }
                             }
 
-                            if($eventGroupHasRead) { //don't bother checking further if this is already false
+                            if($eventGroupHasRead) { //don't bother checking further if this is false
                                 //otherwise, check that every ToCc field.id corresponds to a grp or emp with read
                                 $fieldCount = count($this->emailFieldsInUse);
                                 $accessCount = 0;
@@ -579,18 +579,17 @@ class Email
                                 $this->updateFormattedFieldValues($requestData, $recordID);
                             } else {
                                 
-                                // Any custom hard text addresses still need to be checked.
+                                // Any custom hard text addresses need to be checked.
                                 // A Cancel Notification emails all prev emailed users, regardless of how they were emailed.
                                 // For example, potential specific addresses set in other email templates, or groups notified on other events.
 
 
                                 // NOTE: other:
-                                // indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID
-                                // could additionally query all group/emp designated indicators -> then data/metadata for this request
-                                // This is more questionable, though: it is more involving, and resetting group/emp IDs was recently added so this might not always be correct.
-                                // Adding a read step with a custom requirement to the workflow should provide a reasonable workaround.
+                                // indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID have somereliability issues.
+                                // Adding a read only step with a custom requirement also provides workaround - do or no?
 
                                 $recipientsToCheck = $this->customToCcAddresses;
+                                //cancel must check everyone.
                                 if($emailTemplateID === self::CANCEL_REQUEST) {
                                     $recipientsToCheck = array_merge(explode(',', $this->emailRecipient), $recipientsToCheck);
                                 }
@@ -612,29 +611,70 @@ class Email
                                 }
                                 //if all users are active, check if on the workflow
                                 if($allEmailsFound) {
-                                    $wfPrivGroupUsers = "SELECT DISTINCT `groupID`, `userID` FROM `workflows`
-                                        JOIN `workflow_steps` USING (workflowID)
-                                        JOIN `step_dependencies` USING (stepID)
-                                        JOIN `dependency_privs` USING (dependencyID)
-                                        LEFT JOIN `users` USING (groupID)
-                                        WHERE `workflowID`=:wfID AND `active`=1";
+                                    $readLookup = array(strtolower($requestor) => 1); //add requestor
 
-                                    $vars = array(':wfID' => $workflowID);
-
-                                    $resGrpUsers = $this->portal_db->prepared_query($wfPrivGroupUsers, $vars) ?? [];
-
-                                    //NOTE: not returned anywhere but ask
+                                    //NOTE: ask about admins and elts, because group endpoints themselves are under admin
                                     $group = new Group($this->portal_db, $loggedInUser);
                                     $admins = $group->getMembers(1)['data'] ?? [];
-
-                                    $readLookup = array(strtolower($requestor) => 1);
-                                    foreach($resGrpUsers as $groupUser) {
-                                        $uID = strtolower($groupUser['userID']);
-                                        $readLookup[$uID] = 1;
-                                    }
                                     foreach($admins as $adminUser) {
                                         $uID = strtolower($adminUser['userName']);
                                         $readLookup[$uID] = 1;
+                                    }
+
+                                    $depsSQL = "SELECT `users`.`userID`, `users`.`groupID`, `stepID`,
+                                        `dependencyID`, `services`.`groupID` AS `quadrad`,
+                                        `indicatorID_for_assigned_empUID`, `indicatorID_for_assigned_groupID`
+                                        FROM `records`
+                                        JOIN `services` USING (serviceID)
+                                        JOIN `category_count` USING (recordID)
+                                        JOIN `categories` USING (categoryID)
+                                        JOIN `workflows` USING (workflowID)
+                                        JOIN `workflow_steps` USING (workflowID)
+                                        JOIN `step_dependencies` USING (stepID)
+                                        LEFT JOIN `dependency_privs` USING (dependencyID)
+                                        LEFT JOIN `users` ON `dependency_privs`.`groupID`=`users`.`groupID`
+                                        WHERE `recordID`=:recID AND (`active`=1 OR `active` IS NULL) GROUP BY `stepID`,`dependencyID`,`userID`";
+
+                                    $vars = array(':recID' => $recordID);
+
+                                    $resDeps = $this->portal_db->prepared_query($depsSQL, $vars) ?? [];
+
+                                    $depTypes = array();
+                                    $readGroups = array();
+                                    foreach($resDeps as $depEntry) {
+                                        if(isset($depEntry['userID'])) {
+                                            $uID = strtolower($depEntry['userID']);
+                                            $grpID = $depEntry['groupID'];
+                                            $readLookup[$uID] = 1;
+                                            $readGroups[$grpID] = 1;
+                                        } else { //feedback - get emp/grp designated IDs and query data? if emp, get username from metadata, if group getMemebrs(data)
+                                            $depID = $depEntry['dependencyID'];
+                                            if($depID === 1 && $serviceID > 0) {
+                                                $depTypes[1] = 1;
+                                            }
+                                            if($depID === 8) {
+                                                $depTypes[8] = 1;
+                                            }
+                                        }
+                                    }
+
+                                    foreach($depTypes as $depID => $_) {
+                                        if ($depID === 1) {
+                                            $ser = new Service($this->portal_db, $loggedInUser);
+                                            $serChiefs = $ser->getChiefs($serviceID);
+                                            foreach($serChiefs as $chief) {
+                                                $uID = strtolower($chief['userID']);
+                                                $readLookup[$uID] = 1;
+                                            }
+                                        }
+                                        if ($depID === 8) {
+                                            $quadrad = $resDeps[0]['quadrad'];
+                                            $ELT_Members = $group->getMembers($quadrad)['data'] ?? [];
+                                            foreach($ELT_Members as $member) {
+                                                $uID = strtolower($member['userName']);
+                                                $readLookup[$uID] = 1;
+                                            }
+                                        }
                                     }
 
                                     $usersHaveRead = true;
