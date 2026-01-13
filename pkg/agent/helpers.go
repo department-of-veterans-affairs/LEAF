@@ -23,7 +23,9 @@ type StaticHTTPResponse struct {
 	BodyBytes []byte
 }
 
-func (a Agent) HttpPost(url string, values url.Values) (ret *StaticHTTPResponse, err error) {
+func (a Agent) HttpPost(url string, values url.Values) (*StaticHTTPResponse, error) {
+	ret := &StaticHTTPResponse{}
+
 	req, err := http.NewRequest("POST", url, strings.NewReader(values.Encode()))
 	if err != nil {
 		return nil, err
@@ -50,7 +52,9 @@ func (a Agent) HttpPost(url string, values url.Values) (ret *StaticHTTPResponse,
 	return ret, nil
 }
 
-func (a Agent) HttpGet(url string) (ret *StaticHTTPResponse, err error) {
+func (a Agent) HttpGet(url string) (*StaticHTTPResponse, error) {
+	ret := &StaticHTTPResponse{}
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
