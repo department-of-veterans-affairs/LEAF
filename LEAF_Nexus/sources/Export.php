@@ -31,7 +31,7 @@ class Export
 
         //echo "LEAF Position ID, HR Smart Position Number, Service, Position Title, Classification Title, Employee Name, Employee Username, Supervisor Name, Pay Plan, Series, Pay Grade, FTE Ceiling / Total Headcount, Current FTE, PD Number, Note\r\n";
 
-        $res = $this->db->prepared_query('SELECT * FROM positions', array());
+        $res = $this->db->prepared_query('SELECT `positionID`, `positionTitle` FROM positions', array());
 
         $output = array(); // old output structure
         $apiOut = array(); // new output structure
