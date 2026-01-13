@@ -617,7 +617,11 @@ class Email
                 //get dependency info about this record:  groups with dep privs and their users,
                 //service chiefs or ELT requirements, fields associated with user or group access
                 $depsSQL = "SELECT `users`.`userID`, `users`.`groupID`, `stepID`, `dependencyID`,
-                    `indicatorID_for_assigned_empUID`, `indicatorID_for_assigned_groupID`
+                    CASE
+                        WHEN dependencyID = -1 THEN `indicatorID_for_assigned_empUID`
+                        WHEN dependencyID = -3 THEN `indicatorID_for_assigned_groupID`
+                        ELSE NULL
+                    END AS designatedIndID
                     FROM `records`
                     JOIN `category_count` USING (recordID)
                     JOIN `categories` USING (categoryID)
@@ -625,8 +629,9 @@ class Email
                     JOIN `workflow_steps` USING (workflowID)
                     JOIN `step_dependencies` USING (stepID)
                     LEFT JOIN `dependency_privs` USING (dependencyID)
-                    LEFT JOIN `users` ON `dependency_privs`.`groupID`=`users`.`groupID`
-                    WHERE `recordID`=:recID AND (`active`=1 OR `active` IS NULL) GROUP BY `stepID`,`dependencyID`,`userID`";
+                    LEFT JOIN `users` ON (`dependency_privs`.`groupID`=`users`.`groupID` AND `users`.`active`=1)
+                    LEFT JOIN `service_chiefs` ON (`dependency_privs`.`groupID`=`service_chiefs`.`serviceID` AND `service_chiefs`.`active`=1)
+                    WHERE `recordID`=:recID";
 
                 $vars = array(':recID' => $recordID);
                 $resDeps = $this->portal_db->prepared_query($depsSQL, $vars) ?? [];
@@ -653,11 +658,11 @@ class Email
                             $depTypes[8] = 1;
                         }
                         if($depID === -1) {
-                            $indID = $depEntry['indicatorID_for_assigned_empUID'];
+                            $indID = $depEntry['designatedIndID'];
                             $designatedFields['users'][$indID] = 1;
                         }
                         if($depID === -3) {
-                            $indID = $depEntry['indicatorID_for_assigned_groupID'];
+                            $indID = $depEntry['designatedIndID'];
                             $designatedFields['groups'][$indID] = 1;
                         }
                     }
