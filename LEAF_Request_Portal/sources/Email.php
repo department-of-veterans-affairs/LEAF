@@ -487,11 +487,7 @@ class Email
             $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo'] == null ? '' : $res[0]['emailTo']));
             $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc'] == null ? '' : $res[0]['emailCc']), true);
 
-            //NOTE: this will be moved to a method
             if(count($this->fieldsInUse) > 0) {
-                $recordInfo = $this->getRecord($recordID);
-                $isNeedToKnow = (int)$recordInfo[0]['needToKnow'];
-
                 //query with the logged in user to get field.id data for this request
                 $form = new Form($this->portal_db, $loggedInUser);
                 $fieldIDs = $this->getFieldIndicatorSubquery();
@@ -500,196 +496,16 @@ class Email
 
                 $requestData = $form->query($q)[$recordID]['s1'] ?? [];
 
-                if(count($requestData) > 0) { //nothing further if there are no results
-                    if($isNeedToKnow !== 1) { //if it's not a NTK form just update
+                if(count($requestData) > 0) {
+                    $allRecipientsHaveRead = $this->allCustomEmailRecipientsHaveRead(
+                        $recordID,
+                        $emailTemplateID,
+                        $requestData,
+                        $form,
+                        $loggedInUser
+                    );
+                    if($allRecipientsHaveRead) {
                         $this->updateFormattedFieldValues($requestData, $recordID);
-                    } else {
-                        //if there are no specific or field.id email addresses, no notify group, and the type is not cancel
-                        //then all addresses added so far were added as part of the approvers process
-                        $allRecipientsHaveRead = $this->eventGroupNotified === 0 &&
-                            count($this->emailFieldsInUse) === 0 &&
-                            count($this->customToCcAddresses) === 0 &&
-                            $emailTemplateID !== self::CANCEL_REQUEST;
-
-                        if($allRecipientsHaveRead) {
-                            $this->updateFormattedFieldValues($requestData, $recordID);
-
-                        } else {
-                            $serviceID = (int)$recordInfo[0]['serviceID'];
-                            $quadrad = (int)$recordInfo[0]['quadrad'];
-                            $requestor = $recordInfo[0]['userID'];
-
-                            $readUsersLookup = array(strtolower($requestor) => 1);  //add requestor and admins
-
-                            $group = new Group($this->portal_db, $loggedInUser);
-                            $admins = $group->getMembers(1)['data'] ?? [];
-                            foreach($admins as $adminUser) {
-                                $uID = strtolower($adminUser['userName']);
-                                $readUsersLookup[$uID] = 1;
-                            }
-
-                            //get dependency info about this record.  groups with dep privs and their users,
-                            //service chiefs or ELT requirements, fields associated with user or group access
-                            $depsSQL = "SELECT `users`.`userID`, `users`.`groupID`, `stepID`, `dependencyID`,
-                                `indicatorID_for_assigned_empUID`, `indicatorID_for_assigned_groupID`
-                                FROM `records`
-                                JOIN `category_count` USING (recordID)
-                                JOIN `categories` USING (categoryID)
-                                JOIN `workflows` USING (workflowID)
-                                JOIN `workflow_steps` USING (workflowID)
-                                JOIN `step_dependencies` USING (stepID)
-                                LEFT JOIN `dependency_privs` USING (dependencyID)
-                                LEFT JOIN `users` ON `dependency_privs`.`groupID`=`users`.`groupID`
-                                WHERE `recordID`=:recID AND (`active`=1 OR `active` IS NULL) GROUP BY `stepID`,`dependencyID`,`userID`";
-
-                            $vars = array(':recID' => $recordID);
-                            $resDeps = $this->portal_db->prepared_query($depsSQL, $vars) ?? [];
-
-                            $readGroupsLookup = array();
-                            $designatedFields = array(
-                                'users' => array(),
-                                'groups' => array(),
-                            );
-                            //track unique dep types and any designated fields
-                            $depTypes = array();
-                            foreach($resDeps as $depEntry) {
-                                if(isset($depEntry['userID'])) {
-                                    $uID = strtolower($depEntry['userID']);
-                                    $grpID = $depEntry['groupID'];
-                                    $readUsersLookup[$uID] = 1;
-                                    $readGroupsLookup[$grpID] = 1;
-                                } else {
-                                    $depID = $depEntry['dependencyID'];
-                                    if($depID === 1 && $serviceID > 0) {
-                                        $depTypes[1] = 1;
-                                    }
-                                    if($depID === 8 && $quadrad > 0) {
-                                        $depTypes[8] = 1;
-                                    }
-                                    if($depID === -1) {
-                                        $indID = $depEntry['indicatorID_for_assigned_empUID'];
-                                        $designatedFields['users'][$indID] = 1;
-                                    }
-                                    if($depID === -3) {
-                                        $indID = $depEntry['indicatorID_for_assigned_groupID'];
-                                        $designatedFields['groups'][$indID] = 1;
-                                    }
-                                }
-                            }
-
-                            //indicators for assigned emp and grp are small ints
-                            $getDataIDs = implode(',',
-                                array_merge(
-                                    array_keys($designatedFields['users']),
-                                    array_keys($designatedFields['groups'])
-                                )
-                            );
-
-                            $q = '{"terms":[{"id":"recordID","operator":"=","match":"' . $recordID . '","gate":"AND"}],' .
-                                '"joins":[],"sort":{},"limit":1,"getData":[' . $getDataIDs . ']}';
-
-                            $designatedData = $form->query($q)[$recordID]['s1'] ?? [];
-
-                            error_log(print_r($designatedData, true));
-
-                            foreach($designatedFields['users'] as $indID => $_) {
-                                $uID = $designatedData['id' . $indID . '_orgchart']['userName'];
-                                if(isset($uID)) {
-                                    $readUsersLookup[strtolower($uID)] = 1;
-                                }
-                            }
-                            if(count($designatedFields['groups']) > 0) {
-                                //NOTE: can't get ID from name - ideally grp and users could be added to read tables
-                                $dir = new VAMC_Directory;
-                                foreach($designatedFields['groups'] as $indID => $_) {
-                                    $grpName = $designatedData['id' . $indID];
-                                    if(isset($grpName) && !empty($grpName)) {
-                                        $grp = $dir->search($grpName);
-                                        error_log("GRP RES: " . print_r($grp, true));
-                                    }
-                                }
-                            }
-
-                            //if there is chief or ELT info, update user lookup tables
-                            foreach($depTypes as $depID => $_) {
-                                if ($depID === 1) {
-                                    $readGroupsLookup[$serviceID] = 1;
-                                    $ser = new Service($this->portal_db, $loggedInUser);
-                                    $serChiefs = $ser->getChiefs($serviceID);
-                                    foreach($serChiefs as $chief) {
-                                        $uID = strtolower($chief['userID']);
-                                        $readUsersLookup[$uID] = 1;
-                                    }
-                                }
-                                if ($depID === 8) {
-                                    $readGroupsLookup[$quadrad] = 1;
-                                    $ELT_Members = $group->getMembers($quadrad)['data'] ?? [];
-                                    foreach($ELT_Members as $member) {
-                                        $uID = strtolower($member['userName']);
-                                        $readUsersLookup[$uID] = 1;
-                                    }
-                                }
-                            }
-
-                            //if notify group is not set or confirmed in read table, check email field.id (emp and group ID from email values)
-                            $eventGroupHasRead = $this->eventGroupNotified === 0 || isset($readGroupsLookup[$this->eventGroupNotified]);
-
-                            $emailFieldsHaveRead = count($this->emailFieldsInUse) === 0;
-                            if($eventGroupHasRead && !$emailFieldsHaveRead) {
-                                $fieldCount = count($this->emailFieldsInUse);
-                                $accessCount = 0;
-
-                                foreach($this->emailFieldsInUse as $indID => $fieldInfo) {
-                                    $format = $fieldInfo['format'];
-                                    $empGrpID = $fieldInfo['value'];
-
-                                    if($format === 'orgchart_employee') {
-                                        $fieldUserID = $requestData['id' . $indID . '_orgchart']['userName'];
-                                        if (isset($readUsersLookup[$fieldUserID]) || isset($designatedFields['users'][$indID])) {
-                                                $accessCount += 1;
-                                        } else {
-                                            break;
-                                        }
-                                    }
-                                    if($format === 'orgchart_group') {
-                                        if (isset($readGroupsLookup[$empGrpID]) || isset($designatedFields['groups'][$indID])) {
-                                            $accessCount += 1;
-                                        } else {
-                                            break;
-                                        }
-                                    }
-                                }
-                                $emailFieldsHaveRead = $accessCount === $fieldCount;
-                            }
-
-                            if($eventGroupHasRead && $emailFieldsHaveRead) {
-                                if ($emailTemplateID !== self::CANCEL_REQUEST && count($this->customToCcAddresses) === 0) {
-                                    $this->updateFormattedFieldValues($requestData, $recordID);
-                                } else {
-                                    // A Cancel Notification emails all prev emailed users, regardless of how they were emailed.
-                                    // For example, potential specific addresses set in other email templates, or groups notified on other events.
-                                    $recipientsToCheck = $this->customToCcAddresses;
-                                    if($emailTemplateID === self::CANCEL_REQUEST) {
-                                        $recipientsToCheck = array_merge(explode(',', $this->emailRecipient), $recipientsToCheck);
-                                    }
-
-                                    $dir = new VAMC_Directory;
-                                    $allRecipientsHaveRead = true;
-                                    foreach($recipientsToCheck as $emailAddress) {
-                                        $addr = trim($emailAddress);
-                                        $user = $dir->search($addr) ?? [];
-                                        $userID = $user[0]['userName'];
-                                        if (!isset($userID) || !isset($readUsersLookup[$userID])) {
-                                            $allRecipientsHaveRead = false;
-                                            break;
-                                        }
-                                    }
-                                    if($allRecipientsHaveRead) {
-                                        $this->updateFormattedFieldValues($requestData, $recordID);
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
 
@@ -715,7 +531,248 @@ class Email
         $indicatorIDs = implode(
             ',', array_filter($indKeys, function($indID) { return is_numeric($indID); })
         );
-        return $indicatorIDs;
+        return $indicatorIDs ?: '0';
+    }
+
+    /**
+     * 
+     */
+    private function allCustomEmailRecipientsHaveRead(
+        int $recordID, int $emailTemplateID, array $requestData, Form $form, mixed $loggedInUser): bool
+    {
+        $recordInfo = $this->getRecord($recordID);
+        $isNeedToKnow = (int)$recordInfo[0]['needToKnow'];
+        if($isNeedToKnow !== 1) {
+            return true;
+
+        } else {
+            //no specific or field.id email addresses, no notify group, type is not cancel
+            //so all addresses added so far were added as part of the approvers process
+            $allRecipientsHaveRead = $this->eventGroupNotified === 0 &&
+                count($this->emailFieldsInUse) === 0 &&
+                count($this->customToCcAddresses) === 0 &&
+                $emailTemplateID !== self::CANCEL_REQUEST;
+
+            if($allRecipientsHaveRead) {
+                return true;
+
+            } else {
+                error_log("RECIPIENTS NEED CHECKING");
+                $recipientsToCheck = $this->customToCcAddresses;
+                //Cancel Notification emails all prev emailed users, regardless of how they were emailed.
+                if($emailTemplateID === self::CANCEL_REQUEST) {
+                    $recipientsToCheck = array_merge(explode(',', $this->emailRecipient), $recipientsToCheck);
+                }
+                $recipientsToCheck = array_unique(array_map('trim', $recipientsToCheck));
+
+                //1 - if there are custom/cancel addresses, query oc to confirm expected number of employees
+                $allUsersInOrgchart = count($recipientsToCheck) === 0;
+                if(count($recipientsToCheck) > 0) {
+                    $varsEmails = array();
+                    $placeholders = '';
+                    $count = 0;
+                    foreach ($recipientsToCheck as $address) {
+                        $qKey = ':email_'. $count;
+                        $varsEmails[$qKey] = XSSHelpers::xscrub($address);
+                        $placeholders .= $count === 0 ? $qKey : ', ' . $qKey;
+                        $count += 1;
+                    }
+
+                    $sql = "SELECT `userName` FROM `employee_data`
+                        JOIN `employee` USING (empUID)
+                        WHERE `employee`.`deleted`=0 AND `employee_data`.`indicatorID`=6 AND
+                        `employee_data`.`data` IN ({$placeholders})";
+
+                    $empInfo = $this->nexus_db->prepared_query($sql, $varsEmails) ?? [];
+                    if(count($empInfo) === count($recipientsToCheck)) {
+                        $allUsersInOrgchart = true;
+                        $customRecipientsLookup = array();
+                        foreach($empInfo as $entry) {
+                            $uID = strtolower($entry['userName']);
+                            $customRecipientsLookup[$uID] = 1;
+                        }   
+                    }
+                }
+                if (!$allUsersInOrgchart) {
+                    error_log("NOT ALL RECIPIENTS IN ORGCHART");
+                    error_log("RECIPIENTS: " . print_r($empInfo, true));
+                    return false;
+                }
+
+                //2 - build out read access lookup tables for groups and users
+                $serviceID = (int)$recordInfo[0]['serviceID'];
+                $quadrad = (int)$recordInfo[0]['quadrad'];
+                $requestor = $recordInfo[0]['userID'];
+
+                $readGroupsLookup = array();
+                $readUsersLookup = array(strtolower($requestor) => 1);  //add requestor and admins
+
+                $group = new Group($this->portal_db, $loggedInUser);
+                $admins = $group->getMembers(1)['data'] ?? [];
+                foreach($admins as $adminUser) {
+                    $uID = strtolower($adminUser['userName']);
+                    $readUsersLookup[$uID] = 1;
+                }
+
+                //get dependency info about this record:  groups with dep privs and their users,
+                //service chiefs or ELT requirements, fields associated with user or group access
+                $depsSQL = "SELECT `users`.`userID`, `users`.`groupID`, `stepID`, `dependencyID`,
+                    `indicatorID_for_assigned_empUID`, `indicatorID_for_assigned_groupID`
+                    FROM `records`
+                    JOIN `category_count` USING (recordID)
+                    JOIN `categories` USING (categoryID)
+                    JOIN `workflows` USING (workflowID)
+                    JOIN `workflow_steps` USING (workflowID)
+                    JOIN `step_dependencies` USING (stepID)
+                    LEFT JOIN `dependency_privs` USING (dependencyID)
+                    LEFT JOIN `users` ON `dependency_privs`.`groupID`=`users`.`groupID`
+                    WHERE `recordID`=:recID AND (`active`=1 OR `active` IS NULL) GROUP BY `stepID`,`dependencyID`,`userID`";
+
+                $vars = array(':recID' => $recordID);
+                $resDeps = $this->portal_db->prepared_query($depsSQL, $vars) ?? [];
+
+                $designatedFields = array(
+                    'users' => array(),
+                    'groups' => array(),
+                );
+
+                //track unique dep types and any designated fields
+                $depTypes = array();
+                foreach($resDeps as $depEntry) {
+                    if(isset($depEntry['userID'])) {
+                        $uID = strtolower($depEntry['userID']);
+                        $grpID = $depEntry['groupID'];
+                        $readUsersLookup[$uID] = 1;
+                        $readGroupsLookup[$grpID] = 1;
+                    } else {
+                        $depID = $depEntry['dependencyID'];
+                        if($depID === 1 && $serviceID > 0) {
+                            $depTypes[1] = 1;
+                        }
+                        if($depID === 8 && $quadrad > 0) {
+                            $depTypes[8] = 1;
+                        }
+                        if($depID === -1) {
+                            $indID = $depEntry['indicatorID_for_assigned_empUID'];
+                            $designatedFields['users'][$indID] = 1;
+                        }
+                        if($depID === -3) {
+                            $indID = $depEntry['indicatorID_for_assigned_groupID'];
+                            $designatedFields['groups'][$indID] = 1;
+                        }
+                    }
+                }
+
+                // ##################################################################
+                //indicators for assigned emp and grp are small ints
+                //TODO: NOTE: this might be overkill bc a read-only step with a custom req provides a workaround.
+                //There are also potential issues with outdated indID info
+                //A form query does not get groupIDs, which are needed to make this fully useful
+                $designatedIndIDs = implode(',',
+                    array_merge(
+                        array_keys($designatedFields['users']),
+                        array_keys($designatedFields['groups'])
+                    )
+                );
+                if ($designatedIndIDs !== '') {
+                    $q = '{"terms":[{"id":"recordID","operator":"=","match":"' . $recordID . '","gate":"AND"}],' .
+                        '"joins":[],"sort":{},"limit":1,"getData":[' . $designatedIndIDs . ']}';
+
+                    $designatedData = $form->query($q)[$recordID]['s1'] ?? [];
+                    foreach($designatedFields['users'] as $indID => $_) {
+                        $uID = $designatedData['id' . $indID . '_orgchart']['userName'];
+                        if(isset($uID)) {
+                            $readUsersLookup[strtolower($uID)] = 1;
+                        }
+                    }
+                    if(count($designatedFields['groups']) > 0) {
+                        //NOTE: can't get ID from name - ideally grp and users could be added to read tables
+                        // $dir = new VAMC_Directory;
+                        // foreach($designatedFields['groups'] as $indID => $_) {
+                        //     $grpName = $designatedData['id' . $indID];
+                        //     if(isset($grpName) && !empty($grpName)) {
+                        //         $grp = $dir->search($grpName);
+                        //         error_log("GRP RES: " . print_r($grp, true));
+                        //     }
+                        // }
+                    }
+                }
+                // ################################################################
+
+                //if there is chief or ELT info, update user lookup tables
+                foreach($depTypes as $depID => $_) {
+                    if ($depID === 1) { //service chiefs
+                        $readGroupsLookup[$serviceID] = 1;
+                        $ser = new Service($this->portal_db, $loggedInUser);
+                        $serChiefs = $ser->getChiefs($serviceID);
+                        foreach($serChiefs as $chief) {
+                            $uID = strtolower($chief['userID']);
+                            $readUsersLookup[$uID] = 1;
+                        }
+                    }
+                    if ($depID === 8) { //associated quadrad/ELT
+                        $readGroupsLookup[$quadrad] = 1;
+                        $ELT_Members = $group->getMembers($quadrad)['data'] ?? [];
+                        foreach($ELT_Members as $member) {
+                            $uID = strtolower($member['userName']);
+                            $readUsersLookup[$uID] = 1;
+                        }
+                    }
+                }
+
+                //3 - confirm there is either no 'notify group' config, or it is in the group read lookup 
+                $eventGroupHasRead = $this->eventGroupNotified === 0 || isset($readGroupsLookup[$this->eventGroupNotified]);
+                if (!$eventGroupHasRead) {
+                    return false;
+                }
+
+                //4 - confirm all email field.id entries in To/Cc are either in the corresponding read lookup or are designated fields
+                $emailFieldsHaveRead = count($this->emailFieldsInUse) === 0;
+                if(!$emailFieldsHaveRead) {
+                    $fieldCount = count($this->emailFieldsInUse);
+                    $accessCount = 0;
+
+                    foreach($this->emailFieldsInUse as $indID => $fieldInfo) {
+                        $format = $fieldInfo['format'];
+                        $empGrpID = $fieldInfo['value'];
+
+                        if($format === 'orgchart_employee') {
+                            $fieldUserID = $requestData['id' . $indID . '_orgchart']['userName'];
+                            if (isset($readUsersLookup[$fieldUserID]) || isset($designatedFields['users'][$indID])) {
+                                    $accessCount += 1;
+                            } else {
+                                break;
+                            }
+                        }
+                        if($format === 'orgchart_group') {
+                            if (isset($readGroupsLookup[$empGrpID]) || isset($designatedFields['groups'][$indID])) {
+                                $accessCount += 1;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                    $emailFieldsHaveRead = $accessCount === $fieldCount;
+                }
+                if (!$emailFieldsHaveRead) {
+                    return false;
+                }
+
+                //finally, if all else passes, confirm all custom/cancel addresses are in the read users lookup
+                if ($emailTemplateID !== self::CANCEL_REQUEST && count($this->customToCcAddresses) === 0) {
+                    return true;
+                } else {
+                    $allRecipientsHaveRead = true;
+                    foreach($customRecipientsLookup as $userID => $_) {
+                        if (!isset($readUsersLookup[$userID])) {
+                            $allRecipientsHaveRead = false;
+                            break;
+                        }
+                    }
+                    return $allRecipientsHaveRead;
+                }
+            }
+        }
     }
 
     /**
