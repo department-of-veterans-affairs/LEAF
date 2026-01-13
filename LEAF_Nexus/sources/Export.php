@@ -23,6 +23,7 @@ class Export
         $this->login = $login;
     }
 
+    // Export Position Description List
     // Contents primarily copied from exportPDL.php
     public function exportPDL() : array {
         $position = new Position($this->db, $this->login);
