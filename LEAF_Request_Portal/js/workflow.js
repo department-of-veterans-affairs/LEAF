@@ -217,7 +217,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         let stepDescription =
             step.description == null
                 ? "Error: The configuration in the Workflow Editor is incomplete."
-                : XSSHelpers.sanitize(step.description);
+                : step.description;
 
         $("#" + containerID).append(
             '<div id="workflowbox_dep' +
@@ -300,24 +300,20 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
         // draw buttons
         for (let i in step.dependencyActions) {
-            const sanitizedIcon = step.dependencyActions[i].actionIcon != ""
-                ? encodeURIComponent(step.dependencyActions[i].actionIcon)
-                : "";
-
-            const icon = sanitizedIcon != ""
-                ? `<img src="${rootURL}dynicons/?img=${sanitizedIcon}&amp;w=22" alt="" style="vertical-align: middle" />`
+            const icon =
+                step.dependencyActions[i].actionIcon != ""
+                    ? `<img src="${rootURL}dynicons/?img=${step.dependencyActions[i].actionIcon}&amp;w=22"
+            alt="" style="vertical-align: middle" />`
                     : "";
-
             const alignment =
                 step.dependencyActions[i].actionAlignment.toLowerCase();
 
-            const sanitizedActionText = XSSHelpers.sanitize(step.dependencyActions[i].actionText);
             $(
                 `#form_dep_container${step.dependencyID} .actions_alignment_${alignment}`
             ).append(
                 `<div id="button_container${step.dependencyID}_${step.dependencyActions[i].actionType}">
           <button type="button" id="button_step${step.dependencyID}_${step.dependencyActions[i].actionType}" class="button" disabled>
-            ${icon} ${sanitizedActionText}
+            ${icon} ${step.dependencyActions[i].actionText}
           </button>
         </div>`
             );
@@ -543,13 +539,11 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         name =
                             "Warning: User not selected for current action (Contact Administrator)";
                     } else {
-                        const userName = XSSHelpers.sanitize(
+                        name =
+                            "Pending action from " +
                             res[currRecordID]["s1"][
                                 "id" + step.indicatorID_for_assigned_empUID
-                            ]
-                        )
-                        name =
-                            "Pending action from " + userName;
+                            ];
                     }
 
                     $("#workflowbox_dep" + step.dependencyID).append(
@@ -582,7 +576,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         name =
                             "Warning: Group not selected for current action (Contact Administrator)";
                     } else {
-                        name = "Pending action from " + XSSHelpers.sanitize(step.description);
+                        name = "Pending action from " + step.description;
                     }
 
                     $("#workflowbox_dep" + step.dependencyID).append(
@@ -600,7 +594,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             });
         } else {
             $("#workflowbox_dep" + step.dependencyID).append(
-                "<span>Pending " + XSSHelpers.sanitize(step.description) + "</span>"
+                "<span>Pending " + step.description + "</span>"
             );
             $("#workflowbox_dep" + step.dependencyID + " span").css({
                 "font-size": "150%",
@@ -649,8 +643,8 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         : response.stepBorder;
                 let label =
                     response.dependencyID == 5
-                        ? XSSHelpers.sanitize(response.categoryName)
-                        : XSSHelpers.sanitize(response.description);
+                        ? response.categoryName
+                        : response.description;
                 if (res != null) {
                     if (response.dependencyID != 5) {
                         $("#" + containerID).append(
@@ -675,7 +669,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                             '; padding: 4px"><span style="float: left; font-size: 90%">' +
                             label +
                             ": " +
-                            XSSHelpers.sanitize(response.actionTextPasttense) +
+                            response.actionTextPasttense +
                             "</span>";
                         text +=
                             '<span style="float: right; font-size: 90%">' +
@@ -692,7 +686,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         ) {
                             text +=
                                 '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br /><div style="font-weight: normal; padding-left: 16px; font-size: 12px; word-break:break-word;">' +
-                                XSSHelpers.sanitize(response.comment) +
+                                response.comment +
                                 "</div></div>";
                         }
                     } else {
@@ -734,7 +728,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                             '">' +
                             label +
                             ": " +
-                            XSSHelpers.sanitize(response.actionTextPasttense);
+                            response.actionTextPasttense;
                         text +=
                             '<br /><span style="font-size: 60%">' +
                             date.toLocaleString("en-US", {
@@ -750,7 +744,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         ) {
                             text +=
                                 '<div style="padding: 4px 16px"><fieldset style="border: 1px solid black;word-break:break-word;"><legend class="noprint">Comment</legend><span style="font-size: 80%; font-weight: normal">' +
-                                XSSHelpers.sanitize(response.comment) +
+                                response.comment +
                                 "</span></fieldset></div>";
                         }
                     } else {
@@ -781,11 +775,11 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         let year = sigTime.getFullYear();
                         $("#workflowSignatureContainer").append(
                             '<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">' +
-                                XSSHelpers.sanitize(lastActionSummary.signatures[i].stepTitle) +
+                                lastActionSummary.signatures[i].stepTitle +
                                 ' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="' +
                                 rootURL +
                                 'dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle; padding-right: 4px" alt="digital signature (beta) logo" />' +
-                                XSSHelpers.sanitize(lastActionSummary.signatures[i].name) +
+                                lastActionSummary.signatures[i].name +
                                 " " +
                                 month +
                                 "/" +
@@ -793,14 +787,16 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                 "/" +
                                 year +
                                 '</span><br /><span aria-hidden="true" style="font-size: 75%">x' +
-                                XSSHelpers.sanitize(lastActionSummary.signatures[i].signature.substr(0, 32)) +
+                                lastActionSummary.signatures[
+                                    i
+                                ].signature.substr(0, 32) +
                                 "</span></div>"
                         );
                     }
                     for (let i in lastActionSummary.stepsPendingSignature) {
                         $("#workflowSignatureContainer").append(
                             '<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: white; border: 1px dashed black; text-align: center">' +
-                                XSSHelpers.sanitize(lastActionSummary.stepsPendingSignature[i]) +
+                                lastActionSummary.stepsPendingSignature[i] +
                                 '<br /><span style="font-size: 140%; line-height: 300%">X&nbsp;______________</span></div>'
                         );
                     }
