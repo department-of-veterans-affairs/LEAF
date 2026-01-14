@@ -50,12 +50,8 @@ function showFiles() {
 
     $.ajax({
         type: 'GET',
-        url: '../api/system/files?getLastModified=1',
+        url: '../api/system/files?getStats=1',
         success: function(res) {
-            grid.setData(Object.keys(res).map(key => {
-                res[key].recordID = key; // formGrid expects there to be a recordID property that contains unique integers
-                return res[key];
-            }));
             grid.setDataBlob(res);
             
             grid.setHeaders([
@@ -65,7 +61,17 @@ function showFiles() {
                 }},
                 {name: 'Last Modified', indicatorID: 'lastModified', editable: false, callback: function(data, blob) {
                     let modTime = new Date(blob[data.recordID].modifiedTime * 1000);
-                    $('#'+data.cellContainerID).html(modTime.toLocaleDateString());
+                    $('#'+data.cellContainerID).html(modTime.toLocaleDateString() + ' ' + modTime.toLocaleTimeString());
+                }},
+                {name: 'Size', indicatorID: 'size', editable: false, callback: function(data, blob) {
+                    let size = blob[data.recordID].size;
+                    let units = ['B', 'KB', 'MB'];
+                    let unitIndex = 0;
+                    while (size >= 1000 && unitIndex < units.length - 1) {
+                        size /= 1000;
+                        unitIndex++;
+                    }
+                    $('#'+data.cellContainerID).html(size.toFixed(0) + ' ' + units[unitIndex]);
                 }},
                 {name: '', indicatorID: 'delete', editable: false, callback: function(data, blob) {
                     $('#'+data.cellContainerID).html(`<a href="#" onclick="deleteFile('${blob[data.recordID].file}')">Delete</a>`);
@@ -91,7 +97,10 @@ function deleteFile(file) {
         $.ajax({
             type: 'DELETE',
             url: '../api/system/files/delete?' +
-                $.param({'CSRFToken': CSRFToken, 'file': file}),
+                $.param({'file': file}),
+            data: {
+                'CSRFToken': CSRFToken,
+            },
             success: function() {
                 showFiles();
                 dialog_confirm.hide();

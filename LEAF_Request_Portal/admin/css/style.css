@@ -810,6 +810,21 @@ div#subordinate_site_warning {
   padding: 0.25rem 0.5rem;
   background-color: #ffffc0;
 }
+.entry_info, .entry_error, .entry_warning {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.entry_error {
+  border-left: 4px solid #B50909;
+}
+.entry_warning {
+  border-left: 4px solid #ffbe2e;
+}
+.entry_info {
+  border-left: 4px solid #00bde3;
+}
 
 @media (max-width: 520px) {
   #header:not(.usa-header) {

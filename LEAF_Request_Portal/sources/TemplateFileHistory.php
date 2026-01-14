@@ -140,9 +140,9 @@ class TemplateFileHistory
 
 
     /**
-     * Summary of getTemplateFileHistory
+     * getTemplateFileHistory retrieves a list of modified version of $templateFile, and includes basic file stat information
      * @param mixed $templateFile
-     * @return mixed
+     * @return array
      */
     public function getTemplateFileHistory(string $templateFile): array
     {
@@ -158,8 +158,13 @@ class TemplateFileHistory
                   FROM `template_history_files`
                   WHERE file_parent_name = :template_file
                   ORDER BY `file_id` DESC';
+        $data = $this->db->prepared_query($sql, $vars);
 
-        return $this->db->prepared_query($sql, $vars);
+        foreach($data as $i => $v) {
+            $data[$i]['filemtime'] = filemtime($v['file_path']);
+        }
+
+        return $data;
     }
 
     /**

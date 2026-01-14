@@ -159,6 +159,7 @@
      * @return HTML Content for listEvents
      */
     function listEventsContent(events) {
+        const nonAlphaNumRegex = new RegExp(/[^a-zA-Z0-9_]/, "gi");
         let content = `<table id="events" class="table" border="1">
             <caption><h2>List of Events</h2></caption>
             <thead><th scope="col">Event</th><th scope="col">Description</th><th scope="col">Type</th><th scope="col">Action</th></thead>`;
@@ -177,7 +178,7 @@
                 <td width="200px" id="${events[i].eventID}">
                     ${events[i].eventID.replace('CustomEvent_','').replaceAll('_', ' ')}
                 </td>
-                <td width="200px" id="${events[i].eventDescription}">${events[i].eventDescription}</td>
+                <td width="200px" id="${events[i].eventDescription.replaceAll(nonAlphaNumRegex, '_')}">${events[i].eventDescription}</td>
                 <td width="150px" id="${events[i].eventType}">${events[i].eventType}</td>
                 <td width="100px" id="editor_${events[i].eventID}">
                     <button type="button" class="buttonNorm" onclick="editEvent('${events[i].eventID}')"
@@ -519,7 +520,7 @@
             return 'Invalid parameter(s): events must be an array.';
         }
 
-        let content = '<label id="event_label">Add an event: </label>';
+        let content = '<label id="event_label" for="eventID">Add an event: </label>';
         content += `<br /><div>
             <span id="event_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
             <select id="eventID" name="eventID" title="Select Event" onchange="updateSelectionStatus(this, 'event_select_status')">`;
@@ -1038,7 +1039,7 @@
             url: '../api/workflow/dependencies',
             success: function(res) {
                 let buffer = '';
-                buffer = '<label id="requirements_label">Select an existing requirement</label>';
+                buffer = '<label id="requirements_label" for="dependencyID">Select an existing requirement</label>';
                 buffer += `<div><span id="req_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
                     <select id="dependencyID" name="dependencyID" title="Select a requiremement" onchange="updateSelectionStatus(this, 'req_select_status')">`;
 
@@ -1169,7 +1170,7 @@
                     allWorkflowActionMap[res[i].actionType.toLowerCase()] = 1;
                     buffer += `<tr>
                         <td width="300px" id="${res[i].actionType}">${res[i].actionText}</td>
-                        <td width="300px" id="${res[i].actionTextPasttense}">${res[i].actionTextPasttense}</td>
+                        <td width="300px" id="${res[i].actionType}_past">${res[i].actionTextPasttense}</td>
                         <td width="100px">${res[i]?.sort || 0}</td>
                         <td width="150px" id="editor_${res[i].actionType}">
                             <button type="button" class="buttonNorm" onclick="editActionType('${res[i].actionType}')"
@@ -1211,16 +1212,20 @@
     */
     function renderActionInputModal(action = {}) {
         return `<div id="action_input_modal">
-            <div>
-                <label for="actionText" id="action_label">Action <span style="color: #c00">*Required</span></label><br>
-                <div class="helper_text">e.g., Approve</div>
-                <div id="actionText_error_message" class="error_message"></div>
-                <input id="actionText" type="text" maxlength="50" value="${action?.actionText || ''}">
+            <div class="info_wrapper">
+                <div>
+                    <label for="actionText" id="action_label">Action <span style="color: #c00">*Required</span></label><br>
+                    <div class="helper_text">e.g., Approve</div>
+                    <div id="actionText_error_message" class="error_message"></div>
+                    <input id="actionText" type="text" maxlength="50" value="${action?.actionText || ''}">
+                </div>
             </div>
-            <div>
-                <label for="actionTextPasttense" id="action_past_tense_label"> Action Past Tense <span style="color: #c00">*Required</span></label><br>
-                <div class="helper_text">e.g., Approved</div>
-                <input id="actionTextPasttense" type="text" maxlength="50" value="${action?.actionTextPasttense || ''}">
+            <div class="info_wrapper">
+                <div>
+                    <label for="actionTextPasttense" id="action_past_tense_label"> Action Past Tense <span style="color: #c00">*Required</span></label><br>
+                    <div class="helper_text">e.g., Approved</div>
+                    <input id="actionTextPasttense" type="text" maxlength="50" value="${action?.actionTextPasttense || ''}">
+                </div>
             </div>
             <div>
                 <label for="actionIcon" id="choose_icon_label">Icon</label><br>
@@ -1373,13 +1378,13 @@
     */
     function validateInputFields(targetID = "", newEntry = false) {
         const setError = (elementID = "", isValid = false) => {
-            let wrapperElement = document.getElementById(elementID)?.parentNode || null;
+            let wrapperElement = document.getElementById(elementID)?.closest('.info_wrapper') ?? null;
             if (wrapperElement !== null && isValid === false) {
                 wrapperElement.classList.add("entry_error");
             }
         }
 
-        let parentWrapper = document.getElementById(targetID)?.parentElement ?? null;
+        let parentWrapper = document.getElementById(targetID)?.closest('.info_wrapper') ?? null;
         if (parentWrapper !== null) {
             parentWrapper.classList.remove("entry_error");
         }
@@ -1526,14 +1531,14 @@
                 buffer = 'Select action for ';
                 buffer += '<b>' + sourceTitle + '</b> to <b>' + targetTitle + '</b>:';
                 buffer +=
-                    '<br /><br /><br />Use an existing action type: <select id="actionType" name="actionType">';
+                    '<br><br><br><label id="actionType_label" for="actionType">Use an existing action type:</label><br><select id="actionType" name="actionType">';
 
                 for (let i in res) {
                     allWorkflowActionMap[res[i].actionType.toLowerCase()] = 1;
                     buffer += '<option value="' + res[i].actionType + '">' + res[i].actionText + '</option>';
                 }
 
-                buffer += '</select>';
+                buffer += '</select><br>';
                 buffer +=
                     '<br />- OR -<br /><br /><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25rem;" onclick="newAction();">Create a new Action Type</button>';
 
@@ -1541,6 +1546,7 @@
                 dialog.setContent(buffer);
                 $('#xhrDialog').css('overflow', 'visible');
                 $('#actionType').chosen({disable_search_threshold: 5});
+                updateChosenAttributes("actionType", "actionType_label", "Select an Action");
                 let saving = false;
                 dialog.setCancelHandler(function() {
                     if(reopenStepID !== null && saving === false) {
@@ -1671,21 +1677,45 @@
             type: 'GET',
             url: '../api/form/indicator/list',
             success: function(res) {
-                let indicatorList = '';
-                for (let i in res) {
-                    if (res[i]['format'] == 'orgchart_employee' ||
-                        res[i]['format'] == 'raw_data') {
-                        let name = XSSHelpers.stripAllTags(res[i].name);
-                        name = name.length <= 50 ? name : name.slice(0, 50) + '...';
-                        indicatorList += '<option value="' + res[i].indicatorID + '">' + res[i]
-                            .categoryName + ': ' + name + ' (id: ' + res[i].indicatorID +
-                            ')</option>';
+                const indOptions = res
+                    .filter(ind => ind?.format === 'orgchart_employee' || ind?.format === 'raw_data')
+                    .sort((indA, indB ) => indA.categoryName.localeCompare(indB.categoryName));
+
+                let indicatorHTML = '';
+                let optGroup = null;
+                indOptions.forEach(ind => {
+                    const catName = XSSHelpers.stripAllTags(ind.categoryName);
+                    let name = XSSHelpers.stripAllTags(ind.name);
+                    name = name.length <= 50 ? name : name.slice(0, 50) + '...';
+
+                    let newOptGroup = false;
+                    if (catName !== optGroup) {
+                        newOptGroup = true;
+                        optGroup = catName;
+                        if (indicatorHTML !== '') {
+                            indicatorHTML += '</optGroup>';
+                        }
+                    }
+                    indicatorHTML += newOptGroup ? `<optGroup label="${catName}">` : '';
+                    indicatorHTML += `<option value="${ind.indicatorID}">${name} (id: ${ind.indicatorID})</option>`;
+                });
+
+                const currentValue = steps[stepID]?.indicatorID_for_assigned_empUID;
+                dialog.setContent(
+                    '<div id="set_indicator_modal"><br>' +
+                    '<div class="entry_info bg-blue-5v">' +
+                    'Select the data field that will be used to route to the selected individual.<br>' +
+                    'Your form must have a field with the "Orgchart Employee" or "Raw Data" input format.</div><br>' +
+                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID" style="max-width:610px;">' +
+                    indicatorHTML + '</select><br><br>' +
+                    '</div>'
+                );
+                if(currentValue > 0) {
+                    let selEl = document.getElementById('indicatorID');
+                    if(selEl !== null) {
+                        selEl.value = currentValue;
                     }
                 }
-                dialog.setContent(
-                    '<br />Select the data field that will be used to route to selected individual.<br /><select id="indicatorID">' +
-                    indicatorList + '</select><br /><br />\
-    			    * Your form must have a field with the "Orgchart Employee" or "Raw Data" input format');
             },
             error: (err) => console.log(err),
             cache: false
@@ -1709,19 +1739,45 @@
             type: 'GET',
             url: '../api/form/indicator/list',
             success: function(res) {
-                var indicatorList = '';
-                for (let i in res) {
-                    if (res[i]['format'] == 'orgchart_group' ||
-                        res[i]['format'] == 'raw_data') {
-                        indicatorList += '<option value="' + res[i].indicatorID + '">' + res[i]
-                            .categoryName + ': ' + res[i].name + ' (id: ' + res[i].indicatorID +
-                            ')</option>';
+                const indOptions = res
+                    .filter(ind => ind?.format === 'orgchart_group' || ind?.format === 'raw_data')
+                    .sort((indA, indB ) => indA.categoryName.localeCompare(indB.categoryName));
+
+                let indicatorHTML = '';
+                let optGroup = null;
+                indOptions.forEach(ind => {
+                    const catName = XSSHelpers.stripAllTags(ind.categoryName);
+                    let name = XSSHelpers.stripAllTags(ind.name);
+                    name = name.length <= 50 ? name : name.slice(0, 50) + '...';
+
+                    let newOptGroup = false;
+                    if (catName !== optGroup) {
+                        newOptGroup = true;
+                        optGroup = catName;
+                        if (indicatorHTML !== '') {
+                            indicatorHTML += '</optGroup>';
+                        }
+                    }
+                    indicatorHTML += newOptGroup ? `<optGroup label="${catName}">` : '';
+                    indicatorHTML += `<option value="${ind.indicatorID}">${name} (id: ${ind.indicatorID})</option>`;
+                });
+
+                const currentValue = steps[stepID]?.indicatorID_for_assigned_groupID
+                dialog.setContent(
+                    '<div id="set_indicator_modal"><br>' +
+                    '<div class="entry_info bg-blue-5v">' +
+                    'Select the data field that will be used to route to the selected group.<br>' +
+                    'Your form must have a field with the "Orgchart Group" or "Raw Data" input format.</div><br>' +
+                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID" style="max-width:610px;">' +
+                    indicatorHTML + '</select><br><br>' +
+                    '</div>'
+                );
+                if(currentValue > 0) {
+                    let selEl = document.getElementById('indicatorID');
+                    if(selEl !== null) {
+                        selEl.value = currentValue;
                     }
                 }
-                dialog.setContent(
-                    '<br />Select a field that the requestor fills out. The workflow will route to the group they select.<br /><select id="indicatorID">' +
-                    indicatorList + '</select><br /><br />\
-                    * Your form must have a field with the "Orgchart Group" input format');
             },
             error: (err) => console.log(err),
             cache: false

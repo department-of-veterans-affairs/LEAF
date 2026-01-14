@@ -6,13 +6,26 @@
 
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <style>
-.buttonNorm {
-    color: black;
+#page_breadcrumbs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .125rem;
 }
-.buttonNorm:hover {
+#menu .buttonNorm {
+    color: black;
+    width:220px;
+    padding: 4px;
+    font-size:1rem;
+    text-align:left;
+    margin-bottom:1rem;
+}
+#menu .buttonNorm:hover, #menu .buttonNorm:focus, #menu .buttonNorm:active, #menu .searchfilter.active {
     color: white;
+    background-color: #2372b0;
 }
 </style>
+
 <script>
 function showPreview(recordID) {
 	var formData = grid.getDataByRecordID(recordID);
@@ -32,11 +45,11 @@ function showPreview(recordID) {
     }
 
 	dialog_simple.setTitle('Preview');
-	dialog_simple.setContent('<button id="btn_download" class="buttonNorm" style="float: right"><img src="../dynicons/?img=edit-copy.svg&w=32" alt="" /> Get a copy!</button><div style="font-size: 120%; font-weight: bold">' + title + '</div><div>'+ authors +'</div><br /><br /><div id="preview"></div>');
+	dialog_simple.setContent('<button type="button" id="btn_download" class="buttonNorm" style="float: right"><img src="../dynicons/?img=edit-copy.svg&w=32" alt="" /> Get a copy!</button><div style="font-size: 120%; font-weight: bold">' + title + '</div><div>'+ authors +'</div><br /><br /><div id="preview"></div>');
 	dialog_simple.show();
 
     preview = new LeafPreview('preview');
-    preview.setNexusURL('<!--{$LEAF_NEXUS_URL}-->');
+    preview.setLeafDomain('<!--{$LEAF_DOMAIN}-->');
     preview.load(recordID, 1, 0);
 
     $('#btn_download').one('click', function() {
@@ -55,12 +68,25 @@ function showPreview(recordID) {
     });
 }
 
-function applyFilter(search) {
-    query.updateDataTerm('data', '3', 'LIKE', '*' + search + '*');
-    query.execute();
-    announceFilter(search);
+function applyFilter(search, btnEl) {
+    const filters = [ '', 'Administrative', 'Human Resources', 'Information Technology', 'Logistics', 'Fiscal' ];
+    const isFilter = filters.some(f => f === search);
+    if(isFilter === true && filter_id !== search) {
+        filter_id = search;
+        document.querySelectorAll('.searchfilter').forEach(el => el.classList.remove('active'));
+        btnEl.classList.add('active');
+        query.updateDataTerm('data', '3', 'LIKE', '*' + search + '*');
+        query.execute();
+        announceFilter(search);
+    }
+}
+function announceFilter(id) {
+    document.getElementById('filterStatus')?.setAttribute(
+        'aria-label', 'Filtering results by ' + id
+    );
 }
 
+let filter_id = '';
 var query;
 var grid;
 var preview;
@@ -68,14 +94,14 @@ var data;
 var dialog_simple;
 $(function() {
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
-    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
+    $('#simplexhrDialog').dialog({ minWidth: ($(window).width() * .78) + 30 });
 
     query = new LeafFormQuery();
     query.setRootURL('<!--{$LEAF_DOMAIN}-->LEAF/library/');
     query.onSuccess(function(res) {
         data = res;
-        var tData = [];
-        for(var i in res) {
+        let tData = [];
+        for(let i in res) {
             tData.push(res[i]);
         }
         tData.sort(function(a, b) {
@@ -89,46 +115,60 @@ $(function() {
         });
 
 
-        grid = new LeafFormGrid('forms', {readOnly: true});
+        grid = new LeafFormGrid('forms', { readOnly: true });
         grid.setRootURL('../');
         grid.hideIndex();
         grid.importQueryResult(tData);
         grid.setHeaders([
-            {name: 'Form', indicatorID: 'form', editable: false, sortable: false, callback: function(data, blob) {
-                if(blob[data.index].s1.id53 == "Yes") {
-                    $('#' + grid.getPrefixID() + "tbody_tr" + data.recordID).css('background-color', '#ffff99');
+            {
+                name: 'Form', indicatorID: 'form', editable: false, sortable: true,
+                callback: function(data, blob) {
+                    if(blob[data.index].s1.id53 == "Yes") {
+                        $('#' + grid.getPrefixID() + "tbody_tr" + data.recordID).css('background-color', '#ffff99');
+                    }
+                    $('#'+data.cellContainerID).html('<span style="font-weight: bold; font-size: 100%">' + blob[data.index].title + '</span>');
                 }
-            	$('#'+data.cellContainerID).html('<span style="font-weight: bold; font-size: 100%">' + blob[data.index].title + '</span>');
-            }},
-            {name: 'Description', indicatorID: 5, sortable: false, editable: false},
-            {name: 'Author(s)', indicatorID: 'authors', editable: false, sortable: false, callback: function(data, blob) {
-            	var authors = '';
-            	if(blob[data.index].s1.id9 != undefined
-            		&& blob[data.index].s1.id9 != '') {
-            		authors = blob[data.index].s1.id9;
-            	}
-                if(blob[data.index].s1.id10 != undefined
-                    && blob[data.index].s1.id10 != '') {
-                    authors += ', ' + blob[data.index].s1.id10;
-                }
+            },
+            {
+                name: 'Description', indicatorID: 5, editable: false, sortable: true,
+            },
+            {
+                name: 'Author(s)', indicatorID: 'authors', editable: false, sortable: true,
+                callback: function(data, blob) {
+                    var authors = '';
+                    if(blob[data.index].s1.id9 != undefined
+                        && blob[data.index].s1.id9 != '') {
+                        authors = blob[data.index].s1.id9;
+                    }
+                    if(blob[data.index].s1.id10 != undefined
+                        && blob[data.index].s1.id10 != '') {
+                        authors += ', ' + blob[data.index].s1.id10;
+                    }
 
-                $('#'+data.cellContainerID).html(authors);
-            }},
-            {name: 'Workflow Example', indicatorID: 6, sortable: false, editable: false, callback: function(data, blob) {
-                if(blob[data.index].s1.id6 != undefined
-                        && blob[data.index].s1.id6 != '') {
-                	var imageURL = '<!--{$LEAF_DOMAIN}-->LEAF/library/image.php?form=' + blob[data.index].recordID + '&id=6&series=1&file=0';
-                    $('#'+data.cellContainerID).html('<img id="workflowImg_'+ blob[data.index].recordID +'" src="'+ imageURL +'" alt="Screenshot of workflow" style="border: 1px solid black; max-width: 150px; cursor: pointer" />');
-                    $('#workflowImg_'+ blob[data.index].recordID).on('click', function() {
-                    	dialog_simple.setTitle(blob[data.index].title + ' (example workflow)');
-                        dialog_simple.setContent('<a href="'+ imageURL +'" target="_blank"><img id="workflowImg_'+ blob[data.index].recordID +'" src="'+ imageURL +'" alt="Screenshot of workflow" style="cursor: zoom-in; border: 1px solid black; width: 540px" /></a>');
-                        dialog_simple.show();
-                    });
+                    $('#'+data.cellContainerID).html(authors);
                 }
-            }},
-            {name: 'Preview', indicatorID: 'preview', editable: false, sortable: false, callback: function(data, blob) {
-            	$('#'+data.cellContainerID).html('<button class="buttonNorm" onclick="showPreview('+ blob[data.index].recordID +')" ><img src="../dynicons/?img=edit-find.svg&w=32" alt="" /> Preview</button>');
-            }}
+            },
+            {
+                name: 'Workflow Example', indicatorID: 6, editable: false, sortable: false,
+                callback: function(data, blob) {
+                    if(blob[data.index].s1.id6 != undefined
+                            && blob[data.index].s1.id6 != '') {
+                        var imageURL = '<!--{$LEAF_DOMAIN}-->LEAF/library/image.php?form=' + blob[data.index].recordID + '&id=6&series=1&file=0';
+                        $('#'+data.cellContainerID).html('<img id="workflowImg_'+ blob[data.index].recordID +'" src="'+ imageURL +'" alt="Screenshot of workflow" style="border: 1px solid black; max-width: 150px; cursor: pointer" />');
+                        $('#workflowImg_'+ blob[data.index].recordID).on('click', function() {
+                            dialog_simple.setTitle(blob[data.index].title + ' (example workflow)');
+                            dialog_simple.setContent('<a href="'+ imageURL +'" target="_blank"><img id="workflowImg_'+ blob[data.index].recordID +'" src="'+ imageURL +'" alt="Screenshot of workflow" style="cursor: zoom-in; border: 1px solid black; width: 540px" /></a>');
+                            dialog_simple.show();
+                        });
+                    }
+                }
+            },
+            {
+                name: 'Preview', indicatorID: 'preview', editable: false, sortable: false,
+                callback: function(data, blob) {
+                    $('#'+data.cellContainerID).html('<button type="button" class="buttonNorm" onclick="showPreview('+ blob[data.index].recordID +')" ><img src="../dynicons/?img=edit-find.svg&w=32" alt="" /> Preview</button>');
+                }
+            }
         ]);
 
         grid.setPostRenderFunc(function() {
@@ -139,11 +179,6 @@ $(function() {
         });
         grid.renderBody();
 
-/*        $('#forms').html('<table class="leaf_grid"><tbody id="table_forms">');
-        for(var i in res) {
-            $('#table_forms').append('<tr><td class="table_editable" onclick="showPreview('+ res[i].recordID +');" style="padding: 8px; border: 1px solid"><span style="font-weight: bold; font-size: 120%">' + res[i].title + '</span><br />' + res[i].s1.id5 + '</td></tr>');
-        }
-        $('#forms').append('</tbody></table>');*/
     });
 
     var leafSearch = new LeafFormSearch('searchContainer');
@@ -163,22 +198,42 @@ $(function() {
 
 </script>
 
-<div class="leaf-width-100pct" style="margin: 1rem">
-
-    <h2>LEAF Library</h2>
+<section class="leaf-width-100pct" style="padding: 0 0.5em;">
+    <h2 id="page_breadcrumbs">
+        <a href="../admin" class="leaf-crumb-link" title="to Admin Home">Admin</a>
+        <i class="fas fa-caret-right leaf-crumb-caret"></i>LEAF Library
+    </h2>
     <div id="menu" style="float: left; width: 230px">
         <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="assertive" id="filterStatus" role="status"></span>
-        <a class="buttonNorm leaf-marginBot-1rem" href="?a=form_vue" style="display: inherit; width: 220px; text-decoration: none" id="backToForm"><img aria-hidden="true" src="../dynicons/?img=system-file-manager.svg&amp;w=32" alt="" title="My Forms"/> My Forms</a>
-        <a class="buttonNorm leaf-marginBot-1rem" href="<!--{$LEAF_DOMAIN}-->LEAF/library/?a=newform" style="display: inherit; width: 220px; text-decoration: none"><img aria-hidden="true" src="../dynicons/?img=list-add.svg&amp;w=32" alt="" title="Contribute my Form"/> Contribute my Form</a>
+        <a class="buttonNorm" href="?a=form_vue" style="display: inherit;text-decoration: none" id="backToForm"><img aria-hidden="true" src="../dynicons/?img=system-file-manager.svg&amp;w=32" alt="" title="My Forms"> My Forms</a>
+        <a class="buttonNorm" href="<!--{$LEAF_DOMAIN}-->LEAF/library/?a=newform" style="display: inherit;text-decoration: none"><img aria-hidden="true" src="../dynicons/?img=list-add.svg&amp;w=32" alt="" title="Contribute my Form"> Contribute my Form</a>
 
         <div class="leaf-marginBot-halfRem">Filter by Business Lines:</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="" title="All Business Lines"/> All Business Lines</div>
+        <button type="button" class="buttonNorm searchfilter active" onclick="applyFilter('', this)">
+            <img aria-hidden="true" src="../dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="" title="All Business Lines">
+            All Business Lines
+        </button>
 
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Administrative')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=applications-office.svg&amp;w=32" alt="" title="Administrative" /> Administrative</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Human Resources')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=system-users.svg&amp;w=32" alt="" title="Human Resources" /> Human Resources</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Information Technology')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=network-idle.svg&amp;w=32" alt="" title="Information Technology" /> Information Technology</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Logistics')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=package-x-generic.svg&amp;w=32" alt="" title="Logistics" /> Logistics</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Fiscal')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="" title="Fiscal" /> Fiscal</div>
+        <button type="button" class="buttonNorm searchfilter" onclick="applyFilter('Administrative', this)">
+            <img aria-hidden="true" src="../dynicons/?img=applications-office.svg&amp;w=32" alt="" title="Administrative">
+            Administrative
+        </button>
+        <button type="button" class="buttonNorm searchfilter" onclick="applyFilter('Human Resources', this)">
+            <img aria-hidden="true" src="../dynicons/?img=system-users.svg&amp;w=32" alt="" title="Human Resources">
+            Human Resources
+        </button>
+        <button type="button" class="buttonNorm searchfilter" onclick="applyFilter('Information Technology', this)">
+            <img aria-hidden="true" src="../dynicons/?img=network-idle.svg&amp;w=32" alt="" title="Information Technology">
+            Information Technology
+        </button>
+        <button type="button" class="buttonNorm searchfilter" onclick="applyFilter('Logistics', this)">
+            <img aria-hidden="true" src="../dynicons/?img=package-x-generic.svg&amp;w=32" alt="" title="Logistics">
+            Logistics
+        </button>
+        <button type="button" class="buttonNorm searchfilter" onclick="applyFilter('Fiscal', this)">
+            <img aria-hidden="true" src="../dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="" title="Fiscal">
+            Fiscal
+        </button>
     </div>
     <div id="formEditor_content" style="margin-left: 238px; padding-left: 8px">
 
@@ -189,23 +244,4 @@ $(function() {
 
     <div id="previewShim" style="display: none"></div>
 
-</div>
-
-<script>
-    var filter_id;
-
-    function announceFilter(id) {
-        if(filter_id !== id) {
-            $('#filterStatus').attr('aria-label', 'Filtering results by ' + id);
-            filter_id = id;
-        } else {
-            alert('Filter already active');
-        }
-    }
-
-    function triggerKeydown(e, id) {
-        if(e.keyCode === 13 || e.keyCode === 32) {
-            $('#' + id).trigger('click');
-        }
-    }
-</script>
+</section>
