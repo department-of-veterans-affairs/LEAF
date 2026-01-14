@@ -17,7 +17,7 @@ foreach ($groups as $group)
     echo '<li>' . XSSHelpers::xscrub($group['name']) . ' (groupID#: ' . XSSHelpers::xscrub($group['groupID']) . ')';
 
     $vars = array('groupID' => $group['groupID']);
-    $users = $db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $vars);
+    $users = $db->prepared_query('SELECT * FROM users WHERE groupID=:groupID AND `active` = 1 ORDER BY userID', $vars);
     echo '<ul>';
     foreach ($users as $user)
     {

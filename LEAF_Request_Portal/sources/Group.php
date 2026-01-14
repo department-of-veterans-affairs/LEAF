@@ -232,6 +232,7 @@ class Group
                         `locallyManaged`, `active`
                     FROM `users`
                     WHERE `groupID` = :groupID
+                    AND `active` = 1
                     ' . $groupBy . '
                     ORDER BY `userID`';
 
@@ -392,7 +393,8 @@ class Group
             $sql = 'SELECT userID, groupID, locallyManaged FROM `users`
                     WHERE `userID` = :userID
                         AND `groupID` = :groupID
-                        AND locallyManaged = 1';
+                        AND locallyManaged = 1
+                        AND `active` = 1';
 
             $res = $this->db->prepared_query($sql, $vars);
             // If the users are locally managed, we can simply delete them
@@ -670,6 +672,6 @@ class Group
      */
     public function getAllUsers(): array|bool
     {
-        return $this->db->prepared_query('SELECT * FROM users WHERE groupID > 1 ORDER BY userID', array());
+        return $this->db->prepared_query('SELECT * FROM users WHERE groupID > 1 AND `active` = 1 ORDER BY userID', array());
     }
 }

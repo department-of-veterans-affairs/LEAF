@@ -313,7 +313,8 @@ class Login
         $result = $this->userDB->prepared_query('SELECT * FROM `groups`
                                             LEFT JOIN users USING (groupID)
                                             WHERE parentGroupID=-1
-                                                AND userID=:userID', $var);
+                                                AND userID=:userID
+                                                AND `active` = 1', $var);
 
         $buffer = '';
         foreach ($result as $group)
@@ -345,7 +346,8 @@ class Login
         $result = $this->userDB->prepared_query('SELECT * FROM `groups`
                                             LEFT JOIN users USING (groupID)
                                             WHERE parentGroupID=-1
-                                                AND userID=:userID', $var);
+                                                AND userID=:userID
+                                                AND `active` = 1', $var);
 
         if (isset($result[0]))
         {
