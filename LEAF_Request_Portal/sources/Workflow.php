@@ -1758,7 +1758,7 @@ class Workflow
 
         $this->db->prepared_query($sql, $vars);
 
-        // if deleting person designated or group designated then the indicator
+        // if deleting person designated (-1) or group designated (-3) then the indicator
         // needs to be cleared in the workflow_steps table as well
         if ($dependencyID === -1) {
             unset($vars[':dependencyID']);
@@ -1771,8 +1771,9 @@ class Workflow
                     SET `indicatorID_for_assigned_groupID` = NULL
                     WHERE `stepID` = :stepID';
         }
-
-        $this->db->prepared_query($sql2, $vars);
+        if ($dependencyID === -1 || $dependencyID === -3) {
+            $this->db->prepared_query($sql2, $vars);
+        }
     }
 
     /**
