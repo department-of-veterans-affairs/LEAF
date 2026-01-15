@@ -60,7 +60,7 @@ func TestUpdateDataLLMLabel_Success(t *testing.T) {
 
 	// Mock server for LLM endpoint
 	llmServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		response := response{
+		response := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{
@@ -251,7 +251,7 @@ func TestUpdateDataLLMLabel_EmptyInputData(t *testing.T) {
 	llmCallCount := 0
 	llmServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		llmCallCount++
-		response := response{
+		response := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{
@@ -397,7 +397,7 @@ func TestUpdateDataLLMLabel_ResponseTooLong(t *testing.T) {
 
 	// Mock LLM server to return a response that's too long
 	llmServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		response := response{
+		response := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{
@@ -488,7 +488,7 @@ func TestUpdateDataLLMLabel_WithContext(t *testing.T) {
 		json.NewDecoder(r.Body).Decode(&config)
 		capturedConfig = config
 
-		response := response{
+		response := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{
@@ -593,7 +593,7 @@ func TestUpdateDataLLMLabel_RecordNotInSet(t *testing.T) {
 	llmCallCount := 0
 	llmServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		llmCallCount++
-		response := response{
+		response := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{

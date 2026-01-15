@@ -23,7 +23,7 @@ type Message struct {
 	Content string `json:"content"`
 }
 
-type response struct {
+type LLMResponse struct {
 	Choices []choice `json:"choices"`
 	Timings timings  `json:"timings"`
 }
@@ -39,12 +39,12 @@ type timings struct {
 	PredictedPerSecond float64 `json:"predicted_per_second"`
 }
 
-func (a Agent) GetLLMResponse(config Completions) (response, error) {
+func (a Agent) GetLLMResponse(config Completions) (LLMResponse, error) {
 	jsonConfig, _ := json.Marshal(config)
 
 	req, err := http.NewRequest("POST", a.llmCategorizationURL, bytes.NewBuffer(jsonConfig))
 	if err != nil {
-		return response{}, fmt.Errorf("GetLLMResponse: %w", err)
+		return LLMResponse{}, fmt.Errorf("GetLLMResponse: %w", err)
 	}
 
 	req.Header.Set("Authorization", "Bearer "+a.llmApiKey)
@@ -52,26 +52,26 @@ func (a Agent) GetLLMResponse(config Completions) (response, error) {
 
 	res, err := a.llmHttpClient.Do(req)
 	if err != nil {
-		return response{}, fmt.Errorf("LLM_CATEGORIZATION_URL: %w", err)
+		return LLMResponse{}, fmt.Errorf("LLM_CATEGORIZATION_URL: %w", err)
 	}
 
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
-		return response{}, fmt.Errorf("LLM: Read Err: %w", err)
+		return LLMResponse{}, fmt.Errorf("LLM: Read Err: %w", err)
 	}
 
 	if res.StatusCode != 200 {
-		return response{}, errors.New("LLM Status " + strconv.Itoa(res.StatusCode) + ": " + string(b))
+		return LLMResponse{}, errors.New("LLM Status " + strconv.Itoa(res.StatusCode) + ": " + string(b))
 	}
 
-	var llmResponse response
+	var llmResponse LLMResponse
 	err = json.Unmarshal(b, &llmResponse)
 	if err != nil {
-		return response{}, fmt.Errorf("LLM: %w", err)
+		return LLMResponse{}, fmt.Errorf("LLM: %w", err)
 	}
 
 	if len(llmResponse.Choices) == 0 {
-		return response{}, errors.New("LLM Output Error: " + string(b))
+		return LLMResponse{}, errors.New("LLM Output Error: " + string(b))
 	}
 
 	return llmResponse, nil

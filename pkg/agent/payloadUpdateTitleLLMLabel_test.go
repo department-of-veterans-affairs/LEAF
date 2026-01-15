@@ -62,7 +62,7 @@ func Test_UpdateTitleLLMLabel_Success(t *testing.T) {
 
 	// Mock LLM server
 	llmTs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		response := response{
+		response := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{
@@ -548,7 +548,7 @@ func Test_UpdateTitleLLMLabel_LLMResponseTooLong(t *testing.T) {
 
 	// Mock LLM server that returns a response longer than 50 characters
 	llmTs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		response := response{
+		response := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{
@@ -626,7 +626,7 @@ func Test_UpdateTitleLLMLabel_UpdateTitleError(t *testing.T) {
 
 	// Mock LLM server
 	llmTs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		response := response{
+		response := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{
@@ -708,7 +708,7 @@ func Test_UpdateTitleLLMLabel_HTMLSanitization(t *testing.T) {
 
 	// Mock LLM server that returns HTML content
 	llmTs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		response := response{
+		response := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{

@@ -69,7 +69,7 @@ func Test_UpdateDataLLMCategorization_Success(t *testing.T) {
 	// Mock LLM server
 	llmTs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Return mock LLM response
-		llmResponse := response{
+		llmResponse := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{
@@ -397,7 +397,7 @@ func Test_UpdateDataLLMCategorization_InvalidLLMResponse(t *testing.T) {
 
 	// Mock LLM server that returns invalid response
 	llmTs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		llmResponse := response{
+		llmResponse := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{
@@ -480,7 +480,7 @@ func Test_UpdateDataLLMCategorization_UpdateRecordError(t *testing.T) {
 
 	// Mock LLM server
 	llmTs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		llmResponse := response{
+		llmResponse := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{
@@ -566,7 +566,7 @@ func Test_UpdateDataLLMCategorization_RecordNotInSet(t *testing.T) {
 
 	// Mock LLM server
 	llmTs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		llmResponse := response{
+		llmResponse := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{
@@ -658,7 +658,7 @@ func Test_UpdateDataLLMCategorization_WithEmptyContext(t *testing.T) {
 			t.Errorf("Expected 2 messages, got %d", len(config.Messages))
 		}
 
-		llmResponse := response{
+		llmResponse := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{
@@ -759,7 +759,7 @@ func Test_UpdateDataLLMCategorization_WithEmptyDataFields(t *testing.T) {
 			t.Errorf("Expected empty content for second message, got: %s", config.Messages[1].Content)
 		}
 
-		llmResponse := response{
+		llmResponse := LLMResponse{
 			Choices: []choice{
 				{
 					Message: Message{
