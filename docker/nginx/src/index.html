@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <title>LEAF Development Environment</title>
+    <meta charset="UTF-8">
 </head>
 <style>
     table {
@@ -15,26 +16,34 @@
 <body>
 
 <h1>LEAF Development Environment</h1>
-<h2>LEAF Sites</h2>
+<p>This development environment contains copies of the Request Portal and Nexus components.</p>
+<h2>General Development</h2>
+<p>This can be used for general development and testing.</p>
 <table>
     <tr>
         <td><a href="./LEAF_Request_Portal" target="_blank">Request Portal</a></td>
         <td>A low code/no code workflow management tool utilized to digitize administrative business processes</td>
     </tr>
     <tr>
-        <td><a href="./Test_Request_Portal" target="_blank">Request Portal (Standard Test DB)</a> *</td>
-        <td>The standard test DB is populated by the API test suite, and used in end-to-end testing.</td>
-    </tr>
-    <tr>
         <td><a href="./LEAF_Nexus" target="_blank">Nexus</a></td>
         <td>Manage facility-level user groups and organizational charts.</td>
     </tr>
-    <tr>
-        <td><a href="./Test_Nexus" target="_blank">Nexus (Standard Test DB)</a> *</td>
-        <td>The standard test DB is populated by the API test suite, and used in end-to-end testing.</td>
-    </tr>
 </table>
-<p>* Prerequisite: Populate the database by running the API tester.</p>
+
+<h2>Standardized Testing</h2>
+<p>This is primarily used for automated testing, where code changes can be checked against the automated test suite.</p>
+<p>Prerequisite: Populate the database by running the API tester.</p>
+<p>⚠️ Warning: The API tester will reset the contents of these sites.</p>
+<ul>
+    <li><a href="./Test_Request_Portal" target="_blank">Request Portal</a></li>
+    <li>
+        <a href="./platform/agent" target="_blank">Agent Task Repository</a>
+        <ul>
+            <li>Repository of tasks for the LEAF Agent</li>
+        </ul>
+    </li>
+    <li><a href="./Test_Nexus" target="_blank">Nexus</a></li>
+</ul>
 
 <h2>Automated Tests</h2>
 <p>Deployment requires all tests to be passing</p>
@@ -48,6 +57,20 @@
     <tr>
         <td><a href="http://host.docker.internal:8001/api/v1/test" target="_blank">End-to-End tests (Playwright)</a></td>
         <td>New end-to-end test suite. Prerequisite: Run the API tester in order to initialize the test database.</td>
+    </tr>
+    <tr>
+        <td><a href="http://host.docker.internal:8000/api/v1/testLLM" target="_blank">LLM tester</a></td>
+        <td>Test Large Language Model responses for expected behavior.<br />
+            <a href="http://host.docker.internal:8000/api/v1/testLLM?-v" target="_blank">Run in verbose mode</a>
+        </td>
+    </tr>
+</table>
+
+<h2>Benchmarks</h2>
+<table>
+    <tr>
+        <td><a href="http://host.docker.internal:8000/api/v1/benchLLM" target="_blank">Benchmark LLM</a></td>
+        <td>Measure number of iterations within 5 seconds (benchtime=5s)</td>
     </tr>
 </table>
 
