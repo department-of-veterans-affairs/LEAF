@@ -116,36 +116,6 @@ abstract class RESTfulResponse
         //header('Access-Control-Allow-Origin: *');
         $format = isset($_GET['format']) ? $_GET['format'] : '';
         switch ($format) {
-            case 'json':
-            default:
-                header('Content-type: application/json');
-                $jsonOut = json_encode($out);
-
-                if ($_SERVER['REQUEST_METHOD'] === 'GET')
-                {
-                    $etag = '"' . md5($jsonOut) . '"';
-                    header_remove('Pragma');
-                    header_remove('Cache-Control');
-                    header_remove('Expires');
-                    if (isset($_SERVER['HTTP_IF_NONE_MATCH'])
-                           && $_SERVER['HTTP_IF_NONE_MATCH'] === $etag)
-                    {
-                        header("ETag: {$etag}", true, 304);
-                        header('Cache-Control: must-revalidate, private');
-                        exit;
-                    }
-
-                    header("ETag: {$etag}");
-                    header('Cache-Control: must-revalidate, private');
-                }
-
-                echo $jsonOut;
-
-                break;
-            case 'php':
-                echo serialize($out);
-
-                break;
             case 'string':
                 echo $out;
 
@@ -235,6 +205,35 @@ abstract class RESTfulResponse
                 break;
             case 'debug':
                 echo '<pre>' . print_r($out, true) . '</pre>';
+
+                break;
+            case 'json':
+                // no break
+            case 'php':
+                // no break
+            default:
+                header('Content-type: application/json');
+                $jsonOut = json_encode($out);
+
+                if ($_SERVER['REQUEST_METHOD'] === 'GET')
+                {
+                    $etag = '"' . md5($jsonOut) . '"';
+                    header_remove('Pragma');
+                    header_remove('Cache-Control');
+                    header_remove('Expires');
+                    if (isset($_SERVER['HTTP_IF_NONE_MATCH'])
+                           && $_SERVER['HTTP_IF_NONE_MATCH'] === $etag)
+                    {
+                        header("ETag: {$etag}", true, 304);
+                        header('Cache-Control: must-revalidate, private');
+                        exit;
+                    }
+
+                    header("ETag: {$etag}");
+                    header('Cache-Control: must-revalidate, private');
+                }
+
+                echo $jsonOut;
 
                 break;
         }

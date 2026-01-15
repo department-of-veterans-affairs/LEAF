@@ -66,7 +66,7 @@ abstract class RESTfulResponse
                 if (!isset($DELETE_vars['CSRFToken'])) {
                     $DELETE_vars['CSRFToken'] = '';
                 }
-                
+
                 if (hash_equals($_SESSION['CSRFToken'], $DELETE_vars['CSRFToken'])) {
                     $return_value = $this->output($this->delete($action));
                 }
@@ -107,10 +107,6 @@ abstract class RESTfulResponse
         $format = isset($_GET['format']) ? $_GET['format'] : '';
 
         switch ($format) {
-            case 'php':
-                $return_value = serialize($out);
-
-                break;
             case 'string':
                 $return_value = $out;
 
@@ -273,6 +269,9 @@ abstract class RESTfulResponse
 
                 break;
             case 'json':
+                // no break
+            case 'php':
+                // no break
             default:
                 header('Content-type: application/json');
                 $jsonOut = json_encode($out);
