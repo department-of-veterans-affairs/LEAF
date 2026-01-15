@@ -2466,6 +2466,7 @@
     var currentWorkflow = 0;
 
     function loadWorkflow(workflowID, stepID = null, params = null) {
+        jsPlumb?.reset();
         currentWorkflow = workflowID;
         steps = {};
 
