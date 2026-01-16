@@ -170,7 +170,7 @@ switch ($action) {
             APP_JS_PATH . '/jsPlumb/dom.jsPlumb-min.js',
             $site_paths['orgchart_path'] . '/js/groupSelector.js',
             APP_JS_PATH . '/portal/LEAFPortalAPI.js',
-            APP_JS_PATH . '/LEAF/XSSHelpers.js',,
+            APP_JS_PATH . '/LEAF/XSSHelpers.js',
             APP_JS_PATH . '/qr-code/qrcode.min.js'
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
