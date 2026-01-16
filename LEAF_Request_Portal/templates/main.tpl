@@ -25,6 +25,14 @@
     </style>
     <style type="text/css" media="print">
         @import "css/printer.css";
+        #qrcode-js {
+            display: block !important;
+        }
+        #qrcode-js * {
+            display: block !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
     </style>
     <script type="text/javascript" src="{$app_js_path}/jquery/jquery.min.js"></script>
     {if $useUI == true}
@@ -51,6 +59,21 @@
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="{$javascripts[i]}"></script>
 {/section}
+{if $qrcodeURL != ''}
+    <script type="text/javascript">
+        window.onload = function() {
+            new QRCode(document.getElementById("qrcode-js"), {
+                text: "{$qrcodeURL}",
+                width: 72,
+                height: 72,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        };
+    </script>
+    {/if}
+
     <link rel="icon" href="vafavicon.ico" type="image/x-icon" />
 </head>
 <body>
@@ -68,7 +91,7 @@
 {/if}
 <header id="header">
     {if $qrcodeURL != ''}
-    <div style="float: left"><img class="print nodisplay" style="width: 72px" src="{$abs_portal_path}/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
+    <div style="float: left;"><div id="qrcode-js" style="width: 72px; display: none;" ></div></div>
     {/if}
     <a href="./" style="cursor:pointer">
       <img src="images/VA_icon_small.png" style="width: 80px" alt="VA seal, U.S. Department of Veterans Affairs" />

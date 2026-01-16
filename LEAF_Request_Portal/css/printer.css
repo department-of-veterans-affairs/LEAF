@@ -52,7 +52,7 @@ label {
 span#headerLabel {
   position: absolute;
   color: #17008a;
-  left: 80px;
+  left: 85px;
   top: 44px;
   font-size: 16px;
 }
@@ -62,7 +62,7 @@ span#headerLabel {
   position: absolute;
   font-size: 24px;
   color: black;
-  left: 80px;
+  left: 85px;
   top: 16px;
 }
 
