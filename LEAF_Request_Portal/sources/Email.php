@@ -38,6 +38,7 @@ class Email
     private object $position;
 
     private object $employee;
+    private object $formWorkflow;
 
     private object $group;
 
@@ -76,6 +77,7 @@ class Email
         if ($apiEntry !== false) {
             $this->siteRoot = substr($this->siteRoot, 0, $apiEntry + 1);
         }
+
     }
 
     /**
@@ -666,6 +668,7 @@ class Email
             $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
             $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
 
+            $this->formWorkflow = new FormWorkflow($this->portal_db, $loggedInUser, 0);
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
                 "truncatedTitle_insecure" => $truncatedTitleInsecure,
@@ -675,7 +678,8 @@ class Email
                 "recordID" => $recordID,
                 "service" => $approvers[0]['service'],
                 "lastStatus" => $approvers[0]['lastStatus'],
-                "siteRoot" => $this->siteRoot
+                "siteRoot" => $this->siteRoot,
+                "takeAction" => $this->createEmailActionLinks($recordID) // meemoo
             ));
 
             if ($emailTemplateID < 2) {
@@ -958,5 +962,22 @@ class Email
                 }
             }
         }
+    }
+
+    private function createEmailActionLinks(int $recordID): string{
+        $actionLinks = '';
+        $this->formWorkflow->initRecordID($recordID);
+$currentStepActionArray = $this->formWorkflow->getCurrentSteps();
+if(!empty($currentStepActionArray)){
+    foreach($currentStepActionArray as $current_step){
+        if(!empty($current_step['dependencyActions'])){
+            $actionLinks .= '<hr><b>'.$current_step['description'].'</b><br>';
+            foreach($current_step['dependencyActions'] as $action){
+                $actionLinks .= '<a href="https://host.docker.internal/Test_Request_Portal/?a=printview&recordID='.$recordID.'&autoClick='.$current_step['dependencyID'].'_'.$action['actionType'].'">'.$action['actionType'].'</a>';
+            }
+        }
+    }
+}
+            return $actionLinks;
     }
 }
