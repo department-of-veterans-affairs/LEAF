@@ -168,6 +168,17 @@ function main() {
             return false;
         }
 
+        <!--{if $empMembership['groupID'][1] == false}-->
+        // simplify resultSet to avoid confusion for non-admins
+        // these records are public info, but non-admins don't expect to see them on their homepage
+        for(let i in resultSet) {
+            if(resultSet[i]?.categoryIDs[0] != undefined
+                && resultSet[i]?.categoryIDs[0].includes('leaf_')) {
+                delete resultSet[i];
+            }
+        }
+        <!--{/if}-->
+
         renderResult(leafSearch, resultSet);
         window.scrollTo(0, scrollY);
 
