@@ -137,6 +137,7 @@ function getDataHeader(colID, fieldData = null, indicator = null, isFinalProposa
                 }};
     } else {
         newHeader = {name: fieldName + colRemovalBtn, indicatorID: colID, sortable: false, editable: false, callback: function(data, blob) {
+            // Override formGrid.js renderBody() for certain formats
             if(indicator.format == 'fileupload' && blob[data.recordID].s1[`id${colID}`] != null) {
                 let files = blob[data.recordID].s1[`id${colID}`].split("\n");
                 let output = '';
@@ -151,8 +152,6 @@ function getDataHeader(colID, fieldData = null, indicator = null, isFinalProposa
                 document.querySelector(`#${data.cellContainerID}`).innerHTML = output;
             } else if(indicator.format == 'currency') {
                 document.querySelector(`#${data.cellContainerID}`).innerHTML = Intl.NumberFormat(undefined, {style: 'currency', currency: 'USD'}).format(blob[data.recordID].s1[`id${colID}`]);
-            } else {
-                document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].s1[`id${colID}`];
             }
         }};
     }
