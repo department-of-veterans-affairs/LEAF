@@ -11,6 +11,8 @@
 
 namespace Orgchart;
 
+use App\Leaf\Setting;
+
 abstract class NationalData
 {
     protected $db;
@@ -184,7 +186,8 @@ abstract class NationalData
             {
                 $idx = $resIn['indicatorID'];
                 $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
-                $data[$idx]['data'] = @unserialize($data[$idx]['data']) === false ? $data[$idx]['data'] : unserialize($data[$idx]['data']);
+                $decoded = Setting::safeDecodeData($data[$idx]['data']);
+                $data[$idx]['data'] = $decoded !== false ? $decoded : $data[$idx]['data'];
                 if ($data[$idx]['format'] == 'json')
                 {
                     $data[$idx]['data'] = html_entity_decode($data[$idx]['data']);

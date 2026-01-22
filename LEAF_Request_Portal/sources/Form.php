@@ -13,7 +13,7 @@ namespace Portal;
 
 use App\Leaf\XSSHelpers;
 use App\Leaf\CommonConfig;
-use App\Leaf\Db;
+use App\Leaf\Setting;
 
 define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
 
@@ -600,9 +600,10 @@ class Form
             else if (substr($data[0]['format'], 0, 4) == 'grid'
                 && isset($data[0]['data']))
             {
-                $values = @unserialize($data[0]['data']);
+                $values = Setting::safeDecodeData($data[0]['data']);
                 $format = json_decode(substr($data[0]['format'], 5, -1) . ']');
-                $form[$idx]['value'] = @unserialize($form[$idx]['value']) === false ? $form[$idx]['value'] : unserialize($form[$idx]['value']);
+                $decodedValue = Setting::safeDecodeData($form[$idx]['value']);
+                $form[$idx]['value'] =  $decodedValue !== false ? $decodedValue : $form[$idx]['value'];
                 try {
                     if(!is_array($values)) {
                         $values = [];
@@ -618,7 +619,8 @@ class Form
                 && (substr($data[0]['format'], 0, 11) == 'multiselect'
                     || substr($data[0]['format'], 0, 10) == 'checkboxes'))
             {
-                $form[$idx]['value'] = @unserialize($data[0]['data']) !== false ? @unserialize($data[0]['data']) : preg_split('/,(?!\s)/', $data[0]['data']);
+                $decoded = Setting::safeDecodeData($data[0]['data']);
+                $form[$idx]['value'] = $decoded !== false ? $decoded : preg_split('/,(?!\s)/', $data[0]['data']);
             }
 
             // prevent masked data from being output
@@ -1102,11 +1104,11 @@ class Form
      */
     private function writeDataField($recordID, $key, $series)
     {
-        
+
         if (is_array($_POST[$key])) //multiselect, checkbox, grid items
         {
             $_POST[$key] = XSSHelpers::scrubObjectOrArray($_POST[$key]);
-            $_POST[$key] = serialize($_POST[$key]);
+            $_POST[$key] = json_encode($_POST[$key]);
         }
         else
         {
@@ -1569,8 +1571,8 @@ class Form
                             $currentParentDataValue = !empty($currentParentDataValue) && $currentParentDataValue !== 'no' ? '1' : '0';
                         } */
                         if (in_array($parentFormat, $multiChoiceParentFormats)) {
-                            $currentParentDataValue = @unserialize($currentParentDataValue) === false ?
-                                array($currentParentDataValue) : unserialize($currentParentDataValue);
+                            $decoded = Setting::safeDecodeData($currentParentDataValue);
+                            $currentParentDataValue = $decoded !== false ? $decoded : array($currentParentDataValue);
                         } else {
                             $currentParentDataValue = array($currentParentDataValue);
                         }
@@ -1652,9 +1654,10 @@ class Form
                         $arrVal = $val;
                     } elseif ($valType === 'string') {
                         $val = trim($val);
-                        $arrVal =  @unserialize($val) === false ? array($val) : unserialize($val);
+                        $decoded = Setting::safeDecodeData($val);
+                        $arrVal =  $decoded !== false ? $decoded : array($val);
                     }
-                    //these formats can have values despite being unanswered ('no', or serialized data about the entry)
+                    //these formats can have values despite being unanswered ('no', or json_encoded data about the entry)
                     $specialFormat = $format === 'checkbox' || $format === 'checkboxes' || $format === 'grid';
                     if ($specialFormat === true) {
                         if($format === 'grid') {
@@ -2751,7 +2754,8 @@ class Form
                             if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes' ||
 			        substr($indicators[$item['indicatorID']]['format'], 0, 11) == 'multiselect')
 			    {
-			        $tData = @unserialize($item['data']) !== false ? @unserialize($item['data']) : preg_split('/,(?!\s)/', $item['data']);
+                    $decoded = Setting::safeDecodeData($item['data']);
+			        $tData = $decoded !== false ? $decoded : preg_split('/,(?!\s)/', $item['data']);
 			    	$item['data'] = '';
 			    	if (is_array($tData))
 			    	{
@@ -2768,7 +2772,10 @@ class Form
 			    }
 			    if (substr($indicators[$item['indicatorID']]['format'], 0, 4) == 'grid')
 			    {
-			    	$values = @unserialize($item['data']);
+			    	$values = Setting::safeDecodeData($item['data']);
+                    if ($values === false) {
+                        $values = [];
+                    }
 			    	$format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']', true);
                     try {
                         $item['gridInput'] = array_merge($values, array("format" => $format));
@@ -3149,14 +3156,14 @@ class Form
      */
     private function isLargeQuery(array $query): bool
     {
-        
+
         $externalProcessQuery = false;
         // No limit parameter set
         if (isset($query['limit']) && is_numeric($query['limit'])) {
 
             // Limit is > 10,000 records
             if ($query['limit'] > 10000) {
-               
+
                 $externalProcessQuery = true;
 
             // Limit is > 1000 and <= 10,000 records AND more than 10 indicators are requested
@@ -3167,7 +3174,7 @@ class Form
             // no limit parameter set
             $externalProcessQuery = true;
         }
-    
+
         return $externalProcessQuery;
     }
 
@@ -3661,8 +3668,8 @@ class Form
                             // loops within a workflow, and people can take different actions later
                             $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
                                                     LEFT OUTER JOIN action_history sFA_ah{$count}
-                                                        ON (ah.recordID = sFA_ah{$count}.recordID 
-                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                        ON (ah.recordID = sFA_ah{$count}.recordID
+                                                            AND ah.stepID = sFA_ah{$count}.stepID
                                                             AND ah.time < sFA_ah{$count}.time)
                                             WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL) lj_action_history{$count}
                                             USING (recordID) ";
@@ -3683,7 +3690,7 @@ class Form
                             $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
                                                     LEFT OUTER JOIN action_history sFA_ah{$count}
                                                         ON (ah.recordID = sFA_ah{$count}.recordID
-                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                            AND ah.stepID = sFA_ah{$count}.stepID
                                                             AND ah.time < sFA_ah{$count}.time)
                                             WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL AND ah.actionType=:stepAction{$count}) lj_action_history{$count}
                                             USING (recordID) ";
@@ -4566,9 +4573,10 @@ class Form
                 if (substr($field['format'], 0, 4) == 'grid'
                     && isset($data[$idx]['data']))
                 {
-                    $values = @unserialize($data[$idx]['data']);
+                    $values = Setting::safeDecodeData($data[$idx]['data']);
                     $format = json_decode(substr($field['format'], 5, -1) . ']');
-                    $child[$idx]['value'] = @unserialize($child[$idx]['value']) === false ? $child[$idx]['value'] : unserialize($child[$idx]['value']);
+                    $decodedValue = Setting::safeDecodeData($child[$idx]['value']);
+                    $child[$idx]['value'] = $decodedValue !== false ? $decodedValue : $child[$idx]['value'];
                     try {
                         if(!is_array($values)) {
                             $values = [];
@@ -4585,18 +4593,11 @@ class Form
                     && (substr($field['format'], 0, 11) == 'multiselect'
                         || substr($field['format'], 0, 10) == 'checkboxes'))
                 {
-                    $child[$idx]['value'] = @unserialize($data[$idx]['data']) !== false ? @unserialize($data[$idx]['data']) : preg_split('/,(?!\s)/', $data[$idx]['data']);
+                    $decoded = Setting::safeDecodeData($data[$idx]['data']);
+                    $child[$idx]['value'] = $decoded !== false ? $decoded : preg_split('/,(?!\s)/', $data[$idx]['data']);
                 }
 
                 if($parseTemplate) {
-                     /* putting this here to see what this value is
-                        the error is Array to string conversion and it gives the
-                        location, so I checked the database that it is pulling this
-                        from and I don't see any arrays in their data
-                    */
-                    if (is_array($field['html'])) {
-                        error_log(print_r($field['html'], true));
-                    }
                     $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
                                                       [$idx, $recordID, $child[$idx]['value']],
                                                       $field['html']);

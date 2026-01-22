@@ -42,7 +42,7 @@ function exportTable($db, $tempFolder, $table) {
     }
 
     $res = $db->query("SELECT * FROM {$table}");
-    file_put_contents("{$tempFolder}{$table}.sql", serialize($res));
+    file_put_contents("{$tempFolder}{$table}.sql", json_encode($res));
 }
 
 exportTable($db, $tempFolder, 'actions');
