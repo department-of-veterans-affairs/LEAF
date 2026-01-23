@@ -837,7 +837,8 @@ class Email
                 "service" => $recordInfo[0]['service'],
                 "lastStatus" => $recordInfo[0]['lastStatus'],
                 "siteRoot" => $this->siteRoot,
-                "field" => null
+                "field" => null,
+                "takeAction" => $this->createEmailActionLinks($recordID) // meemoo
             ));
 
             $this->setTemplateByID($emailTemplateID);
@@ -967,17 +968,30 @@ class Email
     private function createEmailActionLinks(int $recordID): string{
         $actionLinks = '';
         $this->formWorkflow->initRecordID($recordID);
-$currentStepActionArray = $this->formWorkflow->getCurrentSteps();
-if(!empty($currentStepActionArray)){
-    foreach($currentStepActionArray as $current_step){
-        if(!empty($current_step['dependencyActions'])){
-            $actionLinks .= '<hr><b>'.$current_step['description'].'</b><br>';
-            foreach($current_step['dependencyActions'] as $action){
-                $actionLinks .= '<a href="https://host.docker.internal/Test_Request_Portal/?a=printview&recordID='.$recordID.'&autoClick='.$current_step['dependencyID'].'_'.$action['actionType'].'">'.$action['actionType'].'</a>';
+        $currentStepActionArray = $this->formWorkflow->getCurrentSteps();
+        if(!empty($currentStepActionArray)){
+            foreach($currentStepActionArray as $current_step){
+                if(!empty($current_step['dependencyActions'])){
+                    $actionLinks .= '<hr><b>'.$current_step['description'].'</b><br><div>';
+                    $actionLinksArr = [];
+                    
+
+                    foreach($current_step['dependencyActions'] as $action){
+                        $actionText = '';
+                        if(!empty($action['actionIcon'])){
+                            $actionText .= '<img src="'.$this->siteRoot.'/dynicons/?img='.$action['actionIcon'].'&amp;w=22" alt="" style="vertical-align: middle"> ';
+                        }
+                        $actionText .= $action['actionText'];
+                        $actionLinksArr[$action['actionAlignment']] .= '<a href="https://host.docker.internal/Test_Request_Portal/?a=printview&recordID='.$recordID.'&autoClick='.$current_step['dependencyID'].'_'.$action['actionType'].'" id="dependency_action_'.$current_step['dependencyID'].'_'.$action['actionType'].'" style="background-color:rgb(232, 242, 255);border: 1px solid #000;padding:6px; margin:4px;display:inline-block;color:#000;text-decoration:none;">'.$actionText.'</a>';
+                    }
+                    $actionLinks .= $actionLinksArr['left'];
+                    $actionLinks .= $actionLinksArr['right'];
+                    $actionLinks .= '</div>';
+                }
             }
         }
-    }
-}
-            return $actionLinks;
+        // comment out, this is helpful for troubleshooting
+        //$actionLinks .= var_export($currentStepActionArray,true);
+        return $actionLinks;
     }
 }
