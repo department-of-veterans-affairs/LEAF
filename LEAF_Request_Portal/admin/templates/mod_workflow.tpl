@@ -1552,6 +1552,8 @@
                     if(reopenStepID !== null && saving === false) {
                         showStepInfo(reopenStepID);
                     }
+                    jsPlumbConfig();
+                    drawRoutes(null);
                 });
                 dialog.setSaveHandler(function() {
                     saving = true;
@@ -2222,137 +2224,157 @@
                 break;
         }
     }
+    var endPoints = {};
+    function jsPlumbConfig() {
+        setTimeout(() => {
+            endPoints = {};
+            let step = null;
+            for (let k in steps) {
+                step = steps[k];
+                if (endPoints[step.stepID] == undefined) {
+                    endPoints[step.stepID] = jsPlumb.addEndpoint('step_' + step.stepID, { anchor: 'Continuous' }, endpointOptions);
+                    jsPlumb.draggable('step_' + step.stepID, {
+                        allowNegative: false,
+                        // save position of the box when moved
+                        stop: function(sID) {
+                            return function() {
+                                const position = $('#step_' + sID).offset();
+                                updatePosition(currentWorkflow, sID, position.left, position.top);
+                                adjustWorkflowSize();
+                            }
+                        }(step.stepID)
+                    });
+                }
+            };
+            if (endPoints[-1] == undefined) {
+                endPoints[-1] = jsPlumb.addEndpoint('step_-1', { anchor: 'Continuous' }, endpointOptions);
+                jsPlumb.draggable('step_-1', { allowNegative: false });
+            }
+            if (endPoints[0] == undefined) {
+                endPoints[0] = jsPlumb.addEndpoint(
+                    'step_0',
+                    { anchor: 'Continuous' },
+                    { ...this.endpointOptions, isSource: false }
+                );
+                jsPlumb.draggable('step_0', {
+                    allowNegative: false,
+                    stop: function() {
+                        adjustWorkflowSize();
+                    }
+                });
+            }
+        });
 
-    var endPoints = [];
+    }
+
+    function adjustWorkflowSize() {
+        let wfEl = document.getElementById('workflow');
+        if(wfEl !== null) {
+            const stepWidth = 172;
+            const stepHeight = 50;
+            //for screen resize events
+            let posX = 0, posY = 0;
+            const wfBtns = Array.from(document.querySelectorAll('#workflow button.workflowStep'));
+            wfBtns.forEach(b => {
+                posX = Math.max(b.offsetLeft, posX);
+                posY = Math.max(b.offsetTop, posY);
+            });
+            const maxRightSide = posX + stepWidth;
+            const maxBottom = posY + stepHeight;
+            const rect = wfEl.getBoundingClientRect();
+            const wfRightSide = wfEl.offsetLeft + rect.width;
+            const wfBottom = wfEl.offsetTop + rect.height;
+            //step positions are relative to the screen, not the workflow el
+            if(maxRightSide >= wfRightSide) {
+                const newWidth = maxRightSide - wfRightSide + 16 + rect.width;
+                wfEl.style.width = newWidth.toFixed(0) + 'px';
+            } else {
+                if (document?.documentElement?.clientWidth > maxRightSide) {
+                    wfEl.style.width = '100%';
+                }
+            }
+            const newHeight = posY + 140;
+            wfEl.style.height = newHeight.toFixed(0) + 'px';
+        }
+    }
 
     function drawRoutes(workflowID, stepID = null) {
-        let loc = 0.5;
-        const locIncrement = 0.15;
-        $.ajax({
-            type: 'GET',
-            url: '../api/workflow/' + workflowID + '/route',
-            success: function(res) {
-                routes = res;
-                if (endPoints[-1] == undefined) {
-                    endPoints[-1] = jsPlumb.addEndpoint('step_-1', {anchor: 'Continuous'}, endpointOptions);
-                    jsPlumb.draggable('step_-1', { allowNegative: false });
-                }
-                if (endPoints[0] == undefined) {
-                    endPoints[0] = jsPlumb.addEndpoint('step_0', {anchor: 'Continuous'}, endpointOptions);
-                    jsPlumb.draggable('step_0', { allowNegative: false });
-                }
+        jsPlumb.reset();
+        jsPlumb.setSuspendDrawing(true);
 
-                // draw connector
-                let actionCounts = {};
-                for (let i in res) {
-                    loc = 0.5;
-                    switch (res[i].actionType.toLowerCase()) {
-                        case 'sendback':
-                            loc = 0.30;
-                            break;
-                        case 'approve':
-                        case 'concur':
-                            loc = 0.5;
-                            break;
-                        case 'defer':
-                            loc = 0.25;
-                            break;
-                        case 'disapprove':
-                            loc = 0.75;
-                            break;
-                        default:
-                            const from = String(res[i].stepID);
-                            const to = String(res[i].nextStepID);
-                            if(from !== to) {
-                                const fromStepToStep = from + "_" + to;
-                                if(actionCounts?.[fromStepToStep] >= 0) {
-                                    actionCounts[fromStepToStep] += 1;
-                                    loc = Math.min(
-                                        +((0.05 + locIncrement * actionCounts[fromStepToStep]).toFixed(2)),
-                                        0.65
-                                    );
-                                    if(loc >= 0.5) { //reserve 0.5 for 0 - keeps centered if only one route
-                                        loc += locIncrement;
-                                    }
-                                } else {
-                                    actionCounts[fromStepToStep] = 0;
+        if(workflowID !== null) {
+            $.ajax({
+                type: 'GET',
+                url: '../api/workflow/' + workflowID + '/route',
+                success: function(res) {
+                    routes = res;
+
+                    //if user came via stepinfo key nav re-open that modal
+                    if(stepID !== null) {
+                        showStepInfo(stepID);
+                    }
+                },
+                error: (err) => console.log(err),
+                cache: false,
+                async: false
+            });
+        }
+
+        // draw connectors
+        setTimeout(() => {
+            const locIncrement = 0.15;
+            let loc = 0.5;
+            let actionCounts = {};
+            for (let i in routes) {
+                loc = 0.5;
+                switch (routes[i].actionType.toLowerCase()) {
+                    case 'sendback':
+                        loc = 0.30;
+                        break;
+                    case 'approve':
+                    case 'concur':
+                        loc = 0.5;
+                        break;
+                    case 'defer':
+                        loc = 0.25;
+                        break;
+                    case 'disapprove':
+                        loc = 0.75;
+                        break;
+                    default:
+                        const from = String(routes[i].stepID);
+                        const to = String(routes[i].nextStepID);
+                        if(from !== to) {
+                            const fromStepToStep = from + "_" + to;
+                            if(actionCounts?.[fromStepToStep] >= 0) {
+                                actionCounts[fromStepToStep] += 1;
+                                loc = Math.min(
+                                    +((0.05 + locIncrement * actionCounts[fromStepToStep]).toFixed(2)),
+                                    0.65
+                                );
+                                if(loc >= 0.5) { //reserve 0.5 for 0 - keeps centered if only one route
+                                    loc += locIncrement;
                                 }
+                            } else {
+                                actionCounts[fromStepToStep] = 0;
                             }
-                            break;
-                    }
-                    if (res[i].nextStepID == 0 && res[i].actionType == 'sendback') {
-                        jsPlumb.connect({
-                            source: 'step_' + res[i].stepID,
-                            target: 'step_-1',
-                            paintStyle: {stroke: 'red'},
-                            overlays: [
-                                ["Label", {
-                                        id: 'stepLabel_' + res[i].stepID + '_0_' + res[i].actionType,
-                                        cssClass: `workflowAction action-${res[i].stepID}-sendback--1`,
-                                        label: res[i].actionText,
-                                        location: loc,
-                                        parameters: {'stepID': res[i].stepID,
-                                        'nextStepID': 0,
-                                        'action': res[i].actionType,
-                                    },
-                                    events: {
-                                        click: function(overlay, evt) {
-                                            params = overlay.getParameters();
-                                            showActionInfo(params, evt);
-                                        }
-                                    }
-                                }
-                            ]]
-                        });
-                    } else {
-                        lineOptions = {
-                            source: 'step_' + res[i].stepID,
-                            target: 'step_' + res[i].nextStepID,
-                            connector: ["StateMachine", {curviness: 10}],
-                            anchor: "Continuous",
-                            overlays: [
-                                ["Label", {
-                                        id: 'stepLabel_' + res[i].stepID + '_' + res[i].nextStepID +
-                                            '_' + res[i].actionType,
-                                        cssClass: `workflowAction action-${res[i].stepID}-${res[i].actionType}-${res[i].nextStepID}`,
-                                        label: res[i].actionText,
-                                        location: loc,
-                                        parameters: {'stepID': res[i].stepID,
-                                        'nextStepID': res[i].nextStepID,
-                                        'action': res[i].actionType,
-                                    },
-                                    events: {
-                                        click: function(overlay, evt) {
-                                            params = overlay.getParameters();
-                                            showActionInfo(params, evt);
-                                        }
-                                    }
-                                }
-                            ]]
-                        };
-                        if (res[i].actionType == 'sendback') {
-                            lineOptions.paintStyle = {stroke: 'red'};
                         }
-                        jsPlumb.connect(lineOptions);
-                    }
+                        break;
                 }
-
-                // connect the initial step if it exists
-                if (workflows[workflowID].initialStepID != 0) {
+                if (routes[i].nextStepID == 0 && routes[i].actionType == 'sendback') {
                     jsPlumb.connect({
-                        source: endPoints[-1],
-                        target: endPoints[workflows[workflowID].initialStepID],
-                        connector: ["StateMachine", {curviness: 10}],
-                        anchor: "Continuous",
+                        source: 'step_' + routes[i].stepID,
+                        target: 'step_-1',
+                        paintStyle: { stroke: 'red'},
                         overlays: [
                             ["Label", {
-                                    id: 'stepLabel_0_' + workflows[workflowID].initialStepID + '_submit',
-                                    cssClass: `workflowAction action--1-submit-${workflows[workflowID].initialStepID}`,
-                                    label: 'Submit',
+                                    id: 'stepLabel_' + routes[i].stepID + '_0_' + routes[i].actionType,
+                                    cssClass: `workflowAction action-${routes[i].stepID}-sendback--1`,
+                                    label: routes[i].actionText,
                                     location: loc,
-                                    parameters: {'stepID': -1,
-                                    'nextStepID': workflows[workflowID].initialStepID,
-                                    'action': 'submit',
+                                    parameters: { 'stepID': routes[i].stepID,
+                                    'nextStepID': 0,
+                                    'action': routes[i].actionType,
                                 },
                                 events: {
                                     click: function(overlay, evt) {
@@ -2363,33 +2385,90 @@
                             }
                         ]]
                     });
+                } else {
+                    lineOptions = {
+                        source: 'step_' + routes[i].stepID,
+                        target: 'step_' + routes[i].nextStepID,
+                        connector: ["StateMachine", { curviness: 10}],
+                        anchor: "Continuous",
+                        overlays: [
+                            [
+                                "Label",
+                                {
+                                    id: 'stepLabel_' + routes[i].stepID + '_' + routes[i].nextStepID +
+                                        '_' + routes[i].actionType,
+                                    cssClass: `workflowAction action-${routes[i].stepID}-${routes[i].actionType}-${routes[i].nextStepID}`,
+                                    label: routes[i].actionText,
+                                    location: loc,
+                                    parameters: {
+                                        'stepID': routes[i].stepID,
+                                        'nextStepID': routes[i].nextStepID,
+                                        'action': routes[i].actionType,
+                                    },
+                                    events: {
+                                        click: function(overlay, evt) {
+                                            params = overlay.getParameters();
+                                            showActionInfo(params, evt);
+                                        }
+                                    }
+                                }
+                            ]
+                        ]
+                    };
+                    if (routes[i].actionType == 'sendback') {
+                        lineOptions.paintStyle = { stroke: 'red' };
+                    }
+                    jsPlumb.connect(lineOptions);
                 }
-
-                // bind connection events
-                jsPlumb.bind("connection", function(info) {
-                    createAction(info);
+            }
+            // connect the initial step if it exists
+            const workflowID = currentWorkflow;
+            if (workflows[workflowID].initialStepID != 0) {
+                jsPlumb.connect({
+                    source: endPoints[-1],
+                    target: endPoints[workflows[workflowID].initialStepID],
+                    connector: ["StateMachine", { curviness: 10}],
+                    anchor: "Continuous",
+                    overlays: [
+                        [
+                            "Label",
+                            {
+                                id: 'stepLabel_0_' + workflows[workflowID].initialStepID + '_submit',
+                                cssClass: `workflowAction action--1-submit-${workflows[workflowID].initialStepID}`,
+                                label: 'Submit',
+                                location: loc,
+                                parameters: {
+                                    'stepID': -1,
+                                    'nextStepID': workflows[workflowID].initialStepID,
+                                    'action': 'submit',
+                                },
+                                events: {
+                                    click: function(overlay, evt) {
+                                        params = overlay.getParameters();
+                                        showActionInfo(params, evt);
+                                    }
+                                }
+                            }
+                        ]
+                    ]
                 });
-                jsPlumb.setSuspendDrawing(false, true);
+            }
 
-                //if user came via stepinfo key nav re-open that modal
-                if(stepID !== null) {
-                    showStepInfo(stepID);
-                }
-            },
-            error: (err) => console.log(err),
-            cache: false,
-            async: false
+            // bind connection events
+            jsPlumb.bind("connection", function(info) {
+                createAction(info);
+            });
+            jsPlumb.setSuspendDrawing(false, true);
         });
+
     }
 
     var currentWorkflow = 0;
 
     function loadWorkflow(workflowID, stepID = null, params = null) {
+        jsPlumb?.reset();
         currentWorkflow = workflowID;
-        jsPlumb.reset();
-        endPoints = [];
         steps = {};
-        jsPlumb.setSuspendDrawing(true);
 
         $('#workflows').val(workflowID);
         $('#workflows').trigger('chosen:updated');
@@ -2458,21 +2537,6 @@
                         'background-color': res[i].stepBgColor
                     });
 
-                    if (endPoints[res[i].stepID] == undefined) {
-                        endPoints[res[i].stepID] = jsPlumb.addEndpoint('step_' + res[i].stepID, {anchor: 'Continuous'}, endpointOptions);
-                        jsPlumb.draggable('step_' + res[i].stepID, {
-                            allowNegative: false,
-                            // save position of the box when moved
-                            stop: function(stepID) {
-                                return function() {
-                                    var position = $('#step_' + stepID).offset();
-
-                                    updatePosition(workflowID, stepID, position.left, position.top);
-                                }
-                            }(res[i].stepID)
-                        });
-                    }
-
                     if (maxY < posY) {
                         maxY = posY;
                     }
@@ -2492,9 +2556,8 @@
                     'top': 160 + maxY + 'px',
                     'background-color': '#ff8181'
                 });
+                adjustWorkflowSize();
 
-                $('#workflow').css('height', 300 + maxY + 'px');
-                drawRoutes(workflowID, stepID);
                 buildStepList(steps);
                 if(params !== null) {
                     const elAction = document.querySelector(`div[class*="action-${params?.stepID}-${params?.action}-"]`);
@@ -2510,6 +2573,9 @@
                 if(window.location.href.indexOf(`?a=workflow&workflowID=${workflowID}`) == -1) {
                     window.history.pushState('', '', `?a=workflow&workflowID=${workflowID}`);
                 }
+
+                jsPlumbConfig();
+                drawRoutes(workflowID, stepID);
             },
             error: (err) => console.log(err),
             cache: false
@@ -3424,6 +3490,19 @@
         jsPlumb.Defaults.Endpoint = "Blank";
 
         loadWorkflowList();
+
+        const sizeListener = () => {
+            adjustWorkflowSize();
+        }
+        const setDebounce = (callback, mstime) => {
+            let timeout;
+            return () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(()=> { callback()}, mstime);
+            }
+        }
+        const sizeDebounce = setDebounce(sizeListener, 150);
+        window.onresize = sizeDebounce;
 
         $.ajax({
             type: 'GET',
