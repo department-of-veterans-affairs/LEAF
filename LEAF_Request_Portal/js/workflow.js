@@ -410,7 +410,29 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             document.querySelector(`#button_step${step.dependencyID}_${step.dependencyActions[i].actionType}`)?.removeAttribute?.('disabled');
         }
 
-        // load workflowStep modules
+        // Auto-click button based on URL query parameters
+        // Expected format: ?autoClick=dependencyID_actionType (e.g., ?autoClick=5_approve)
+        const urlParams = new URLSearchParams(window.location.search);
+        const autoParam = urlParams.get('autoClick');
+        if (autoParam) {
+            const [depIdStr, actionType] = autoParam.split('_');
+            const depId = parseInt(depIdStr, 10);
+            if (!isNaN(depId) && depId === step.dependencyID && actionType) {
+                // Find the corresponding button and trigger a click after it's enabled
+                const btn = document.querySelector(`#button_step${step.dependencyID}_${actionType}`);
+                if (btn) {
+                    // Ensure button is not disabled before clicking
+                    if (!btn.disabled) {
+                        btn.click();
+                    } else {
+                        // If still disabled, wait briefly and then click, I did not run into anything here but I could see on slow computers the attribute not being ready.
+                        setTimeout(() => btn.click(), 200);
+                    }
+                }
+            }
+        }
+    
+    // load workflowStep modules
         if (step.requiresDigitalSignature == true) {
             $.ajax({
                 type: "GET",
