@@ -367,13 +367,15 @@ class FormWorkflow
         $recordIDs = trim($recordIDs, ',');
 
         $res = null;
+        // "OR filled IS NULL" is needed to workaround issues where a records_dependencies entry is missing. This
+        // can be removed if: 1) we prevent missing entries, and 2) retroactively update old records to fill in missing entries
         $strSQL = "SELECT dependencyID, recordID, serviceID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, userID FROM records_workflow_state
             LEFT JOIN records USING (recordID)
             LEFT JOIN workflow_steps USING (stepID)
             LEFT JOIN step_dependencies USING (stepID)
             LEFT JOIN records_dependencies USING (recordID, dependencyID)
             WHERE recordID IN ({$recordIDs})
-                AND filled=0";
+                AND (filled=0 OR filled IS NULL)";
 
         $cacheHash = 'unfilledRecordsDependencyData' . sha1($recordIDs); // the data columns must be a superset of the query above
         if(isset($this->cache[$cacheHash])) {
@@ -486,6 +488,8 @@ class FormWorkflow
                         WHERE recordID IN ({$recordIDs})";
         }
         else {
+            // "OR filled IS NULL" is needed to workaround issues where a records_dependencies entry is missing. This
+            // can be removed if: 1) we prevent missing entries, and 2) retroactively update old records to fill in missing entries
             $strSQL = "SELECT dependencyID, recordID, stepTitle, serviceID, `description`, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, userID, userMetadata FROM records_workflow_state
                         LEFT JOIN records USING (recordID)
                         LEFT JOIN workflow_steps USING (stepID)
@@ -493,7 +497,7 @@ class FormWorkflow
                         LEFT JOIN dependencies USING (dependencyID)
                         LEFT JOIN records_dependencies USING (recordID, dependencyID)
                         WHERE recordID IN ({$recordIDs})
-                            AND filled=0";
+                            AND (filled=0 OR filled IS NULL)";
         }
         $res = $this->db->prepared_query($strSQL, []);
 
@@ -2097,6 +2101,7 @@ class FormWorkflow
 
     private function resetRecordsDependency(int $stepID): void
     {
+        $now = time();
         $vars2 = array(':stepID' => $stepID);
         $strSQL2 = 'SELECT * FROM step_dependencies
             WHERE stepID = :stepID';
@@ -2106,11 +2111,11 @@ class FormWorkflow
             foreach ($res3 as $stepDependency)
             {
                 $vars2 = array(':recordID' => $this->recordID,
-                        ':dependencyID' => $stepDependency['dependencyID'], );
-                $strSQL2 = 'UPDATE records_dependencies SET
-                    filled = 0
-                    WHERE recordID = :recordID
-                    AND dependencyID = :dependencyID';
+                        ':dependencyID' => $stepDependency['dependencyID'], 
+                        ':time' => $now);
+                $strSQL2 = 'INSERT INTO `records_dependencies` (`recordID`, `dependencyID`, `filled`, `time`)
+                    VALUES (:recordID, :dependencyID, 0, :time)
+                    ON DUPLICATE KEY UPDATE filled = 0';
                 $this->db->prepared_query($strSQL2, $vars2);
             }
         }
