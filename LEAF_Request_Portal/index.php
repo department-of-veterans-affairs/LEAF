@@ -55,8 +55,10 @@ if (isset($settings['timeZone'])) {
 switch ($action) {
     case 'newform':
         $main->assign('useLiteUI', true);
-        $main->assign('javascripts', array('js/titleValidator.js',
-            'js/formQuery.js',));
+        $main->assign('javascripts', array(
+            'js/titleValidator.js',
+            'js/formQuery.js',
+            APP_JS_PATH . '/qr-code/qrcode.min.js'));
 
         $form = new Portal\Form($db, $login);
         $stack = new Portal\FormStack($db, $login);
@@ -111,7 +113,8 @@ switch ($action) {
                 'js/gridInput.js',
                 'js/formGrid.js',
                 APP_JS_PATH  . '/LEAF/XSSHelpers.js',
-                APP_JS_PATH . '/choicesjs/choices.min.js'));
+                APP_JS_PATH . '/choicesjs/choices.min.js',
+                APP_JS_PATH . '/qr-code/qrcode.min.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
         $form = new Portal\Form($db, $login);
@@ -178,7 +181,8 @@ switch ($action) {
             APP_JS_PATH . '/jspdf/jspdf.min.js',
             APP_JS_PATH . '/jspdf/jspdf.plugin.autotable.min.js',
             APP_JS_PATH . '/choicesjs/choices.min.js',
-            'js/titleValidator.js'
+            'js/titleValidator.js',
+            APP_JS_PATH . '/qr-code/qrcode.min.js'
         ));
 
         $recordIDToPrint = (int)$_GET['recordID'];
@@ -384,7 +388,12 @@ switch ($action) {
 
         break;
     case 'search':
-        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
+        $main->assign('javascripts', array(
+            'js/form.js',
+            'js/formGrid.js',
+            'js/formQuery.js',
+            'js/formSearch.js',
+            APP_JS_PATH . '/qr-code/qrcode.min.js'));
         $main->assign('useUI', true);
 
         $o_login = $t_login->fetch('login.tpl');
@@ -433,7 +442,8 @@ switch ($action) {
                'js/lz-string/lz-string.min.js',
                APP_JS_PATH . '/portal/LEAFPortalAPI.js',
                APP_JS_PATH . '/LEAF/XSSHelpers.js',
-               APP_JS_PATH . '/choicesjs/choices.min.js'
+               APP_JS_PATH . '/choicesjs/choices.min.js',
+                APP_JS_PATH . '/qr-code/qrcode.min.js'
            ));
            $main->assign('useUI', true);
 
@@ -482,7 +492,8 @@ switch ($action) {
                 'js/formGrid.js',
                 'js/formQuery.js',
                 'js/formSearch.js',
-                APP_JS_PATH . '/LEAF/XSSHelpers.js',));
+                APP_JS_PATH . '/LEAF/XSSHelpers.js',
+                APP_JS_PATH . '/qr-code/qrcode.min.js'));
         $main->assign('useLiteUI', true);
 
         $o_login = $t_login->fetch('login.tpl');
