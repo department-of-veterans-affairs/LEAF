@@ -11,8 +11,13 @@ var LeafPreview = function(domID) {
     */
     function decodeHTMLEntities(txt) {
        let tmp = document.createElement("textarea");
-       tmp.innerHTML = txt;
+       tmp.innerHTML = xscrubJs(txt);
        return tmp.value;
+    }
+    function xscrubJs(s){
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
     }
     function renderField(field, isChild) {
         const required = field.required == 1 ? '<span style="color:#b00;">* Required&nbsp;</span>': '';
@@ -104,6 +109,7 @@ var LeafPreview = function(domID) {
             numSection = 1;
         }
         const temp = renderField(field);
+        xscrubJs(temp);
         const out = '<div style="font-size: 120%;padding:4px; background-color: black; color: white">Section '+ numSection +'</div><div class="card" style="margin:0;padding: 16px;line-height:1.3">'+ temp +'</div><br />';
         numSection++;
         return out;

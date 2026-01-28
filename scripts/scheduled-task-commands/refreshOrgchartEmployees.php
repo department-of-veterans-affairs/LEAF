@@ -1,4 +1,5 @@
 <?php
+use App\Leaf\XSSHelpers;
 // this file will need to be added, Pete's destruction ticket has it already.
 require_once 'globals.php';
 require_once APP_PATH . '/Leaf/Db.php';
@@ -14,8 +15,8 @@ $dir = '/var/www/html';
 $failedArray = [];
 
 foreach ($orgcharts as $orgchart) {
-    echo "Orgchart: " . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php' . "\r\n";
     if (is_file($dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php')) {
+        echo "Orgchart: " . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php' . "\r\n";
         
         $response = exec('php ' . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php',$output) . "\r\n";
         

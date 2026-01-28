@@ -2,6 +2,8 @@
  Form Search Widget
  */
 
+const XSSHelpers = require("./XSSHelpers");
+
 var LeafFormSearch = function (containerID) {
   var containerID = containerID;
   var prefixID = "LeafFormSearch" + Math.floor(Math.random() * 1000) + "_";
@@ -20,6 +22,12 @@ var LeafFormSearch = function (containerID) {
   // constants
   var ALL_DATA_FIELDS = "0";
   var ALL_OC_EMPLOYEE_DATA_FIELDS = "0.0";
+
+function xscrubJs(s){
+var d = document.createElement('div');
+d.textContent = s == null ? '' : String(s);
+return d.innerHTML;
+}
 
   function renderUI() {
     $("#" + containerID).html(
@@ -569,9 +577,9 @@ var LeafFormSearch = function (containerID) {
             for (var i in res) {
               services +=
                 '<option value="' +
-                res[i].groupID +
+                xscrubJs(res[i].groupID) +
                 '">' +
-                res[i].groupTitle +
+                xscrubJs(res[i].groupTitle) +
                 "</option>";
             }
             services += "</select>";

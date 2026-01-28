@@ -1,5 +1,6 @@
 <?php
 use App\Leaf\DbUpdate;
+use App\Leaf\XSSHelpers;
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
@@ -10,4 +11,4 @@ $update = new DbUpdate($db, $setting_up, 'orgchart', PORTAL_PATH);
 
 $update->run();
 
-echo $update->getMessage();
+echo XSSHelpers::xscrub($update->getMessage());
