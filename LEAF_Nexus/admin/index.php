@@ -103,8 +103,10 @@ switch ($action) {
            //$main->assign('useUI', true);
            $main->assign('stylesheets', array(LEAF_NEXUS_URL . 'css/employeeSelector.css',
                         LEAF_NEXUS_URL . 'css/mod_system.css'));
-           $main->assign('javascripts', array(LEAF_NEXUS_URL . 'js/dialogController.js',
-                        LEAF_NEXUS_URL . 'js/employeeSelector.js'));
+           $main->assign('javascripts', array(
+                LEAF_NEXUS_URL . 'js/dialogController.js',
+                LEAF_NEXUS_URL . 'js/employeeSelector.js',
+                APP_JS_PATH . '/qr-code/qrcode.min.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -142,32 +144,34 @@ switch ($action) {
            break;
     case 'setup_medical_center':
         $t_form = new Smarty;
-           $t_form->left_delimiter = '<!--{';
-           $t_form->right_delimiter = '}-->';
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
 
-           //$main->assign('useUI', true);
-           $main->assign('stylesheets', array('../css/mod_groups.css', '../css/employeeSelector.css'));
-           $main->assign('javascripts', array('../js/dialogController.js', '../js/nationalEmployeeSelector.js'));
+        //$main->assign('useUI', true);
+        $main->assign('stylesheets', array('../css/mod_groups.css', '../css/employeeSelector.css'));
+        $main->assign('javascripts', array(
+            '../js/dialogController.js', '../js/nationalEmployeeSelector.js',
+            APP_JS_PATH . '/qr-code/qrcode.min.js'));
 
-           $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-           //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-           $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+        //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+        $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+        $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
-           $memberships = $oc_login->getMembership();
-           if (isset($memberships['groupID'][1]))
-           {
-               $main->assign('body', $t_form->fetch('setup_medical_center.tpl'));
-           }
-           else
-           {
-               $main->assign('body', 'You require System Administrator level access to view this section.');
-           }
+        $memberships = $oc_login->getMembership();
+        if (isset($memberships['groupID'][1]))
+        {
+            $main->assign('body', $t_form->fetch('setup_medical_center.tpl'));
+        }
+        else
+        {
+            $main->assign('body', 'You require System Administrator level access to view this section.');
+        }
 
-           $tabText = 'Setup Medical Center';
+        $tabText = 'Setup Medical Center';
 
-           break;
+        break;
     case 'import_employees_from_spreadsheet':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -176,69 +180,75 @@ switch ($action) {
         $t_form->assign('APIroot', 'https://' . HTTP_HOST . '/app/api/');
         $t_form->assign('app_css_path', APP_CSS_PATH);
         $t_form->assign('app_js_path', APP_JS_PATH);
-        $main->assign('javascripts', array(APP_JS_PATH . '/LEAF/workbookhelper.js'));
+        $main->assign('javascripts', array(
+            APP_JS_PATH . '/LEAF/workbookhelper.js',
+            APP_JS_PATH . '/qr-code/qrcode.min.js'));
 
         $main->assign('body', $t_form->fetch('orgChart_import.tpl'));
         $tabText = 'Import Employees From Spreadsheet';
         break;
     case 'mod_templates':
     case 'mod_templates_reports':
-           $t_form = new Smarty;
-           $t_form->left_delimiter = '<!--{';
-           $t_form->right_delimiter = '}-->';
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
 
-           $main->assign('useUI', true);
-           $main->assign('javascripts', array('../js/dialogController.js',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/lib/codemirror.js',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/xml/xml.js',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/javascript/javascript.js',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/css/css.js',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/search.js',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/searchcursor.js',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/dialog/dialog.js',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/scroll/simplescrollbars.js',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/scroll/annotatescrollbar.js',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/matchesonscrollbar.js',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/display/fullscreen.js',
-           ));
-           $main->assign('stylesheets', array('https://' . HTTP_HOST . '/app/libs/js/codemirror/lib/codemirror.css',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/dialog/dialog.css',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/scroll/simplescrollbars.css',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/matchesonscrollbar.css',
-                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/display/fullscreen.css',
-           ));
+        $main->assign('useUI', true);
+        $main->assign('javascripts', array(
+            '../js/dialogController.js',
+            'https://' . HTTP_HOST . '/app/libs/js/codemirror/lib/codemirror.js',
+            'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/xml/xml.js',
+            'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/javascript/javascript.js',
+            'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/css/css.js',
+            'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
+            'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/search.js',
+            'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/searchcursor.js',
+            'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/dialog/dialog.js',
+            'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/scroll/simplescrollbars.js',
+            'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/scroll/annotatescrollbar.js',
+            'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/matchesonscrollbar.js',
+            'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/display/fullscreen.js',
+            APP_JS_PATH . '/qr-code/qrcode.min.js'
+        ));
+        $main->assign('stylesheets', array('https://' . HTTP_HOST . '/app/libs/js/codemirror/lib/codemirror.css',
+                'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/dialog/dialog.css',
+                'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/scroll/simplescrollbars.css',
+                'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/matchesonscrollbar.css',
+                'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/display/fullscreen.css',
+        ));
 
-           $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-           $t_form->assign('APIroot', 'https://' . HTTP_HOST . '/app/api/');
-           $t_form->assign('domain_path', DOMAIN_PATH);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('APIroot', 'https://' . HTTP_HOST . '/app/api/');
+        $t_form->assign('domain_path', DOMAIN_PATH);
 
-           switch ($action) {
-               case 'mod_templates':
-                   $main->assign('body', $t_form->fetch('mod_templates.tpl'));
+        switch ($action) {
+            case 'mod_templates':
+                $main->assign('body', $t_form->fetch('mod_templates.tpl'));
 
-                   break;
-               case 'mod_templates_reports':
-                   $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
+                break;
+            case 'mod_templates_reports':
+                $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
 
-                   break;
-               default:
-                   break;
-           }
+                break;
+            default:
+                break;
+        }
 
-           $tabText = 'Template Editor';
+        $tabText = 'Template Editor';
 
-           break;
+        break;
     default:
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('../js/nationalEmployeeSelector.js',
-                                           '../js/positionSelector.js',
-                                           '../js/groupSelector.js',
-                                           '../js/dialogController.js',
-                                           '../js/orgchartForm.js', ));
+        $main->assign('javascripts', array(
+            '../js/nationalEmployeeSelector.js',
+            '../js/positionSelector.js',
+            '../js/groupSelector.js',
+            '../js/dialogController.js',
+            '../js/orgchartForm.js',
+            APP_JS_PATH . '/qr-code/qrcode.min.js'));
         $main->assign('stylesheets', array('../css/employeeSelector.css',
                                            '../css/view_employee.css',
                                            '../css/positionSelector.css',
