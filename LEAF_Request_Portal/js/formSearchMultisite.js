@@ -24,6 +24,12 @@ var LeafFormSearchMultisite = function (containerID) {
     const ALL_DATA_FIELDS = "0";
     const ALL_OC_EMPLOYEE_DATA_FIELDS = "0.0";
 
+    function xscrubJs(s){
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+    }
+
     function renderUI() {
         $("#" + containerID).html(
             '<div style="display:flex; align-items:center; width:fit-content; width: -moz-fit-content;">\
@@ -676,9 +682,9 @@ var LeafFormSearchMultisite = function (containerID) {
                         for (let i in res) {
                             services +=
                                 '<option value="' +
-                                res[i].groupID +
+                                xscrubJs(res[i].groupID) +
                                 '">' +
-                                res[i].groupTitle +
+                                xscrubJs(res[i].groupTitle) +
                                 "</option>";
                         }
                         services += "</select>";

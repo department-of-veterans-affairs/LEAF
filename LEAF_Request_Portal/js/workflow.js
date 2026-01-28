@@ -547,7 +547,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     }
 
                     $("#workflowbox_dep" + step.dependencyID).append(
-                        "<span>" + name + "</span>"
+                        "<span>" + xscrubJs(name) + "</span>"
                     );
                     $("#workflowbox_dep" + step.dependencyID + " span").css({
                         "font-size": "150%",
@@ -580,7 +580,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     }
 
                     $("#workflowbox_dep" + step.dependencyID).append(
-                        "<span>" + name + "</span>"
+                        "<span>" + xscrubJs(name) + "</span>"
                     );
                     $("#workflowbox_dep" + step.dependencyID + " span").css({
                         "font-size": "150%",
@@ -594,7 +594,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             });
         } else {
             $("#workflowbox_dep" + step.dependencyID).append(
-                "<span>Pending " + step.description + "</span>"
+                "<span>Pending " + xscrubJs(step.description) + "</span>"
             );
             $("#workflowbox_dep" + step.dependencyID + " span").css({
                 "font-size": "150%",
@@ -775,7 +775,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         let year = sigTime.getFullYear();
                         $("#workflowSignatureContainer").append(
                             '<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">' +
-                                lastActionSummary.signatures[i].stepTitle +
+                                xscrubJs(lastActionSummary.signatures[i].stepTitle) +
                                 ' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="' +
                                 rootURL +
                                 'dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle; padding-right: 4px" alt="digital signature (beta) logo" />' +
