@@ -75,6 +75,17 @@ var LeafSecureReviewDialog = function(domId) {
             buffer += "</div>";
             dialog_message.setTitle(formName);
             dialog_message.setContent(buffer);
+            Array.from(document.querySelectorAll('.card')).forEach(c => c.style.fontSize = '14px');
+            Array.from(document.querySelectorAll('.card .sensitiveIndicator')).forEach(
+                el => {
+                    el.innerHTML = '<span role="img" aria-hidden="true" alt="">🔒</span>Sensitive';
+                    el.style.color = '#58585b';
+                    el.style.border = '1px solid #58585b80';
+                    el.style.backgroundColor = '#FEFFD2';
+                    el.style.disabled = 'inline-block';
+                    el.style.padding = '2px 4px 2px 0';
+                }
+            );
             dialog_message.setSaveHandler(() => {
                 dialog_message.clearDialog();
                 dialog_message.hide();
@@ -140,7 +151,24 @@ var LeafSecureReviewDialog = function(domId) {
         gridNonSensitive.setDataBlob(nonSensitiveFields);
         gridNonSensitive.setHeaders([
         {name: 'Form', indicatorID: 'formName', editable: false, callback: function(data, blob) {
-            $('#'+data.cellContainerID).html(gridNonSensitive.getDataByIndex(data.index).categoryName);
+            const formConfig = gridNonSensitive.getDataByIndex(data.index);
+            const formName = formConfig.categoryName;
+
+            let content = formName; //only display the form name on the edit view
+            if (domId === 'leafSecureDialogContentPrint') {
+                const formID = formConfig.categoryID;
+                const listener = makeScopedPreviewFormListener(formID, formName);
+                const styles = `style="display:flex;gap:1rem;justify-content:space-between;"`;
+                const btnID = `print_${formID}_${data.index}`;
+                content = `<div ${styles}>
+                    ${formName}
+                    <button id="${btnID}" type="button" class="buttonNorm">Preview Form</button>
+                </div>`;
+                $('#'+data.cellContainerID).html(content);
+                document.getElementById(btnID)?.addEventListener('click', listener);
+            } else {
+                $('#'+data.cellContainerID).html(content);
+            }
         }},
         {name: 'Field Name', indicatorID: 'fieldName', editable: false, callback: function(data, blob) {
             $('#'+data.cellContainerID).html(gridNonSensitive.getDataByIndex(data.index).name);
@@ -216,10 +244,12 @@ var LeafSecureReviewDialog = function(domId) {
     const textArea = document.getElementById('-2');
     const errorMessage = document.getElementById('-2_required'); //Element to display character count
     const minLength = 25;
-    validateForm();
+    if(textArea !== null) {
+        validateForm();
 
-    textArea.addEventListener('input', function() {
-      validateForm();
-    });
+        textArea?.addEventListener('input', function() {
+            validateForm();
+        });
+    }
 
 };

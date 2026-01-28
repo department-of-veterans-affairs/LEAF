@@ -1,10 +1,14 @@
 FROM node:22-slim
-
-WORKDIR /usr/app
-RUN npm install -D @playwright/test@latest
-RUN npm install -D mysql2
-
 WORKDIR /usr/app/leaf
+
+# Copy just package.json
+COPY LEAF-Automated-Tests/end2end/package.json ./
+
+# Use npm install (generates lock file inside container)
+RUN npm install
+
+# Install Playwright browsers
 RUN npx playwright install --with-deps
-# Second "playwright install" needed to workaround issue on first run: "Playwright was just installed or updated"
-CMD npx playwright install && node main.js
+
+# Command
+CMD ["node", "main.js"]

@@ -1,4 +1,5 @@
 <?php
+use App\Leaf\XSSHelpers;
 // give coaches admin access
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
@@ -34,7 +35,7 @@ if(count($res) > 0) {
                   ':empUID' => $login->getEmpUID());
     $oc_db->prepared_query('INSERT INTO relation_group_employee (empUID, groupID) VALUES (:empUID, :groupID)', $vars);
 
-    echo "Added {$userID} to Portal and Nexus admin lists";
+    echo "Added " . XSSHelpers::xscrub($userID) . " to Portal and Nexus admin lists";
 }
 else {
     echo 'No action taken';
