@@ -18,131 +18,103 @@ class Security
      */
     public static function validateRedirect(string $encodedUrl, string $allowedHost, string $defaultRedirect, string $protocol = 'https://'): string
     {
-        $safeRedirect = $defaultRedirect;
-
         // Decode base64 with strict checking
         $decodedPath = base64_decode($encodedUrl, true);
 
-        // If base64_decode fails, return default
         if ($decodedPath === false) {
+            error_log("Security: Invalid base64 encoding");
+            return $defaultRedirect;
+        }
+
+        // Length check
+        if (strlen($decodedPath) > 2048) {
+            error_log("Security: Path exceeds maximum length");
             return $defaultRedirect;
         }
 
         // Normalize the path to catch URL-encoded bypasses
-        // Do this BEFORE pattern checking to catch encoded malicious patterns
         $normalizedPath = urldecode($decodedPath);
 
-        // Check for dangerous patterns in BOTH decoded and normalized versions
-        // This catches both direct and URL-encoded attacks
-        $dangerousPatterns = [
-            // Protocol patterns (most critical)
+        // Check for double-encoding attacks
+        if (urldecode($normalizedPath) !== $normalizedPath) {
+            error_log("Security: Double-encoding detected");
+            return $defaultRedirect;
+        }
+
+        // CRITICAL: Check dangerous patterns on BOTH original AND normalized paths
+        $criticalPatterns = [
             '/https?:\/\//i',           // HTTP/HTTPS protocols
             '/ftp:\/\//i',              // FTP protocol
             '/file:\/\//i',             // File protocol
             '/javascript:/i',           // JavaScript protocol
             '/data:/i',                 // Data protocol
             '/vbscript:/i',             // VBScript protocol
-            '/about:/i',                // About protocol
-
-            // Protocol-relative and slash-based bypasses (CRITICAL)
             '/^\/\//m',                 // Protocol-relative URLs (//evil.com)
-            '/\/\//m',                  // Double slashes anywhere
-            '/\\\\/',                   // Backslashes (UNC paths, Windows-style)
-            '/\\\//',                   // Backslash-slash combinations
-            '/\/\\/',                   // Slash-backslash combinations
-
-            // At-sign bypass (credentials in URL)
-            '/@/',                      // At-sign anywhere in path
-
-            // HTML/XML tags
-            '/<[a-z]+[^>]*>/i',        // Any HTML opening tag
-            '/<\/[a-z]+>/i',           // Any HTML closing tag
-            '/<br\s*\/?>/i',           // Break tags specifically
-            '/<script/i',              // Script tags
-
-            // Whitespace and control characters
-            '/\r/',                     // Carriage return
-            '/\n/',                     // Newline
-            '/\t/',                     // Tab
-            '/\x00/',                   // Null byte
-            '/\x0b/',                   // Vertical tab
-            '/\x0c/',                   // Form feed
-
-            // Semicolon parameter pollution
-            '/;.*https?:/i',           // Semicolon followed by protocol
-            '/;.*\/\//i',              // Semicolon followed by double slash
-
-            // Unicode/special characters that could be used for obfuscation
-            '/[\x{FFF0}-\x{FFFF}]/u',  // Unicode specials
-            '/[\x{200B}-\x{200D}]/u',  // Zero-width characters
-            '/[\x{202A}-\x{202E}]/u',  // Bidirectional text controls
+            '/\\\\/',                   // Backslashes
+            '/@/',                      // At-sign
+            '/<[a-z]+[^>]*>/i',        // HTML tags
+            '/[\x00-\x1F]/',           // Control characters
+            '/;.*https?:/i',           // Semicolon with protocol
         ];
 
-        // Check both original decoded and normalized paths
-        foreach ($dangerousPatterns as $pattern) {
+        foreach ($criticalPatterns as $pattern) {
             if (preg_match($pattern, $decodedPath) || preg_match($pattern, $normalizedPath)) {
-                error_log("Security: Blocked redirect containing dangerous pattern: " . $pattern);
+                error_log("Security: Critical pattern detected: " . $pattern);
                 return $defaultRedirect;
             }
         }
 
-        // Additional check: if normalization changed the path significantly, reject it
-        // This catches double-encoding attacks
-        if (urldecode($normalizedPath) !== $normalizedPath) {
-            error_log("Security: Blocked redirect with double-encoding detected");
-            return $defaultRedirect;
-        }
-
-        // Parse the URL
+        // Parse the URL (use original decoded path for parsing)
         $parsedUrl = parse_url($decodedPath);
 
-        // If parse_url fails, return default
         if ($parsedUrl === false) {
-            error_log("Security: parse_url failed on: " . substr($decodedPath, 0, 100));
+            error_log("Security: parse_url failed");
             return $defaultRedirect;
         }
 
-        // Check if it's a relative path (no host)
+        // Relative path validation (no host)
         if (empty($parsedUrl['host'])) {
-            // STRICT relative path validation
-            // Must start with exactly one forward slash followed by a non-slash character
-            // This blocks: //evil.com, ///evil.com, /\evil.com, etc.
-            if (preg_match('#^/[^/\\\\]#', $decodedPath)) {
-                // Additional validation: ensure no backslashes anywhere
-                if (strpos($decodedPath, '\\') !== false) {
-                    error_log("Security: Blocked redirect containing backslash");
-                    return $defaultRedirect;
-                }
-
-                // Additional validation: ensure no @ signs
-                if (strpos($decodedPath, '@') !== false) {
-                    error_log("Security: Blocked redirect containing @ sign");
-                    return $defaultRedirect;
-                }
-
-                // Path is safe - construct full URL
-                $safeRedirect = $protocol . $allowedHost . $decodedPath;
-            } else {
-                error_log("Security: Blocked redirect with invalid path format: " . substr($decodedPath, 0, 100));
+            // STRICT validation: Must start with exactly one forward slash followed by non-slash
+            if (!preg_match('#^/[^/\\\\]#', $decodedPath)) {
+                error_log("Security: Invalid path format");
                 return $defaultRedirect;
             }
+
+            // ALLOWLIST: Only allow safe characters in the NORMALIZED path
+            // This catches %2F (/) and other encoded dangerous chars
+            if (!preg_match('/^\/[a-zA-Z0-9\/\-_.?=&#%+]*$/', $normalizedPath)) {
+                error_log("Security: Disallowed characters in normalized path: " . $normalizedPath);
+                return $defaultRedirect;
+            }
+
+            // Additional check: no backslashes in normalized path
+            if (strpos($normalizedPath, '\\') !== false) {
+                error_log("Security: Backslash detected in normalized path");
+                return $defaultRedirect;
+            }
+
+            // Additional check: no @ signs in normalized path
+            if (strpos($normalizedPath, '@') !== false) {
+                error_log("Security: At-sign detected in normalized path");
+                return $defaultRedirect;
+            }
+
+            return $protocol . $allowedHost . $decodedPath;
         }
-        // Has a host - verify it matches our allowed host
-        elseif ($parsedUrl['host'] === $allowedHost) {
-            // Host matches - but still validate the scheme if present
+
+        // Absolute URL - verify host matches
+        if ($parsedUrl['host'] === $allowedHost) {
+            // Validate scheme if present
             if (isset($parsedUrl['scheme']) && !in_array(strtolower($parsedUrl['scheme']), ['http', 'https'])) {
-                error_log("Security: Blocked redirect with invalid scheme: " . $parsedUrl['scheme']);
+                error_log("Security: Invalid scheme: " . $parsedUrl['scheme']);
                 return $defaultRedirect;
             }
-            $safeRedirect = $decodedPath;
-        }
-        // Host doesn't match - reject
-        else {
-            error_log("Security: Blocked redirect to different host: " . ($parsedUrl['host'] ?? 'unknown'));
-            return $defaultRedirect;
+            return $decodedPath;
         }
 
-        return $safeRedirect;
+        // Host mismatch
+        error_log("Security: Host mismatch: " . ($parsedUrl['host'] ?? 'unknown'));
+        return $defaultRedirect;
     }
 
     /**
