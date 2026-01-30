@@ -16,15 +16,15 @@ $failedArray = [];
 
 foreach ($orgcharts as $orgchart) {
     if (is_file($dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php')) {
-        echo "Orgchart: " . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php' . "\r\n";
+        echo "Orgchart: " . $dir . XSSHelpers::xscrub($orgchart['site_path']) . '/scripts/refreshOrgchartEmployees.php' . "\r\n";
         
         $response = exec('php ' . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php',$output) . "\r\n";
         
         if($response == '0'){
-            $failedArray[] = $orgchart['site_path'].' (Failed)';
+            $failedArray[] = XSSHelpers::xscrub($orgchart['site_path']).' (Failed)';
         }
     } else {
-        $failedArray[] = $orgchart['site_path'].' (File Not Found)';
+        $failedArray[] = XSSHelpers::xscrub($orgchart['site_path']).' (File Not Found)';
         echo "File was not found\r\n";
     }
 }

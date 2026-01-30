@@ -1,6 +1,7 @@
 /************************
     Workflow widget
 */
+import { xscrub } from "../../libs/js/LEAF/XSSHelpers";
 var workflow;
 var workflowModule = new Object();
 var workflowStepModule = new Object();
@@ -191,11 +192,11 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 error: function (response) {
                     if (data["dependencyID"] === null) {
                         $("#workflowbox_dep" + data["dependencyID"]).html(
-                            `<div style="border: 2px solid red; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error ${response.status}: ${response.responseText}</div>`
+                            `<div style="border: 2px solid red; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error ${response.status}: ${xscrub(response.responseText)}</div>`
                         );
                     } else {
                         $("#workflowbox_dep" + data["dependencyID"]).html(
-                            `<div style="border: 2px solid red; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error ${response.status}: ${response.responseText}
+                            `<div style="border: 2px solid red; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error ${response.status}: ${xscrub(response.responseText)}
                                 <p>Workflow Events may not have triggered</p>
                             </div>`
                         );
@@ -218,7 +219,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             step.description == null
                 ? "Error: The configuration in the Workflow Editor is incomplete."
                 : step.description;
-
+        // this HTML is needed for display so no scrubbing here
         $("#" + containerID).append(
             '<div id="workflowbox_dep' +
                 step.dependencyID +
@@ -253,6 +254,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         });
 
         // draw comment area and button anchors
+        // this HTML is needed for display so no scrubbing here
         $("#form_dep" + step.dependencyID).append(
             '<div id="form_dep_container' +
                 step.dependencyID +
@@ -313,7 +315,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             ).append(
                 `<div id="button_container${step.dependencyID}_${step.dependencyActions[i].actionType}">
           <button type="button" id="button_step${step.dependencyID}_${step.dependencyActions[i].actionType}" class="button" disabled>
-            ${icon} ${step.dependencyActions[i].actionText}
+            ${icon} ${xscrub(step.dependencyActions[i].actionText)}
           </button>
         </div>`
             );
@@ -507,7 +509,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         // hide cancel button since the user doesn't have access
         //        $('#btn_cancelRequest').css('display', 'none');
 
-        $("#" + containerID).append(
+        $("#" + xscrub(containerID)).append(
             '<div id="workflowbox_dep' +
                 step.dependencyID +
                 '" class="workflowbox"></div>'
@@ -547,7 +549,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     }
 
                     $("#workflowbox_dep" + step.dependencyID).append(
-                        "<span>" + xscrubJs(name) + "</span>"
+                        "<span>" + xscrub(name) + "</span>"
                     );
                     $("#workflowbox_dep" + step.dependencyID + " span").css({
                         "font-size": "150%",
@@ -580,7 +582,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     }
 
                     $("#workflowbox_dep" + step.dependencyID).append(
-                        "<span>" + xscrubJs(name) + "</span>"
+                        "<span>" + xscrub(name) + "</span>"
                     );
                     $("#workflowbox_dep" + step.dependencyID + " span").css({
                         "font-size": "150%",
@@ -594,7 +596,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             });
         } else {
             $("#workflowbox_dep" + step.dependencyID).append(
-                "<span>Pending " + xscrubJs(step.description) + "</span>"
+                "<span>Pending " + xscrub(step.description) + "</span>"
             );
             $("#workflowbox_dep" + step.dependencyID + " span").css({
                 "font-size": "150%",
@@ -693,7 +695,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         text =
                             "[ Please refer to this request's history for current status ]";
                     }
-
+                    //text here contains HTML needed for display so we do not scrub it
                     if (response.dependencyID != 5) {
                         $("#workflowbox_lastAction").append(
                             '<span style="font-weight: bold; color: ' +
@@ -751,7 +753,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         text =
                             "[ Please refer to this request's history for current status. ]";
                     }
-
+                    //text here contains HTML needed for display so we do not scrub it
                     $("#workflowbox_lastAction").append(
                         '<span style="font-size: 150%; font-weight: bold", color: ' +
                             response.stepFontColor +
@@ -775,7 +777,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         let year = sigTime.getFullYear();
                         $("#workflowSignatureContainer").append(
                             '<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">' +
-                                xscrubJs(lastActionSummary.signatures[i].stepTitle) +
+                                xscrub(lastActionSummary.signatures[i].stepTitle) +
                                 ' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="' +
                                 rootURL +
                                 'dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle; padding-right: 4px" alt="digital signature (beta) logo" />' +
@@ -796,7 +798,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     for (let i in lastActionSummary.stepsPendingSignature) {
                         $("#workflowSignatureContainer").append(
                             '<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: white; border: 1px dashed black; text-align: center">' +
-                                lastActionSummary.stepsPendingSignature[i] +
+                               xscrub(lastActionSummary.stepsPendingSignature[i]) +
                                 '<br /><span style="font-size: 140%; line-height: 300%">X&nbsp;______________</span></div>'
                         );
                     }
@@ -891,3 +893,11 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         setExtraParams,
     };
 };
+
+// Make `LeafWorkflow` available as a CommonJS export and as a browser global
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = LeafWorkflow;
+}
+if (typeof window !== 'undefined') {
+  window.LeafWorkflow = LeafWorkflow;
+}

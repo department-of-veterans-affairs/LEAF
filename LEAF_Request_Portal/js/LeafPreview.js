@@ -1,3 +1,5 @@
+import { xscrub } from "../../libs/js/LEAF/XSSHelpers";
+
 var LeafPreview = function(domID) {
     let numSection = 1;
     let rawForm = {};
@@ -11,13 +13,8 @@ var LeafPreview = function(domID) {
     */
     function decodeHTMLEntities(txt) {
        let tmp = document.createElement("textarea");
-       tmp.innerHTML = xscrubJs(txt);
+       tmp.innerHTML = xscrub(txt);
        return tmp.value;
-    }
-    function xscrubJs(s){
-    var d = document.createElement('div');
-    d.textContent = s == null ? '' : String(s);
-    return d.innerHTML;
     }
     function renderField(field, isChild) {
         const required = field.required == 1 ? '<span style="color:#b00;">* Required&nbsp;</span>': '';
@@ -109,7 +106,7 @@ var LeafPreview = function(domID) {
             numSection = 1;
         }
         const temp = renderField(field);
-        xscrubJs(temp);
+        xscrub(temp);
         const out = '<div style="font-size: 120%;padding:4px; background-color: black; color: white">Section '+ numSection +'</div><div class="card" style="margin:0;padding: 16px;line-height:1.3">'+ temp +'</div><br />';
         numSection++;
         return out;
@@ -142,4 +139,12 @@ var LeafPreview = function(domID) {
         getRawForm: function() { return rawForm; },
         setLeafDomain: function(url) { LEAF_DOMAIN = url; }
     };
+}
+
+// Make `LeafPreview` available as a CommonJS export and as a browser global
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = LeafPreview;
+}
+if (typeof window !== 'undefined') {
+  window.LeafPreview = LeafPreview;
 }

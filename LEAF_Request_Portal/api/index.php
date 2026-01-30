@@ -65,6 +65,7 @@ $controllerMap->register('site', function () use ($p_db, $login, $action) {
     echo XSSHelpers::xscrub($siteController->handler($action));
 });
 
+// Should not be scrubbed as it returns sensitive serialized data
 $controllerMap->register('formStack', function () use ($p_db, $login, $action) {
     $formStackController = new Portal\FormStackController($p_db, $login);
     echo $formStackController->handler($action);
@@ -74,7 +75,7 @@ $controllerMap->register('formStack', function () use ($p_db, $login, $action) {
 if ($login->checkGroup(1) || ($key === 'group' && isset($parts[0]) && $parts[0] === '1' && isset($parts[1]) && $parts[1] === 'members')) {
     $controllerMap->register('group', function () use ($p_db, $login, $action) {
         $groupController = new Portal\GroupController($p_db, $login);
-        echo $groupController->handler($action);
+        echo XSSHelpers::xscrub($groupController->handler($action));
     });
 
     $controllerMap->register('simpledata', function () use ($p_db, $login, $action) {
@@ -82,6 +83,7 @@ if ($login->checkGroup(1) || ($key === 'group' && isset($parts[0]) && $parts[0] 
         echo XSSHelpers::xscrub($controller->handler($action));
     });
 
+    //Should not be scrubbed since it returns LEAF Programmer code
     $controllerMap->register('formEditor', function () use ($p_db, $login, $action) {
         $formEditorController = new Portal\FormEditorController($p_db, $login);
         echo $formEditorController->handler($action);
@@ -97,21 +99,25 @@ if ($login->checkGroup(1) || ($key === 'group' && isset($parts[0]) && $parts[0] 
     });
 }
 
+//Should not be scrubbed as it may contain LEAF Programmer code
 $controllerMap->register('form', function () use ($p_db, $login, $action) {
     $formController = new Portal\FormController($p_db, $login);
     echo $formController->handler($action);
 });
 
+//Should not be scrubbed since the structure is needed for proper functionality
 $controllerMap->register('formWorkflow', function () use ($p_db, $login, $action) {
     $formWorkflowController = new Portal\FormWorkflowController($p_db, $login);
     echo $formWorkflowController->handler($action);
 });
 
+//Should not be scrubbed since the structure is needed for proper functionality
 $controllerMap->register('workflow', function () use ($p_db, $login, $action) {
     $workflowController = new Portal\WorkflowController($p_db, $login);
     echo $workflowController->handler($action);
 });
 
+//Should not be scrubbed since the structure is needed for proper functionality
 $controllerMap->register('workflowRoute', function () use ($db, $login, $action) {
     $WorkflowRouteController = new Portal\WorkflowRouteController($db, $login);
     echo $WorkflowRouteController->handler($action);
@@ -137,6 +143,7 @@ $controllerMap->register('emailTemplates', function () use ($p_db, $login, $acti
     echo XSSHelpers::xscrub($EmailTemplateController->handler($action));
 });
 
+//Should not be scrubbed as it may contain LEAF Programmer code
 $controllerMap->register('converter', function () use ($p_db, $login, $action) {
     $ConverterController = new Portal\ConverterController($p_db, $login);
     echo $ConverterController->handler($action);
@@ -162,6 +169,7 @@ $controllerMap->register('userActivity', function() use ($p_db, $login, $action)
     echo XSSHelpers::xscrub($UserActivity->handler($action));
 });
 
+//Should not be scrubbed as it may contain LEAF Programmer code
 $controllerMap->register('note', function() use ($p_db, $login, $action) {
     $dataActionLogger = new DataActionLogger($p_db, $login);
 
@@ -175,6 +183,7 @@ $controllerMap->register('templateEditor', function () use ($db, $login, $action
     echo $TemplateController->handler($action);
 });
 
+//Should not be scrubbed since the structure is needed for proper functionality
 $controllerMap->register('template', function () use ($db, $login, $action) {
     $TemplateController = new Portal\TemplateController($db, $login);
     echo $TemplateController->handler($action);

@@ -126,6 +126,11 @@ var XSSHelpers = function () {
         }
         return text;
     };
+    xscrub = function(s){
+        var d = document.createElement('div');
+        d.textContent = s == null ? '' : String(s);
+        return d.innerHTML;
+        };
 
     return {
         buildTagRegex: buildTagRegex,
@@ -134,7 +139,8 @@ var XSSHelpers = function () {
         stripAllTags: stripAllTags,
         stripTag: stripTag,
         stripTags: stripTags,
-        decodeHTMLEntities: decodeHTMLEntities
+        decodeHTMLEntities: decodeHTMLEntities,
+        xscrub: xscrub
     };
 }();
 

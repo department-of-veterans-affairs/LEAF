@@ -3,6 +3,7 @@
     Author: Michael Gao (Michael.Gao@va.gov)
     Date: March 6, 2012
 */
+import { xscrub } from "../../libs/js/LEAF/XSSHelpers";
 
 function orgchartForm(containerID) {
   this.containerID = containerID;
@@ -182,6 +183,7 @@ orgchartForm.prototype.updateFormDisplay = function (
   indicatorID
 ) {
   var t = this;
+  //No scrubbing here because the response is directly injected into the DOM and the HTML is needed as-is.
   switch (categoryID) {
     case 1: // employee
       $.ajax({
