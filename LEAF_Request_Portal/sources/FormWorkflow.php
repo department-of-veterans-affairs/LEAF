@@ -10,6 +10,7 @@
 
 namespace Portal;
 use App\Leaf\Db;
+use App\Leaf\Security;
 use App\Leaf\XSSHelpers;
 
 class FormWorkflow
@@ -1749,14 +1750,16 @@ class FormWorkflow
             $format = trim(strtolower(explode(PHP_EOL, $field["format"])[0] ?? ""));
             switch($format) {
                 case "grid":
-                    if(!empty($data) && is_array(unserialize($data))){
-                        $data = $this->buildGrid(unserialize($data));
+                    $temp = @Security::parseSerializedData($data);
+                    if(!empty($data) && is_array($temp)){
+                        $data = $this->buildGrid($temp);
                     }
                     break;
                 case "checkboxes":
                 case "multiselect":
-                    if(!empty($data) && is_array(unserialize($data))){
-                        $formatted = $this->buildMultiOption(unserialize($data));
+                    $temp = @Security::parseSerializedData($data);
+                    if(!empty($data) && is_array($temp)){
+                        $formatted = $this->buildMultiOption($temp);
                         $data = $formatted["content"];
                     }
                     break;
