@@ -124,9 +124,12 @@
                                 <td>The root URL of the LEAF site</td>
                             </tr>
                             <tr>
-                                <td><b>{{$field.&lt;fieldID&gt;}}</fieldID>
-                                </td>
+                                <td><b>{{$field.&lt;fieldID&gt;}}</b></td>
                                 <td>The value of the field by ID<br /><span style="color:#c00000;">Sensitive data fields will not work in email templates.</span></td>
+                            </tr>
+                            <tr>
+                                <td><b>{{$takeAction}}</b></td>
+                                <td>Provides buttons for the end user to take action based on the current step the request is currently on.</td>
                             </tr>
                         </table>
                     </fieldset>
