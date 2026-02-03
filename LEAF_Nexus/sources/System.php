@@ -133,7 +133,7 @@ class System
         return $out;
     }
 
-    private function isReservedFilename($file)
+    private function isReservedFilename(string $file): bool
     {
         if($file == 'example'
             || substr($file, 0, 5) == 'LEAF_'
