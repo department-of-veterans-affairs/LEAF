@@ -18,7 +18,7 @@
 </a>
 <!--{/if}-->
 
-<a href="./utils/exportPDL.php">
+<a href="report.php?a=LEAF_Export_PDL">
     <span class="menuButtonSmall" style="background-color: black">
         <img class="menuIconSmall" src="dynicons/?img=x-office-spreadsheet.svg&amp;w=76" style="position: relative" alt=""  />
         <span class="menuTextSmall" style="color: white">Export PDL</span><br />
