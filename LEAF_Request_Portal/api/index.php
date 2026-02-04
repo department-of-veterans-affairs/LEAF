@@ -55,9 +55,10 @@ $controllerMap->register('classicphonebook', function () use ($p_db, $login, $ac
     echo XSSHelpers::xscrub($controller)->handler($action);
 });
 
+//Should not scrub returns JSON that is all needed
 $controllerMap->register('service', function () use ($p_db, $login, $action) {
     $serviceController = new Portal\ServiceController($p_db, $login);
-    echo XSSHelpers::xscrub($serviceController)->handler($action);
+    echo $serviceController->handler($action);
 });
 
 $controllerMap->register('site', function () use ($p_db, $login, $action) {
@@ -71,11 +72,11 @@ $controllerMap->register('formStack', function () use ($p_db, $login, $action) {
     echo $formStackController->handler($action);
 });
 
-// admin only
+// admin only do not scrub output returns Json data needed for proper functionality
 if ($login->checkGroup(1) || ($key === 'group' && isset($parts[0]) && $parts[0] === '1' && isset($parts[1]) && $parts[1] === 'members')) {
     $controllerMap->register('group', function () use ($p_db, $login, $action) {
         $groupController = new Portal\GroupController($p_db, $login);
-        echo XSSHelpers::xscrub($groupController->handler($action));
+        echo $groupController->handler($action);
     });
 
     $controllerMap->register('simpledata', function () use ($p_db, $login, $action) {
@@ -133,14 +134,16 @@ $controllerMap->register('inbox', function () use ($p_db, $login, $action) {
     echo XSSHelpers::xscrub($InboxController->handler($action));
 });
 
+//Do not scrub it contains Json needed for proper functionality
 $controllerMap->register('system', function () use ($p_db, $login, $action) {
     $SystemController = new Portal\SystemController($p_db, $login);
-    echo XSSHelpers::xscrub($SystemController->handler($action));
+    echo $SystemController->handler($action);
 });
 
+//Do not scrub returns custom email HTML needed to create templates
 $controllerMap->register('emailTemplates', function () use ($p_db, $login, $action) {
     $EmailTemplateController = new Portal\EmailTemplateController($p_db, $login);
-    echo XSSHelpers::xscrub($EmailTemplateController->handler($action));
+    echo $EmailTemplateController->handler($action);
 });
 
 //Should not be scrubbed as it may contain LEAF Programmer code
