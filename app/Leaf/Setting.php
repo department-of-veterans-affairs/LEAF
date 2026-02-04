@@ -71,4 +71,32 @@ class Setting
 
         return $return_value;
     }
+
+    /**
+     * Safely decode data that may be JSON or legacy serialized PHP
+     * Tries JSON first (preferred), falls back to unserialize for backward compatibility
+     *
+     * @param string|null $data The data to decode
+     * @return mixed The decoded data or false on failure
+     *
+     * Created at: 11/21/2024
+     */
+    public static function safeDecodeData($data)
+    {
+        $return_value = false;
+
+        if (!empty($data)) {
+            // Try JSON first (modern format)
+            $decoded = json_decode($data, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $return_value = $decoded;
+            } else {
+                // Fall back to unserialize for legacy data
+                // Use allowed_classes => false to prevent object injection vulnerabilities
+                $return_value = @unserialize($data, ['allowed_classes' => false]);
+            }
+        }
+
+        return $return_value;
+    }
 }
