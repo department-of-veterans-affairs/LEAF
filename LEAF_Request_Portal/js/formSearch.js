@@ -2,6 +2,8 @@
  Form Search Widget
  */
 
+import { xscrub } from "../../libs/js/LEAF/XSSHelpers";
+
 var LeafFormSearch = function (containerID) {
     var containerID = containerID;
     var prefixID = "LeafFormSearch" + Math.floor(Math.random() * 1000) + "_";
@@ -806,9 +808,9 @@ var LeafFormSearch = function (containerID) {
                         for (var i in res) {
                             services +=
                                 '<option value="' +
-                                res[i].groupID +
+                                xscrub(res[i].groupID) +
                                 '">' +
-                                res[i].groupTitle +
+                                xscrub(res[i].groupTitle) +
                                 "</option>";
                         }
                         services += "</select>";
@@ -1821,3 +1823,11 @@ var LeafFormSearch = function (containerID) {
         },
     };
 };
+
+// Make `LeafFormSearch` available as a CommonJS export and as a browser global
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = LeafFormSearch;
+}
+if (typeof window !== 'undefined') {
+  window.LeafFormSearch = LeafFormSearch;
+}

@@ -2,6 +2,7 @@
  Form Search Widget for multiple sites
  Search features are limited to common denominators across all LEAF sites.
  */
+const XSSHelpers = require("../../libs/js/LEAF/XSSHelpers");
 
 var LeafFormSearchMultisite = function (containerID) {
     let prefixID =
@@ -676,9 +677,9 @@ var LeafFormSearchMultisite = function (containerID) {
                         for (let i in res) {
                             services +=
                                 '<option value="' +
-                                res[i].groupID +
+                                XSSHelpers.xscrub(res[i].groupID) +
                                 '">' +
-                                res[i].groupTitle +
+                                XSSHelpers.xscrub(res[i].groupTitle) +
                                 "</option>";
                         }
                         services += "</select>";
