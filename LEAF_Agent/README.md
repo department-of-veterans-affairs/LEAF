@@ -13,8 +13,12 @@ Tasks can contain one or more instructions. The Agent supports the following ins
 7. 🤖 Automatically Categorize content (Update Data)
 8. 🤖 Automatically Label data (Update a data field)
 9. 🤖 Automatically Label data (Update the record's title)
+10. Validate initiator is a local admin*
+11. 🤖 Update data based on provided context*
 
 The instructions prefixed by the 🤖 symbol indicate they rely on a Large Language Model.
+
+* These instructions support internal platform activities, and are not published as standard options.
 
 ## Implementation Details
 
