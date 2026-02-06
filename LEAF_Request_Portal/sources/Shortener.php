@@ -5,6 +5,8 @@
 
 namespace Portal;
 
+use App\Leaf\Security;
+
 class Shortener
 {
     public $siteRoot = '';
@@ -109,16 +111,36 @@ class Shortener
         return $this->encodeShortUID($this->db->getLastInsertID());
     }
 
-    public function getReport($shortUID) {
+    public function getReport($shortUID)
+    {
         $shortID = $this->decodeShortUID($shortUID);
         $vars = array(':shortID' => $shortID);
-        $resReport = $this->db->prepared_query('SELECT data FROM short_links
-                                    WHERE shortID=:shortID', $vars);
-        if(!isset($resReport[0])) {
-            return '';
+        $sql = 'SELECT `data`
+                FROM `short_links`
+                WHERE `shortID` = :shortID';
+        $resReport = $this->db->prepared_query($sql, $vars);
+
+        if (isset($resReport[0])) {
+            $redirectPath = $resReport[0]['data'];
+
+            // Use Security class to validate the raw redirect path
+            // We need to temporarily encode it to use validateRedirect
+            $encodedPath = base64_encode($redirectPath);
+
+            $safeRedirect = Security::validateRedirect($encodedPath, HTTP_HOST, $this->siteRoot);
+
+            // Only redirect if validation succeeded
+            if ($safeRedirect !== $this->siteRoot) {
+                session_write_close();
+                header('Location: ' . $safeRedirect);
+                exit();
+            }
+
+            // If validation failed, log it
+            error_log("Shortener: Invalid redirect blocked for shortID: " . $shortID);
         }
-        session_write_close();
-        header('Location: ' . $this->siteRoot . $resReport[0]['data']);
+
+        return '';
     }
 
     public function shortenReport($data) {

@@ -1,5 +1,6 @@
 <?php
 use App\Leaf\Db;
+use App\Leaf\Security;
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
@@ -21,15 +22,8 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
 //    {
 //        $protocol = 'https://';
 //    }
-    $redirect = '';
-    if (isset($_GET['r']))
-    {
-        $redirect = $protocol . substr(HTTP_HOST, 0, -4) . base64_decode($_GET['r']);
-    }
-    else
-    {
-        $redirect = $protocol . substr(HTTP_HOST, 0, -4) . dirname($_SERVER['PHP_SELF']) . '/../';
-    }
+    $defaultRedirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
+    $redirect = Security::getSafeRedirectFromRequest(HTTP_HOST, $defaultRedirect, $protocol);
 
     $vars = array(':email' => $_SERVER['SSL_CLIENT_S_DN_UID']);
     $res = $oc_db->prepared_query('SELECT * FROM employee_data
