@@ -5,12 +5,12 @@
 <link rel=stylesheet href="../../doc/docs.css">
 
 <link rel="stylesheet" href="../../lib/codemirror.css">
-<link rel="stylesheet" href="../../addon/hint/show-hint.css">
+
 <script src="../../lib/codemirror.js"></script>
 <script src="css.js"></script>
 <script src="../../addon/edit/matchbrackets.js"></script>
-<script src="../../addon/hint/show-hint.js"></script>
-<script src="../../addon/hint/css-hint.js"></script>
+
+
 <style>.CodeMirror {background: #f8f8f8;}</style>
 <div id=nav>
   <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
@@ -89,7 +89,6 @@ body {
 </textarea></form>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        extraKeys: {"Ctrl-Space": "autocomplete"},
         lineNumbers: true,
         matchBrackets: true,
         mode: "text/x-gss"
