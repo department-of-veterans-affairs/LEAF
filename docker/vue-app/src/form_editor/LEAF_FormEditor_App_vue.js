@@ -56,7 +56,6 @@ export default {
             getEnabledCategories: this.getEnabledCategories,
             hasDevConsoleAccess: this.hasDevConsoleAccess,
             getSiteSettings: this.getSiteSettings,
-            getPHI_typesReport: this.getPHI_typesReport,
             setDefaultAjaxResponseMessage: this.setDefaultAjaxResponseMessage,
             selectIndicator: this.selectIndicator,
             updateCategoriesProperty: this.updateCategoriesProperty,
