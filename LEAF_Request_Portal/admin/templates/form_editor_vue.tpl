@@ -9,6 +9,7 @@
 
 <script>
     const CSRFToken = '<!--{$CSRFToken}-->';
+    const LEAF_DOMAIN = '<!--{$LEAF_DOMAIN}-->';
     const APIroot = '<!--{$APIroot}-->';
     const libsPath = '<!--{$libsPath}-->';
     const orgchartPath = '<!--{$orgchartPath}-->';

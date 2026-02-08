@@ -99,6 +99,6 @@ const adminSassConfig = {
 
 module.exports = [
     formEditorConfig,
-    siteDesignerConfig,
+    //siteDesignerConfig, //currently on hold
     adminSassConfig
 ];

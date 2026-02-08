@@ -37,6 +37,7 @@ export default {
             ariaStatusFormDisplay: '',
             focusAfterFormUpdateSelector: null,
             indicatorsInWorkflow: {},
+            selectableTypesPHI: {},
         }
     },
     components: {
@@ -81,6 +82,7 @@ export default {
             vm.setDefaultAjaxResponseMessage();
             vm.getFileManagerTextFiles();
             vm.getWorkflowIndicators();
+            vm.getPHI_typesReport();
             if(!vm.appIsLoadingCategories && vm.queryID) {
                 vm.getFormFromQueryParam();
             }
@@ -108,6 +110,7 @@ export default {
             noForm: computed(() => this.noForm),
             mainFormID: computed(() => this.mainFormID),
             indicatorsInWorkflow: computed(() => this.indicatorsInWorkflow),
+            selectableTypesPHI: computed(() => this.selectableTypesPHI),
 
             getFormByCategoryID: this.getFormByCategoryID,
             editAdvancedOptions: this.editAdvancedOptions,
@@ -253,6 +256,31 @@ export default {
         },
     },
     methods: {
+        /**
+         * @returns {Object} of records from platform report.
+         * Uses local mock data if domain is host.docker.internal
+         */
+        getPHI_typesReport() {
+            if (this.LEAF_DOMAIN = 'https://host.docker.internal/') {
+                this.selectableTypesPHI = {
+                    'type_1': 'Type 1 (dev mode)',
+                    'type_2': 'Type 2 (dev mode)',
+                }
+
+            } else {
+                try {
+                    fetch(`${this.LEAF_DOMAIN}${this.platformReport}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(data)
+                        //this.selectableTypesPHI = TODO:;
+                    });
+
+                } catch(error) {
+                    console.error('error getting platform report', error);
+                }
+            }
+        },
         /*
          * Backward compatibility: certain properties are pre-sanitized server-side, and must be decoded before rendering
          * TODO: Migrate to markdown

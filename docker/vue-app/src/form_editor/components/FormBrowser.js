@@ -87,11 +87,9 @@ export default {
                     </category-item>
                 </tbody>
             </table>
-            <p v-else style="margin-bottom: 2rem;">
-                <div class="entry_info bg-blue-5v" tabindex="0">
-                    <span>No forms are currently set to <b>Available</b>. Users cannot submit requests at this time.</span>
-                </div>
-            </p>
+            <div v-else class="entry_info bg-blue-5v" style="margin-bottom: 2rem;">
+                <span>No forms are currently set to <b>Available</b>. Users cannot submit requests at this time.</span>
+            </div>
 
             <h3>Inactive Forms:</h3>
             <table v-if="inactiveForms.length > 0" id="inactive_forms">

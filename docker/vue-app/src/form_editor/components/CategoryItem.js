@@ -90,7 +90,7 @@ export default {
             <td v-if="availability !== 'supplemental'" style="height: 40px; padding: 0"><a :href="'?a=workflow&workflowID='+ workflowID">{{ workflowDescription }}</a></td>
             <td v-else>
                 <div v-if="isStapledToOtherForm" style="display: flex; justify-content: center;">
-                    <span role="img" aria="">📑</span>&nbsp;Stapled
+                    <span role="img" aria-hidden="true" alt="">📑</span>&nbsp;Stapled
                 </div>
             </td>
             <td>
@@ -111,7 +111,7 @@ export default {
             <tr v-for="form in stapledForms" :key="catID + '_stapled_with_' + form.categoryID" class="sub-row">
                 <td height="36" class="form-name">
                     <router-link :to="{ name: 'category', query: { formID: form.categoryID }}" class="router-link">
-                        <span role="img" aria="">📌&nbsp;</span>
+                        <span role="img" aria-hidden="true" alt="">📌&nbsp;</span>
                         <span style="text-decoration:underline;">{{ categories[form.categoryID].categoryName || 'Untitled' }}</span>
                     </router-link>
                 </td>

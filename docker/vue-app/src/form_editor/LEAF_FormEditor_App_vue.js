@@ -7,6 +7,7 @@ import './LEAF_FormEditor.scss';
 export default {
     data() {
         return {
+            LEAF_DOMAIN: LEAF_DOMAIN,
             APIroot: APIroot,
             libsPath: libsPath,
             orgchartPath: orgchartPath,
@@ -15,6 +16,7 @@ export default {
             ajaxResponseMessage: '',
 
             siteSettings: {},
+            platformReport: 'platform/privacy/open/report.php?report=32wmT',
             secureStatusText: 'LEAF-Secure Certified',
             secureBtnText: 'View Details',
             secureBtnLink: '',
@@ -54,6 +56,7 @@ export default {
             getEnabledCategories: this.getEnabledCategories,
             hasDevConsoleAccess: this.hasDevConsoleAccess,
             getSiteSettings: this.getSiteSettings,
+            getPHI_typesReport: this.getPHI_typesReport,
             setDefaultAjaxResponseMessage: this.setDefaultAjaxResponseMessage,
             selectIndicator: this.selectIndicator,
             updateCategoriesProperty: this.updateCategoriesProperty,

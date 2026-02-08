@@ -221,6 +221,7 @@ switch ($action) {
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
+        $t_form->assign('LEAF_DOMAIN', LEAF_DOMAIN);
         $t_form->assign('app_js_path', APP_JS_PATH);
         $t_form->assign('libsPath', LEAF_DOMAIN.'app/libs/');
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);

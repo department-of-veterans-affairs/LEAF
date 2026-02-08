@@ -101,6 +101,11 @@ input[type="color"] {
     &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
         outline: 2px solid #20a0f0;
     }
+    &:disabled {
+        cursor: not-allowed !important;
+        background-color: #c9c9c9;
+        color: #454545;
+    }
 }
 button.btn-general, a.btn-general, button.btn-confirm {
     background-color: $lt_cyan;

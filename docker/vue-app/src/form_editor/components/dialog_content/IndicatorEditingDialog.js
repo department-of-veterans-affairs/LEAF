@@ -2,6 +2,7 @@ import { computed } from 'vue';
 
 import GridCell from "../GridCell";
 import IndicatorPrivileges from "../IndicatorPrivileges";
+import SensitiveIndicator from "../form_editor_view/SensitiveIndicator";
 
 export default {
     name: 'indicator-editing-dialog',
@@ -66,6 +67,7 @@ export default {
             defaultValue: this.decodeAndStripHTML(this.dialogData?.indicator?.default || ''),
             required: parseInt(this.dialogData?.indicator?.required) === 1 || false,
             is_sensitive: parseInt(this.dialogData?.indicator?.is_sensitive) === 1 || false,
+            savedPHI_Types: this.dialogData?.indicator?.phiTypes ?? [],
             parentID: this.dialogData?.parentID || null,
             //used here for new questions.  compared against undefined since it can be 0
             sort: this.dialogData?.indicator?.sort !== undefined ? parseInt(this.dialogData?.indicator.sort) : null,
@@ -87,6 +89,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'siteSettings',
         'dialogData',
         'checkRequiredData',
         'setDialogSaveFunction',
@@ -110,12 +113,16 @@ export default {
     provide() {
         return {
             gridJSON: computed(() => this.gridJSON),
+            LEAFS_lastCertified: computed(() => this.LEAFS_lastCertified),
+            indicatorAddedTimestamp: computed(() => this.indicatorAddedTimestamp),
+            indicatorIsCertified: computed(() => this.indicatorIsCertified),
             updateGridJSON: this.updateGridJSON
         }
     },
     components: {
         GridCell,
-        IndicatorPrivileges
+        IndicatorPrivileges,
+        SensitiveIndicator
     },
     mounted() {
         if (this.isEditingModal === true) {
@@ -170,7 +177,7 @@ export default {
                 }
             }
             const return_value = this.parentID !== null || this.advancedMode === true || this.format !== '' || (typeof hasDevConsoleAccess !== 'undefined' && hasDevConsoleAccess);
-            console.log('showFormatSelect', return_value);
+
             return return_value;
         },
         showDefaultTextarea() {
@@ -305,6 +312,28 @@ export default {
 
             return `This field is used in a workflow and must be removed from there before you can change its format.<br /><br />${messageParts.join('<br />')}`;
         },
+        indicatorAddedTimestamp() {
+            const timeAdded = this.dialogData?.indicator?.timeAdded ?? 0
+            const offset = new Date().getTimezoneOffset() * 60 * 1000;
+            const indAddedTime = +timeAdded !== 0 ?
+                new Date(timeAdded).getTime() - offset : 0;
+            return indAddedTime;
+        },
+        LEAFS_lastCertified() {
+            const certTime = +(this.siteSettings?.leafSecure ?? 0) * 1000; //epoch secs to ms
+            return certTime;
+        },
+        isCurrentlySensitive() {
+            return this.dialogData?.indicator?.is_sensitive === 1;
+        },
+        /**
+         * TODO:: story req is to disable editing, or certain fields, but there need to be
+         * reasonable ways to edit things.  Esp back compat for sites that do not have types added
+         * @returns Boolean true if the currently saved value is sensitive and certified
+         */
+        indicatorIsCertified() {
+            return this.LEAFS_lastCertified > this.indicatorAddedTimestamp && this.isCurrentlySensitive;
+        }
     },
     methods: {
         containsRichText(txt) {
@@ -339,7 +368,7 @@ export default {
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}/form/_${this.formID}/flat`,
+                    url: `${this.APIroot}form/_${this.formID}/flat`,
                     success: (res)=> {
                         for (let i in res) {
                             res[i]['1'].name = XSSHelpers.stripAllTags(res[i]['1'].name);
@@ -864,7 +893,7 @@ export default {
                     </label>
                     <label class="checkable leaf_check" for="sensitive" style="margin-right: 4rem;">
                         <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"
-                            @change="preventSelectionIfFormatNone" />
+                            @change="preventSelectionIfFormatNone" :disabled="indicatorIsCertified">
                         <span class="leaf_check"></span>Sensitive Data (PHI/PII)
                     </label>
                 </template>
@@ -881,6 +910,13 @@ export default {
                     </label>
                 </template>
             </div>
+            <template v-if="is_sensitive===true">
+                <sensitive-indicator
+                    :indicatorID="indicatorID"
+                    :indicatorSensitive="isCurrentlySensitive"
+                    :savedPHI_Types="savedPHI_Types">
+                </sensitive-indicator>
+            </template>
             <button v-if="isEditingModal" type="button" aria-controls="indicator_advanced_attributes" :aria-expanded="showAdditionalOptions"
                 class="btn-general"
                 aria-label="edit additional options"

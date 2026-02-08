@@ -546,6 +546,7 @@ class Form
             $form[$idx]['value'] = (isset($data[0]['data']) && $data[0]['data'] != '') ? $data[0]['data'] : $form[$idx]['default'];
             $form[$idx]['displayedValue'] = ''; // used for Org Charts
             $form[$idx]['timestamp'] = isset($data[0]['timestamp']) ? $data[0]['timestamp'] : 0;
+            $form[$idx]['timeAdded'] = isset($data[0]['timeAdded']) ? $data[0]['timeAdded'] : "0";
             $form[$idx]['userID'] = $data[0]['userID'];
             if(!$forceReadOnly) {
                 $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
