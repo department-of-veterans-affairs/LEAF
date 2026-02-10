@@ -25,6 +25,7 @@ services:
             - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
             - ../LEAF_Request_Portal:/var/www/html/Test_Request_Portal
             - ../LEAF_Request_Portal:/var/www/html/LEAF/library
+            - ../LEAF_Request_Portal:/var/www/html/platform/privacy
             - ../scripts:/var/www/scripts
             - ../LEAF_library_test_uploads:/var/www/LEAF_library_test_uploads
             - ../health_checks:/var/www/html/health_checks
@@ -62,6 +63,7 @@ services:
             - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
             - ../LEAF_Request_Portal:/var/www/html/Test_Request_Portal
             - ../LEAF_Request_Portal:/var/www/html/LEAF/library
+            - ../LEAF_Request_Portal:/var/www/html/platform/privacy
             - ../scripts:/var/www/scripts
             - ../LEAF_library_test_uploads:/var/www/LEAF_library_test_uploads
             - ../health_checks:/var/www/html/health_checks
