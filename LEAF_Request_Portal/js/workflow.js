@@ -17,12 +17,14 @@ var LeafWorkflow = function (containerID, CSRFToken) {
     var actionSuccessCallback;
     var rootURL = "";
     let extraParams;
+    const bgColorReg = /^#[0-9a-f]{6}$/i;
+    const fColorReg = /^[a-z]+?$/i;
 
     /**
      * @memberOf LeafWorkflow
      */
     function darkenColor(color) {
-        bgColor = parseInt(color.substring(1), 16);
+        const bgColor = parseInt(color.substring(1), 16);
         r = (bgColor & 0xff0000) >> 16;
         g = (bgColor & 0x00ff00) >> 8;
         b = bgColor & 0x0000ff;
@@ -33,6 +35,17 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         b = b + Math.round(b * factor);
 
         return "#" + ((r << 16) + (g << 8) + b).toString(16);
+    }
+
+    function scrubHTML(input) {
+        if(input == undefined) {
+            return '';
+        }
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while(input != t.textContent) {
+            return scrubHTML(t.textContent);
+        }
+        return t.textContent;
     }
 
     /**
@@ -213,11 +226,14 @@ var LeafWorkflow = function (containerID, CSRFToken) {
      */
     var modulesLoaded = {};
     function drawWorkflow(step, firstDepID = null) {
+        step['dependencyID'] = +step['dependencyID'];
+        step['stepBgColor'] = bgColorReg.test(step['stepBgColor']) ? step['stepBgColor'] : "#e0e0e0";
+        step['stepFontColor'] = fColorReg.test(step['stepFontColor']) ? step['stepFontColor'] : "#000000";
+        step['stepBorder'] = step?.['stepBorder'] ? scrubHTML(step['stepBorder']) : "1px solid black";
+        step['description'] = scrubHTML(step?.['description'] ?? '').trim();
+
         // draw frame and header
-        let stepDescription =
-            step.description == null
-                ? "Error: The configuration in the Workflow Editor is incomplete."
-                : step.description;
+        const stepDescription = step.description || "Error: The configuration in the Workflow Editor is incomplete."
 
         $("#" + containerID).append(
             '<div id="workflowbox_dep' +
@@ -300,6 +316,9 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
         // draw buttons
         for (let i in step.dependencyActions) {
+            step.dependencyActions[i].actionIcon = scrubHTML(step.dependencyActions[i].actionIcon ?? '').trim();
+            step.dependencyActions[i].actionType = scrubHTML(step.dependencyActions[i].actionType ?? '').trim();
+            step.dependencyActions[i].actionText = scrubHTML(step.dependencyActions[i].actionText ?? '').trim();
             const icon =
                 step.dependencyActions[i].actionIcon != ""
                     ? `<img src="${rootURL}dynicons/?img=${step.dependencyActions[i].actionIcon}&amp;w=22"
@@ -504,8 +523,11 @@ var LeafWorkflow = function (containerID, CSRFToken) {
      * @memberOf LeafWorkflow
      */
     function drawWorkflowNoAccess(step) {
-        // hide cancel button since the user doesn't have access
-        //        $('#btn_cancelRequest').css('display', 'none');
+        step['dependencyID'] = +step['dependencyID'];
+        step['stepBgColor'] = bgColorReg.test(step['stepBgColor']) ? step['stepBgColor'] : "#e0e0e0";
+        step['stepFontColor'] = fColorReg.test(step['stepFontColor']) ? step['stepFontColor'] : "#000000";
+        step['stepBorder'] = step?.['stepBorder'] ? scrubHTML(step['stepBorder']) : "1px solid black";
+        step['description'] = scrubHTML(step?.['description'] ?? '').trim();
 
         $("#" + containerID).append(
             '<div id="workflowbox_dep' +
@@ -529,21 +551,17 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     "/_" +
                     step.indicatorID_for_assigned_empUID,
                 success: function (res) {
+                    const dataValue = res[currRecordID]["s1"]["id" + step.indicatorID_for_assigned_empUID] || null;
                     let name = "";
 
                     if (
-                        res[currRecordID]["s1"][
-                            "id" + step.indicatorID_for_assigned_empUID
-                        ] == null
+                        dataValue == null
                     ) {
                         name =
                             "Warning: User not selected for current action (Contact Administrator)";
                     } else {
                         name =
-                            "Pending action from " +
-                            res[currRecordID]["s1"][
-                                "id" + step.indicatorID_for_assigned_empUID
-                            ];
+                            "Pending action from " + scrubHTML(dataValue);
                     }
 
                     $("#workflowbox_dep" + step.dependencyID).append(
@@ -572,7 +590,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 success: function (res) {
                     let name = "";
 
-                    if (step.description == null) {
+                    if (step.description == '') {
                         name =
                             "Warning: Group not selected for current action (Contact Administrator)";
                     } else {
@@ -614,6 +632,8 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
     /**
      * @memberOf LeafWorkflow
+     * Get the last action taken on the request
+     * If available, display a banner 'who took it: name of action' beneath the workflow field
      */
     function getLastAction(recordID, res) {
         $.ajax({
@@ -622,25 +642,25 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 rootURL + "api/formWorkflow/" + recordID + "/lastActionSummary",
             dataType: "json",
             success: function (lastActionSummary) {
-                response = lastActionSummary.lastAction;
+                let response = lastActionSummary.lastAction;
                 if (response == null) {
                     if (res == null) {
                         $("#" + containerID).append("No actions available");
                     }
                     return null;
                 }
-                response.stepBgColor =
-                    response.stepBgColor == null
-                        ? "#e0e0e0"
-                        : response.stepBgColor;
-                response.stepFontColor =
-                    response.stepFontColor == null
-                        ? "#000000"
-                        : response.stepFontColor;
-                response.stepBorder =
-                    response.stepBorder == null
-                        ? "1px solid black"
-                        : response.stepBorder;
+                //properties used for display
+                response['stepBgColor'] = bgColorReg.test(response['stepBgColor']) ? response['stepBgColor'] : "#e0e0e0";
+                response['stepFontColor'] = fColorReg.test(response['stepFontColor']) ? response['stepFontColor'] : "#000000";
+                response['stepBorder'] = response?.['stepBorder'] ? scrubHTML(response['stepBorder']) : "1px solid black";
+                response['dependencyID'] = +response['dependencyID'];
+                response['categoryName'] = scrubHTML(response['categoryName']);
+                response['stepTitle'] = scrubHTML(response['stepTitle']);
+                response['description'] = scrubHTML(response['description']);
+                response['actionType'] = scrubHTML(response['actionType']);
+                response['actionText'] = scrubHTML(response['actionText']);
+                response['actionTextPasttense'] = scrubHTML(response['actionTextPasttense']);
+
                 let label =
                     response.dependencyID == 5
                         ? response.categoryName
