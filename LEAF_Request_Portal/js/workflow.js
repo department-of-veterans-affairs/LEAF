@@ -19,6 +19,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
     let extraParams;
     const bgColorReg = /^#[0-9a-f]{6}$/i;
     const fColorReg = /^[a-z]+?$/i;
+    const lineEnd = '<br>';
 
     /**
      * @memberOf LeafWorkflow
@@ -139,19 +140,23 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                 });
                             }
 
-                            let new_note;
-                            new_note =
-                                '<div class="comment_block"> <span class="comments_time"> ' +
-                                response.comment.date +
-                                '</span> <span class="comments_name">' +
-                                response.comment.responder +
-                                " " +
-                                response.comment.user_name +
-                                '</span> <div class="comments_message">' +
-                                response.comment.comment +
-                                "</div> </div>";
+                            const newNoteLines = (response?.comment?.comment ?? '').split('\n');
+                            const cleanNote = newNoteLines
+                                .map(line => scrubHTML(line) + lineEnd)
+                                .join('\n')
+                                .slice(0, -lineEnd.length);
 
-                            if (response.comment.comment != "") {
+                            if (cleanNote != "") {
+                                const new_note = '<div class="comment_block"> <span class="comments_time"> ' +
+                                    response.comment.date +
+                                    '</span> <span class="comments_name">' +
+                                    response.comment.responder +
+                                    " " +
+                                    scrubHTML(response?.comment?.user_name ?? '') +
+                                    '</span> <div class="comments_message">' +
+                                    cleanNote +
+                                    "</div> </div>";
+
                                 $(new_note).insertAfter("#notes");
                             }
 
@@ -316,7 +321,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
         // draw buttons
         for (let i in step.dependencyActions) {
-            step.dependencyActions[i].actionIcon = scrubHTML(step.dependencyActions[i].actionIcon ?? '').trim();
+            step.dependencyActions[i].actionIcon = encodeURIComponent((step.dependencyActions[i].actionIcon ?? '').trim());
             step.dependencyActions[i].actionType = scrubHTML(step.dependencyActions[i].actionType ?? '').trim();
             step.dependencyActions[i].actionText = scrubHTML(step.dependencyActions[i].actionText ?? '').trim();
             const icon =
@@ -632,10 +637,12 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
     /**
      * @memberOf LeafWorkflow
-     * Get the last action taken on the request
+     * Use recordID to get the last action taken on the request
      * If available, display a banner 'who took it: name of action' beneath the workflow field
+     * @param {number} recordID
+     * @param {object} unfilledDependencyLookup
      */
-    function getLastAction(recordID, res) {
+    function getLastAction(recordID, unfilledDependencyLookup) {
         $.ajax({
             type: "GET",
             url:
@@ -644,7 +651,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             success: function (lastActionSummary) {
                 let response = lastActionSummary.lastAction;
                 if (response == null) {
-                    if (res == null) {
+                    if (unfilledDependencyLookup == null) {
                         $("#" + containerID).append("No actions available");
                     }
                     return null;
@@ -661,12 +668,18 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 response['actionText'] = scrubHTML(response['actionText']);
                 response['actionTextPasttense'] = scrubHTML(response['actionTextPasttense']);
 
-                let label =
-                    response.dependencyID == 5
-                        ? response.categoryName
-                        : response.description;
-                if (res != null) {
-                    if (response.dependencyID != 5) {
+                const submittedDepID = 5; //dependency ID for 'submitted'
+                const label =  response.dependencyID == submittedDepID ?
+                    response.categoryName : response.description;
+
+                const commentLines = (response?.comment ?? '').split('\n');
+                const cleanComment = commentLines
+                    .map(line => scrubHTML(line) + lineEnd + lineEnd) //there have been two breaks in the comment area - keeping that behavior
+                    .join('\n')
+                    .slice(0, -(2*lineEnd.length));
+
+                if (unfilledDependencyLookup != null) {
+                    if (response.dependencyID != submittedDepID) {
                         $("#" + containerID).append(
                             '<div id="workflowbox_lastAction" class="workflowbox" style="padding: 0px; margin-top: 8px"></div>'
                         );
@@ -700,21 +713,18 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                 day: "numeric",
                             }) +
                             "</span><br /></div>";
-                        if (
-                            response.comment != "" &&
-                            response.comment != null
-                        ) {
-                            text +=
-                                '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br /><div style="font-weight: normal; padding-left: 16px; font-size: 12px; word-break:break-word;">' +
-                                response.comment +
-                                "</div></div>";
+
+                        if (cleanComment != "") {
+                            text += '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br>' +
+                                '<div style="font-weight: normal; padding-left: 16px; font-size: 12px; word-break:break-word;">' +
+                                cleanComment +
+                                '</div></div>';
                         }
                     } else {
-                        text =
-                            "[ Please refer to this request's history for current status ]";
+                        text = "[ Please refer to this request's history for current status ]";
                     }
 
-                    if (response.dependencyID != 5) {
+                    if (response.dependencyID != submittedDepID) {
                         $("#workflowbox_lastAction").append(
                             '<span style="font-weight: bold; color: ' +
                                 response.stepFontColor +
@@ -758,18 +768,15 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                 day: "numeric",
                             }) +
                             "</span></div>";
-                        if (
-                            response.comment != "" &&
-                            response.comment != null
-                        ) {
-                            text +=
-                                '<div style="padding: 4px 16px"><fieldset style="border: 1px solid black;word-break:break-word;"><legend class="noprint">Comment</legend><span style="font-size: 80%; font-weight: normal">' +
-                                response.comment +
+
+                        if (cleanComment != "") {
+                            text += '<div style="padding: 4px 16px"><fieldset style="border: 1px solid black;word-break:break-word;">' +
+                                '<legend class="noprint">Comment</legend><span style="font-size: 80%; font-weight: normal">' +
+                                cleanComment +
                                 "</span></fieldset></div>";
                         }
                     } else {
-                        text =
-                            "[ Please refer to this request's history for current status. ]";
+                        text = "[ Please refer to this request's history for current status. ]";
                     }
 
                     $("#workflowbox_lastAction").append(
@@ -795,11 +802,11 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         let year = sigTime.getFullYear();
                         $("#workflowSignatureContainer").append(
                             '<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">' +
-                                lastActionSummary.signatures[i].stepTitle +
+                                scrubHTML(lastActionSummary.signatures[i].stepTitle) +
                                 ' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="' +
                                 rootURL +
                                 'dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle; padding-right: 4px" alt="digital signature (beta) logo" />' +
-                                lastActionSummary.signatures[i].name +
+                                scrubHTML(lastActionSummary.signatures[i].name) +
                                 " " +
                                 month +
                                 "/" +
