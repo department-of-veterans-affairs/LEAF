@@ -75,23 +75,29 @@ class Security
      * Manually parse PHP serialized data without using unserialize()
      * Only supports arrays and scalar values (no objects)
      *
+     * Returns null for empty, malformed, or object-containing data
+     * (mirrors unserialize() returning false on failure)
+     *
      * @param string $data The serialized data
-     * @return mixed The parsed data
-     * @throws \InvalidArgumentException if data contains objects or is malformed
+     * @return mixed|null The parsed data, or null if data is invalid/empty/contains objects
      */
     public static function parseSerializedData(string $data)
     {
         if (empty($data)) {
-            throw new \InvalidArgumentException('Empty serialized data');
+            return null;
         }
 
-        // Check for forbidden object patterns
+        // Reject serialized objects
         if (preg_match('/[OC]:\d+:"/', $data)) {
-            throw new \InvalidArgumentException('Serialized data contains objects - not allowed');
+            return null;
         }
 
-        $parser = new SerializedDataParser($data);
-        return $parser->parse();
+        try {
+            $parser = new SerializedDataParser($data);
+            return $parser->parse();
+        } catch (\InvalidArgumentException $e) {
+            return null;
+        }
     }
 }
 
