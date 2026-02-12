@@ -181,6 +181,7 @@ services:
         tty: true        # docker run -t
         volumes:
             - ../LEAF-Automated-Tests/end2end/:/usr/app/leaf
+            - /usr/app/leaf/node_modules
         ports:
             - "8001:8001"
         env_file:
@@ -202,7 +203,4 @@ volumes:
 
 networks:
     leaf-sql:
-        external: true
     leaf:
-        external: true
-    ui-test:

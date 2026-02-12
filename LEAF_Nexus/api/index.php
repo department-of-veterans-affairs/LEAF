@@ -100,6 +100,11 @@ switch ($key) {
         });
 
         break;
+    case 'export':
+        $controllerMap->register('export', function () use ($orgchart_db, $oc_login, $action) {
+            $exportController = new Orgchart\ExportController($orgchart_db, $oc_login);
+            $exportController->handler($action);
+        });
 
     case 'x':
         $controllerMap->register('x', function () use ($orgchart_db, $oc_login, $action) {
