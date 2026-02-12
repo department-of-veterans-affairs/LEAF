@@ -50,9 +50,10 @@ if ($key != 'userActivity') {
 
 $controllerMap = new Portal\ControllerMap();
 
+//Do not scrub as it returns structured directory search results
 $controllerMap->register('classicphonebook', function () use ($p_db, $login, $action) {
     $controller = new Portal\ClassicPhonebookController($p_db, $login);
-    echo XSSHelpers::xscrub($controller)->handler($action);
+    echo $controller->handler($action);
 });
 
 //Should not scrub returns JSON that is all needed
@@ -61,9 +62,10 @@ $controllerMap->register('service', function () use ($p_db, $login, $action) {
     echo $serviceController->handler($action);
 });
 
+//Do not scrub as it contains structured site data needed for proper functionality
 $controllerMap->register('site', function () use ($p_db, $login, $action) {
     $siteController = new Portal\SiteController($p_db, $login);
-    echo XSSHelpers::xscrub($siteController->handler($action));
+    echo $siteController->handler($action);
 });
 
 // Should not be scrubbed as it returns sensitive serialized data
@@ -81,7 +83,7 @@ if ($login->checkGroup(1) || ($key === 'group' && isset($parts[0]) && $parts[0] 
 
     $controllerMap->register('simpledata', function () use ($p_db, $login, $action) {
         $controller = new Portal\SimpleDataController($p_db, $login);
-        echo XSSHelpers::xscrub($controller->handler($action));
+        echo $controller->handler($action);
     });
 
     //Should not be scrubbed since it returns LEAF Programmer code
@@ -96,7 +98,7 @@ if ($login->checkGroup(1) || ($key === 'group' && isset($parts[0]) && $parts[0] 
 
     $controllerMap->register('iconPicker', function () use ($p_db, $login, $action, $icons_path, $dynicon_index, $domain) {
         $iconPickerController = new Portal\IconPickerController($p_db, $login, $icons_path, $dynicon_index, $domain);
-        echo XSSHelpers::xscrub($iconPickerController->handler($action));
+        echo $iconPickerController->handler($action);
     });
 }
 
@@ -124,14 +126,16 @@ $controllerMap->register('workflowRoute', function () use ($db, $login, $action)
     echo $WorkflowRouteController->handler($action);
 });
 
+//Do not scrub returns structured data needed for proper functionality
 $controllerMap->register('FTEdata', function () use ($p_db, $login, $action) {
     $FTEdataController = new Portal\FTEdataController($p_db, $login);
-    echo XSSHelpers::xscrub($FTEdataController->handler($action));
+    echo $FTEdataController->handler($action);
 });
 
+//Do not scrub it contains Json needed for proper functionality
 $controllerMap->register('inbox', function () use ($p_db, $login, $action) {
     $InboxController = new Portal\InboxController($p_db, $login);
-    echo XSSHelpers::xscrub($InboxController->handler($action));
+    echo $InboxController->handler($action);
 });
 
 //Do not scrub it contains Json needed for proper functionality
@@ -152,24 +156,28 @@ $controllerMap->register('converter', function () use ($p_db, $login, $action) {
     echo $ConverterController->handler($action);
 });
 
+//Do not scrub returns JSON data needed for proper functionality
 $controllerMap->register('telemetry', function () use ($p_db, $login, $action) {
     $TelemetryController = new Portal\TelemetryController($p_db, $login);
-    echo XSSHelpers::xscrub($TelemetryController->handler($action));
+    echo $TelemetryController->handler($action);
 });
 
+//Do not scrub returns structured data needed for proper functionality
 $controllerMap->register('signature', function() use ($p_db, $login, $action) {
     $SignatureController = new Portal\SignatureController($p_db, $login);
-    echo XSSHelpers::xscrub($SignatureController->handler($action));
+    echo $SignatureController->handler($action);
 });
 
+//Do not scrub returns structured data needed for proper functionality
 $controllerMap->register('open', function() use ($p_db, $login, $action) {
     $OpenController = new Portal\OpenController($p_db, $login);
-    echo XSSHelpers::xscrub($OpenController->handler($action));
+    echo $OpenController->handler($action);
 });
 
+//Do not scrub returns JSON data needed for proper functionality
 $controllerMap->register('userActivity', function() use ($p_db, $login, $action) {
     $UserActivity = new Portal\UserActivity($p_db, $login);
-    echo XSSHelpers::xscrub($UserActivity->handler($action));
+    echo $UserActivity->handler($action);
 });
 
 //Should not be scrubbed as it may contain LEAF Programmer code
@@ -177,7 +185,7 @@ $controllerMap->register('note', function() use ($p_db, $login, $action) {
     $dataActionLogger = new DataActionLogger($p_db, $login);
 
     $NotesController = new Portal\NotesController($p_db, $login, $dataActionLogger);
-    echo XSSHelpers::xscrub($NotesController->handler($action));
+    echo $NotesController->handler($action);
 });
 
 $controllerMap->register('templateEditor', function () use ($db, $login, $action) {
@@ -186,7 +194,7 @@ $controllerMap->register('templateEditor', function () use ($db, $login, $action
     echo $TemplateController->handler($action);
 });
 
-//Should not be scrubbed since the structure is needed for proper functionality
+//Should not be scrubbed since the HTML structure is needed for proper functionality
 $controllerMap->register('template', function () use ($db, $login, $action) {
     $TemplateController = new Portal\TemplateController($db, $login);
     echo $TemplateController->handler($action);
@@ -204,39 +212,40 @@ $controllerMap->register('reportTemplates/mergeFileHistory', function () use ($d
     echo $AppletController->handler($action);
 });
 
+//None of the Applets/Templates should not be scrubbed since the HTML structure is needed for proper functionality
 $controllerMap->register('applet', function () use ($db, $login, $action) {
     $AppletController = new Portal\AppletController($db, $login);
-    echo XSSHelpers::xscrub($AppletController->handler($action));
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->register('applet/mergeFileHistory', function () use ($db, $login, $action) {
     $AppletController = new Portal\AppletController($db, $login);
-    echo XSSHelpers::xscrub($AppletController->handler($action));
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->register('emailTemplateFileHistory', function () use ($p_db, $login, $action) {
     $EmailTemplateController = new Portal\EmailTemplateController($p_db, $login);
-    echo XSSHelpers::xscrub($EmailTemplateController->handler($action));
+    echo $EmailTemplateController->handler($action);
 });
 
 $controllerMap->register('templateFileHistory', function () use ($db, $login, $action) {
     $TemplateFileHistoryController = new Portal\TemplateFileHistoryController($db, $login);
-    echo XSSHelpers::xscrub($TemplateFileHistoryController->handler($action));
+    echo $TemplateFileHistoryController->handler($action);
 });
 
 $controllerMap->register('templateCompareFileHistory', function () use ($db, $login, $action) {
     $TemplateFileHistoryController = new Portal\TemplateFileHistoryController($db, $login);
-    echo XSSHelpers::xscrub($TemplateFileHistoryController->handler($action));
+    echo $TemplateFileHistoryController->handler($action);
 });
 
 $controllerMap->register('templateHistoryMergeFile', function () use ($db, $login, $action) {
     $TemplateFileHistoryController = new Portal\TemplateFileHistoryController($db, $login);
-    echo XSSHelpers::xscrub($TemplateFileHistoryController->handler($action));
+    echo $TemplateFileHistoryController->handler($action);
 });
 
 $controllerMap->register('templateEmailHistoryMergeFile', function () use ($db, $login, $action) {
     $TemplateFileHistoryController = new Portal\TemplateFileHistoryController($db, $login);
-    echo XSSHelpers::xscrub($TemplateFileHistoryController->handler($action));
+    echo $TemplateFileHistoryController->handler($action);
 });
 
 $controllerMap->register('reportTemplates/fileHistory', function () use ($db, $login, $action) {
@@ -265,22 +274,22 @@ $controllerMap->register('reportTemplates/deleteHistoryFileReport', function () 
 
 $controllerMap->register('applet/fileHistory', function () use ($db, $login, $action) {
     $AppletController = new Portal\AppletController($db, $login);
-    echo XSSHelpers::xscrub($AppletController->handler($action));
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->register('applet/getHistoryFiles', function () use ($db, $login, $action) {
     $AppletController = new Portal\AppletController($db, $login);
-    echo XSSHelpers::xscrub($AppletController->handler($action));
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->register('applet/saveReportMergeTemplate', function () use ($db, $login, $action) {
     $AppletController = new Portal\AppletController($db, $login);
-    echo XSSHelpers::xscrub($AppletController->handler($action));
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->register('applet/deleteHistoryFileReport', function () use ($db, $login, $action) {
     $AppletController = new Portal\AppletController($db, $login);
-    echo XSSHelpers::xscrub($AppletController->handler($action));
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->runControl($key);

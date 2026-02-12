@@ -2,7 +2,6 @@
  Form Search Widget for multiple sites
  Search features are limited to common denominators across all LEAF sites.
  */
-const XSSHelpers = require("../../libs/js/LEAF/XSSHelpers");
 
 var LeafFormSearchMultisite = function (containerID) {
     let prefixID =
@@ -188,6 +187,17 @@ var LeafFormSearchMultisite = function (containerID) {
                 $("#" + prefixID + "searchtxt").val(lastSearch);
             }
         }
+    }
+
+    function scrubHTML(input) {
+        if (input == undefined) {
+            return '';
+        }
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while (input != t.textContent) {
+            return scrubHTML(t.textContent);
+        }
+        return t.textContent;
     }
 
     /**
@@ -677,9 +687,9 @@ var LeafFormSearchMultisite = function (containerID) {
                         for (let i in res) {
                             services +=
                                 '<option value="' +
-                                XSSHelpers.xscrub(res[i].groupID) +
+                                res[i].groupID +
                                 '">' +
-                                XSSHelpers.xscrub(res[i].groupTitle) +
+                                scrubHTML(res[i].groupTitle) +
                                 "</option>";
                         }
                         services += "</select>";
@@ -754,7 +764,7 @@ var LeafFormSearchMultisite = function (containerID) {
                                 '<option value="' +
                                 res[i].categoryID +
                                 '">' +
-                                res[i].categoryName +
+                                scrubHTML(res[i].categoryName) +
                                 "</option>";
                         }
                         categories += "</select>";
@@ -814,7 +824,7 @@ var LeafFormSearchMultisite = function (containerID) {
                                 '<option value="' +
                                 res[i].dependencyID +
                                 '">' +
-                                res[i].description +
+                                scrubHTML(res[i].description) +
                                 "</option>";
                         }
                         dependencies += "</select>";

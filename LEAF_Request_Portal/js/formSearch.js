@@ -2,8 +2,6 @@
  Form Search Widget
  */
 
-import { xscrub } from "../../libs/js/LEAF/XSSHelpers";
-
 var LeafFormSearch = function (containerID) {
     var containerID = containerID;
     var prefixID = "LeafFormSearch" + Math.floor(Math.random() * 1000) + "_";
@@ -716,7 +714,7 @@ var LeafFormSearch = function (containerID) {
             let actions = (await getWorkflowStepActions(stepWorkflowIdx[stepID]))[stepID];
             options = `<select id="${prefixID}widgetMat_${widgetID}" class="chosen" aria-label="options" style="width: 250px">`;
             for(let i in actions) {
-                options += `<option value="${actions[i].actionType}">${actions[i].actionTextPasttense}</option>`;
+                options += `<option value="${actions[i].actionType}">${scrubHTML(actions[i].actionTextPasttense)}</option>`;
             }
             options += '</select>';
         }
@@ -808,9 +806,9 @@ var LeafFormSearch = function (containerID) {
                         for (var i in res) {
                             services +=
                                 '<option value="' +
-                                xscrub(res[i].groupID) +
+                                res[i].groupID +
                                 '">' +
-                                xscrub(res[i].groupTitle) +
+                                scrubHTML(res[i].groupTitle) +
                                 "</option>";
                         }
                         services += "</select>";
@@ -886,7 +884,7 @@ var LeafFormSearch = function (containerID) {
                                 '<option value="' +
                                 res[i].categoryID +
                                 '">' +
-                                res[i].categoryName +
+                                scrubHTML(res[i].categoryName) +
                                 "</option>";
                         }
                         categories += "</select>";
@@ -1025,7 +1023,7 @@ var LeafFormSearch = function (containerID) {
                                     <option value="actionable">Actionable by me</option>`;
                 //categories += '<option value="destruction">Scheduled for Destruction</option>';
                 for (let i in allStepsData) {
-                    categories += `<option value="${allStepsData[i].stepID}">${allStepsData[i].description}: ${allStepsData[i].stepTitle}</option>`;
+                    categories += `<option value="${allStepsData[i].stepID}">${scrubHTML(allStepsData[i].description)}: ${scrubHTML(allStepsData[i].stepTitle)}</option>`;
                 }
                 categories += "</select>";
                 // quick and dirty fix to avoid a race condition related to common
@@ -1048,7 +1046,7 @@ var LeafFormSearch = function (containerID) {
                 if(urlParams.has('dev')) {
                     resultFilter += '&dev';
                 }
-                
+
                 url =
                     rootURL === ""
                         ? `./api/form/indicator/list${resultFilter}`
@@ -1091,7 +1089,7 @@ var LeafFormSearch = function (containerID) {
                         formNames.sort();
                         formNames.forEach(key => {
                             indicatorsByForm[key].sort((a, b) => collator.compare(a.name, b.name));
-                            indicators += `<optgroup label="${key}">`;
+                            indicators += `<optgroup label="${scrubHTML(key)}">`;
 
                             indicatorsByForm[key].forEach(res => {
                                 indicators += `<option value="${res.indicatorID}">${scrubHTML(res.name)}</option>`;
@@ -1823,11 +1821,3 @@ var LeafFormSearch = function (containerID) {
         },
     };
 };
-
-// Make `LeafFormSearch` available as a CommonJS export and as a browser global
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = LeafFormSearch;
-}
-if (typeof window !== 'undefined') {
-  window.LeafFormSearch = LeafFormSearch;
-}

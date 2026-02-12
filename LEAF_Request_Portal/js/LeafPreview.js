@@ -1,5 +1,3 @@
-import { xscrub } from "../../libs/js/LEAF/XSSHelpers";
-
 var LeafPreview = function(domID) {
     let numSection = 1;
     let rawForm = {};
@@ -7,21 +5,22 @@ var LeafPreview = function(domID) {
 
     $('#' + domID).html('');
 
-    /*
-    * Backward compatibility: certain name properties are pre-sanitized server-side, and must be decoded before rendering
-    * TODO: Migrate to markdown
-    */
-    function decodeHTMLEntities(txt) {
-       let tmp = document.createElement("textarea");
-       tmp.innerHTML = xscrub(txt);
-       return tmp.value;
+    function scrubHTML(input) {
+       if (input == undefined) {
+            return '';
+        }
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while (input != t.textContent) {
+           return scrubHTML(t.textContent);
+       }
+        return t.textContent;
     }
     function renderField(field, isChild) {
         const required = field.required == 1 ? '<span style="color:#b00;">* Required&nbsp;</span>': '';
         const sensitive = field.is_sensitive == 1 ? '<span class="sensitiveIndicator" style="color:#b00;">* Sensitive</span>': '';
         const labelledById = `leaf_library_preview_${field.indicatorID}`;
         const inputId = `leaf_library_input_${field.indicatorID}`;
-        const indName = decodeHTMLEntities(field.name);
+        const indName = scrubHTML(field.name);
         let style_isChild = '';
         if(isChild == undefined) {
             style_isChild = 'font-weight:bold;';
@@ -42,20 +41,20 @@ var LeafPreview = function(domID) {
                 const r = Math.random();
                 for(let i in field.options) {
                     out += `<input type="radio" id="${inputId}_${i}"
-                        aria-labelledby="${labelledById}" name="${r}" ${checkStyle}>${field.options[i]}<br>`;
+                        aria-labelledby="${labelledById}" name="${r}" ${checkStyle}>${scrubHTML(field.options[i])}<br>`;
                 }
                 break;
             case 'multiselect':
                 out += `<select id="${inputId}" aria-labelledby="${labelledById}" style="min-width:185px;" multiple>`;
                 for(let i in field.options) {
-                    out += `<option>${field.options[i]}</option>`;
+                    out += `<option>${scrubHTML(field.options[i])}</option>`;
                 }
                 out += '</select>';
                 break;
             case 'dropdown':
                 out += `<select id="${inputId}" aria-labelledby="${labelledById}" style="min-width:185px;">`;
                 for(let i in field.options) {
-                    out += `<option>${field.options[i]}</option>`;
+                    out += `<option>${scrubHTML(field.options[i])}</option>`;
                 }
                 out += '</select>';
                 break;
@@ -70,7 +69,7 @@ var LeafPreview = function(domID) {
             case 'checkbox':
             case 'checkboxes':
                 for(let i in field.options) {
-                    out += `<input type="checkbox" id="${inputId}_${i}" aria-labelledby="${labelledById}" ${checkStyle}>${field.options[i]}<br>`;
+                    out += `<input type="checkbox" id="${inputId}_${i}" aria-labelledby="${labelledById}" ${checkStyle}>${scrubHTML(field.options[i])}<br>`;
                 }
                 break;
             case 'fileupload':
@@ -106,7 +105,6 @@ var LeafPreview = function(domID) {
             numSection = 1;
         }
         const temp = renderField(field);
-        xscrub(temp);
         const out = '<div style="font-size: 120%;padding:4px; background-color: black; color: white">Section '+ numSection +'</div><div class="card" style="margin:0;padding: 16px;line-height:1.3">'+ temp +'</div><br />';
         numSection++;
         return out;
@@ -139,12 +137,4 @@ var LeafPreview = function(domID) {
         getRawForm: function() { return rawForm; },
         setLeafDomain: function(url) { LEAF_DOMAIN = url; }
     };
-}
-
-// Make `LeafPreview` available as a CommonJS export and as a browser global
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = LeafPreview;
-}
-if (typeof window !== 'undefined') {
-  window.LeafPreview = LeafPreview;
 }

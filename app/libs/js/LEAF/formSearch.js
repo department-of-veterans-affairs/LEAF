@@ -2,8 +2,6 @@
  Form Search Widget
  */
 
-import { xscrub } from "./XSSHelpers";
-
 var LeafFormSearch = function (containerID) {
     var containerID = containerID;
     var prefixID = "LeafFormSearch" + Math.floor(Math.random() * 1000) + "_";
@@ -190,6 +188,17 @@ var LeafFormSearch = function (containerID) {
                 $("#" + prefixID + "searchtxt").val(lastSearch);
             }
         }
+    }
+
+    function scrubHTML(input) {
+        if(input == undefined) {
+            return '';
+        }
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while(input != t.textContent) {
+            return scrubHTML(t.textContent);
+        }
+        return t.textContent;
     }
 
     /**
@@ -743,9 +752,9 @@ var LeafFormSearch = function (containerID) {
                         for (var i in res) {
                             services +=
                                 '<option value="' +
-                                xscrub(res[i].groupID) +
+                                res[i].groupID +
                                 '">' +
-                                xscrub(res[i].groupTitle) +
+                                scrubHTML(res[i].groupTitle) +
                                 "</option>";
                         }
                         services += "</select>";
@@ -821,7 +830,7 @@ var LeafFormSearch = function (containerID) {
                                 '<option value="' +
                                 res[i].categoryID +
                                 '">' +
-                                res[i].categoryName +
+                                scrubHTML(res[i].categoryName) +
                                 "</option>";
                         }
                         categories += "</select>";
@@ -885,7 +894,7 @@ var LeafFormSearch = function (containerID) {
                                 '<option value="' +
                                 res[i].dependencyID +
                                 '">' +
-                                res[i].description +
+                                scrubHTML(res[i].description) +
                                 "</option>";
                         }
                         dependencies += "</select>";
@@ -965,9 +974,9 @@ var LeafFormSearch = function (containerID) {
                                 '<option value="' +
                                 allStepsData[i].stepID +
                                 '">' +
-                                allStepsData[i].description +
+                                scrubHTML(allStepsData[i].description) +
                                 ": " +
-                                allStepsData[i].stepTitle +
+                                scrubHTML(allStepsData[i].stepTitle) +
                                 "</option>";
                         }
                         categories += "</select>";
@@ -1017,9 +1026,9 @@ var LeafFormSearch = function (containerID) {
                                 '<option value="' +
                                 res[i].indicatorID +
                                 '">' +
-                                res[i].categoryName +
+                                scrubHTML(res[i].categoryName) +
                                 ": " +
-                                res[i].name +
+                                scrubHTML(res[i].name) +
                                 "</option>";
                         }
                         indicators += "</select><br />";
@@ -1673,11 +1682,3 @@ var LeafFormSearch = function (containerID) {
         },
     };
 };
-
-// Make `LeafFormSearch` available as a CommonJS export and as a browser global
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = LeafFormSearch;
-}
-if (typeof window !== 'undefined') {
-  window.LeafFormSearch = LeafFormSearch;
-}
