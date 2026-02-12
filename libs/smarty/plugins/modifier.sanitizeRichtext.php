@@ -24,7 +24,7 @@ use Leaf\XSSHelpers;
  * @return string
  */
 
- require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
+ require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 function smarty_modifier_sanitizeRichtext($in)
 {

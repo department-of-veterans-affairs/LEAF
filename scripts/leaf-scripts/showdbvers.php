@@ -4,8 +4,8 @@
  * You will need to update the db version manually in this file to do the search at this time however
  */
 
-require_once getenv('APP_LIBS_PATH') . '/globals.php';
-require_once getenv('APP_LIBS_PATH') . '../Leaf/Db.php';
+require_once '/var/www/html/app/libs/globals.php';
+require_once '/var/www/html/app/libs../Leaf/Db.php';
 
 $startTime = microtime(true);
 

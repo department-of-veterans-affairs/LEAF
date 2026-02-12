@@ -7,8 +7,8 @@
  * NULL values will be updated where the respective userID fields correspond to active orgchart accounts.
  */
 
-require_once getenv('APP_LIBS_PATH') . '/globals.php';
-require_once getenv('APP_LIBS_PATH') . '/../Leaf/Db.php';
+require_once '/var/www/html/app/libs/globals.php';
+require_once '/var/www/html/app/libs/../Leaf/Db.php';
 
 $log_file = fopen("batch_update_records_notes_dh_log.txt", "w") or die("unable to open file");
 $time_start = date_create();

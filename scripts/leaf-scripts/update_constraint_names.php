@@ -5,8 +5,8 @@ Intended for one-time update to foreign key constraint names
 that are inconsistent with the current schema.
 */
 
-require_once getenv('APP_LIBS_PATH') . '/globals.php';
-require_once getenv('APP_LIBS_PATH') . '/../Leaf/Db.php';
+require_once '/var/www/html/app/libs/globals.php';
+require_once '/var/www/html/app/libs/../Leaf/Db.php';
 
 $log_file = fopen("constraint_update_log.txt", "w") or die("unable to open file");
 

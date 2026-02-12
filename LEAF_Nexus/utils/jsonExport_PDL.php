@@ -7,7 +7,7 @@ use App\Leaf\XSSHelpers;
 
 set_time_limit(240);
 
-require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
+require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 $oc_login->setBaseDir('../');
 $oc_login->loginUser();

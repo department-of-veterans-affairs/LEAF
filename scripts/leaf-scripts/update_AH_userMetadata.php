@@ -1,7 +1,7 @@
 <?php
 
-require_once getenv('APP_LIBS_PATH') . '/globals.php';
-require_once getenv('APP_LIBS_PATH') . '/../Leaf/Db.php';
+require_once '/var/www/html/app/libs/globals.php';
+require_once '/var/www/html/app/libs/../Leaf/Db.php';
 
 $log_file = fopen("batch_update_ah_usermetadata_log.txt", "w") or die("unable to open file");
 $time_start = date_create();

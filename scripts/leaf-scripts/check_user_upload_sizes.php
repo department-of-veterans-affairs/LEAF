@@ -3,8 +3,8 @@
  * This file gets the amount of storage used for each portal in the ERM uploads directory.
  */
 
-require_once getenv('APP_LIBS_PATH') . '/globals.php';
-require_once getenv('APP_LIBS_PATH') . '/../Leaf/Db.php';
+require_once '/var/www/html/app/libs/globals.php';
+require_once '/var/www/html/app/libs/../Leaf/Db.php';
 
 $startTime = microtime(true);
 
