@@ -24,7 +24,10 @@ class Security
             return $defaultRedirect;
         }
 
-        $decodedPath = str_replace(["\n", '@'], '', $decodedPath);
+        if (strpos($decodedPath, '@') !== false || strpos($decodedPath, "\n") !== false) {
+            error_log('LEAF: Rejected redirect containing prohibited characters: ' . $decodedPath);
+            return $defaultRedirect;
+        }
 
         return $protocol . $allowedHost . $decodedPath;
     }
