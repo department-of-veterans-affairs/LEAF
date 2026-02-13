@@ -15,8 +15,10 @@ $failedArray = [];
 
 foreach ($orgcharts as $orgchart) {
     echo "Orgchart: " . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php' . "\r\n";
-    if (is_file($dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php')) {
-        
+
+    $scriptPath = realpath($dir . $site['site_path'] . '/scripts/refreshOrgchartEmployees.php');
+
+    if (is_file($dir . $site['site_path'] . '/scripts/refreshOrgchartEmployees.php') && $scriptPath !== false && strpos($scriptPath, $dir) === 0) {
         $response = exec('php ' . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php',$output) . "\r\n";
         
         if($response == '0'){
