@@ -5,6 +5,16 @@ var LeafPreview = function(domID) {
 
     $('#' + domID).html('');
 
+    /*
+    * Backward compatibility: certain name properties are pre-sanitized server-side, and must be decoded before rendering
+    * TODO: Migrate to markdown
+    */
+    function decodeHTMLEntities(txt) {
+       let tmp = document.createElement("textarea");
+       tmp.innerHTML = txt;
+       return tmp.value;
+    }
+
     function scrubHTML(input) {
        if (input == undefined) {
             return '';
@@ -20,7 +30,7 @@ var LeafPreview = function(domID) {
         const sensitive = field.is_sensitive == 1 ? '<span class="sensitiveIndicator" style="color:#b00;">* Sensitive</span>': '';
         const labelledById = `leaf_library_preview_${field.indicatorID}`;
         const inputId = `leaf_library_input_${field.indicatorID}`;
-        const indName = scrubHTML(field.name);
+        const indName = decodeHTMLEntities(field.name);
         let style_isChild = '';
         if(isChild == undefined) {
             style_isChild = 'font-weight:bold;';
