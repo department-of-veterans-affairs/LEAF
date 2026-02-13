@@ -5,7 +5,7 @@
  */
 
 require_once '/var/www/html/app/libs/globals.php';
-require_once '/var/www/html/app/libs../Leaf/Db.php';
+require_once '/var/www/html/app/libs/../Leaf/Db.php';
 
 $startTime = microtime(true);
 
