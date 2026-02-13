@@ -159,6 +159,7 @@
      * @return HTML Content for listEvents
      */
     function listEventsContent(events) {
+        const nonAlphaNumRegex = new RegExp(/[^a-zA-Z0-9_]/, "gi");
         let content = `<table id="events" class="table" border="1">
             <caption><h2>List of Events</h2></caption>
             <thead><th scope="col">Event</th><th scope="col">Description</th><th scope="col">Type</th><th scope="col">Action</th></thead>`;
@@ -177,7 +178,7 @@
                 <td width="200px" id="${events[i].eventID}">
                     ${events[i].eventID.replace('CustomEvent_','').replaceAll('_', ' ')}
                 </td>
-                <td width="200px" id="${events[i].eventDescription}">${events[i].eventDescription}</td>
+                <td width="200px" id="${events[i].eventDescription.replaceAll(nonAlphaNumRegex, '_')}">${events[i].eventDescription}</td>
                 <td width="150px" id="${events[i].eventType}">${events[i].eventType}</td>
                 <td width="100px" id="editor_${events[i].eventID}">
                     <button type="button" class="buttonNorm" onclick="editEvent('${events[i].eventID}')"
@@ -519,7 +520,7 @@
             return 'Invalid parameter(s): events must be an array.';
         }
 
-        let content = '<label id="event_label">Add an event: </label>';
+        let content = '<label id="event_label" for="eventID">Add an event: </label>';
         content += `<br /><div>
             <span id="event_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
             <select id="eventID" name="eventID" title="Select Event" onchange="updateSelectionStatus(this, 'event_select_status')">`;
@@ -1038,7 +1039,7 @@
             url: '../api/workflow/dependencies',
             success: function(res) {
                 let buffer = '';
-                buffer = '<label id="requirements_label">Select an existing requirement</label>';
+                buffer = '<label id="requirements_label" for="dependencyID">Select an existing requirement</label>';
                 buffer += `<div><span id="req_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
                     <select id="dependencyID" name="dependencyID" title="Select a requiremement" onchange="updateSelectionStatus(this, 'req_select_status')">`;
 
@@ -1169,7 +1170,7 @@
                     allWorkflowActionMap[res[i].actionType.toLowerCase()] = 1;
                     buffer += `<tr>
                         <td width="300px" id="${res[i].actionType}">${res[i].actionText}</td>
-                        <td width="300px" id="${res[i].actionTextPasttense}">${res[i].actionTextPasttense}</td>
+                        <td width="300px" id="${res[i].actionType}_past">${res[i].actionTextPasttense}</td>
                         <td width="100px">${res[i]?.sort || 0}</td>
                         <td width="150px" id="editor_${res[i].actionType}">
                             <button type="button" class="buttonNorm" onclick="editActionType('${res[i].actionType}')"
@@ -1211,16 +1212,20 @@
     */
     function renderActionInputModal(action = {}) {
         return `<div id="action_input_modal">
-            <div>
-                <label for="actionText" id="action_label">Action <span style="color: #c00">*Required</span></label><br>
-                <div class="helper_text">e.g., Approve</div>
-                <div id="actionText_error_message" class="error_message"></div>
-                <input id="actionText" type="text" maxlength="50" value="${action?.actionText || ''}">
+            <div class="info_wrapper">
+                <div>
+                    <label for="actionText" id="action_label">Action <span style="color: #c00">*Required</span></label><br>
+                    <div class="helper_text">e.g., Approve</div>
+                    <div id="actionText_error_message" class="error_message"></div>
+                    <input id="actionText" type="text" maxlength="50" value="${action?.actionText || ''}">
+                </div>
             </div>
-            <div>
-                <label for="actionTextPasttense" id="action_past_tense_label"> Action Past Tense <span style="color: #c00">*Required</span></label><br>
-                <div class="helper_text">e.g., Approved</div>
-                <input id="actionTextPasttense" type="text" maxlength="50" value="${action?.actionTextPasttense || ''}">
+            <div class="info_wrapper">
+                <div>
+                    <label for="actionTextPasttense" id="action_past_tense_label"> Action Past Tense <span style="color: #c00">*Required</span></label><br>
+                    <div class="helper_text">e.g., Approved</div>
+                    <input id="actionTextPasttense" type="text" maxlength="50" value="${action?.actionTextPasttense || ''}">
+                </div>
             </div>
             <div>
                 <label for="actionIcon" id="choose_icon_label">Icon</label><br>
@@ -1373,13 +1378,13 @@
     */
     function validateInputFields(targetID = "", newEntry = false) {
         const setError = (elementID = "", isValid = false) => {
-            let wrapperElement = document.getElementById(elementID)?.parentNode || null;
+            let wrapperElement = document.getElementById(elementID)?.closest('.info_wrapper') ?? null;
             if (wrapperElement !== null && isValid === false) {
                 wrapperElement.classList.add("entry_error");
             }
         }
 
-        let parentWrapper = document.getElementById(targetID)?.parentElement ?? null;
+        let parentWrapper = document.getElementById(targetID)?.closest('.info_wrapper') ?? null;
         if (parentWrapper !== null) {
             parentWrapper.classList.remove("entry_error");
         }
@@ -1526,14 +1531,14 @@
                 buffer = 'Select action for ';
                 buffer += '<b>' + sourceTitle + '</b> to <b>' + targetTitle + '</b>:';
                 buffer +=
-                    '<br /><br /><br />Use an existing action type: <select id="actionType" name="actionType">';
+                    '<br><br><br><label id="actionType_label" for="actionType">Use an existing action type:</label><br><select id="actionType" name="actionType">';
 
                 for (let i in res) {
                     allWorkflowActionMap[res[i].actionType.toLowerCase()] = 1;
                     buffer += '<option value="' + res[i].actionType + '">' + res[i].actionText + '</option>';
                 }
 
-                buffer += '</select>';
+                buffer += '</select><br>';
                 buffer +=
                     '<br />- OR -<br /><br /><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25rem;" onclick="newAction();">Create a new Action Type</button>';
 
@@ -1541,11 +1546,14 @@
                 dialog.setContent(buffer);
                 $('#xhrDialog').css('overflow', 'visible');
                 $('#actionType').chosen({disable_search_threshold: 5});
+                updateChosenAttributes("actionType", "actionType_label", "Select an Action");
                 let saving = false;
                 dialog.setCancelHandler(function() {
                     if(reopenStepID !== null && saving === false) {
                         showStepInfo(reopenStepID);
                     }
+                    jsPlumbConfig();
+                    drawRoutes(null);
                 });
                 dialog.setSaveHandler(function() {
                     saving = true;
@@ -1671,21 +1679,45 @@
             type: 'GET',
             url: '../api/form/indicator/list',
             success: function(res) {
-                let indicatorList = '';
-                for (let i in res) {
-                    if (res[i]['format'] == 'orgchart_employee' ||
-                        res[i]['format'] == 'raw_data') {
-                        let name = XSSHelpers.stripAllTags(res[i].name);
-                        name = name.length <= 50 ? name : name.slice(0, 50) + '...';
-                        indicatorList += '<option value="' + res[i].indicatorID + '">' + res[i]
-                            .categoryName + ': ' + name + ' (id: ' + res[i].indicatorID +
-                            ')</option>';
+                const indOptions = res
+                    .filter(ind => ind?.format === 'orgchart_employee' || ind?.format === 'raw_data')
+                    .sort((indA, indB ) => indA.categoryName.localeCompare(indB.categoryName));
+
+                let indicatorHTML = '';
+                let optGroup = null;
+                indOptions.forEach(ind => {
+                    const catName = XSSHelpers.stripAllTags(ind.categoryName);
+                    let name = XSSHelpers.stripAllTags(ind.name);
+                    name = name.length <= 50 ? name : name.slice(0, 50) + '...';
+
+                    let newOptGroup = false;
+                    if (catName !== optGroup) {
+                        newOptGroup = true;
+                        optGroup = catName;
+                        if (indicatorHTML !== '') {
+                            indicatorHTML += '</optGroup>';
+                        }
+                    }
+                    indicatorHTML += newOptGroup ? `<optGroup label="${catName}">` : '';
+                    indicatorHTML += `<option value="${ind.indicatorID}">${name} (id: ${ind.indicatorID})</option>`;
+                });
+
+                const currentValue = steps[stepID]?.indicatorID_for_assigned_empUID;
+                dialog.setContent(
+                    '<div id="set_indicator_modal"><br>' +
+                    '<div class="entry_info bg-blue-5v">' +
+                    'Select the data field that will be used to route to the selected individual.<br>' +
+                    'Your form must have a field with the "Orgchart Employee" or "Raw Data" input format.</div><br>' +
+                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID" style="max-width:610px;">' +
+                    indicatorHTML + '</select><br><br>' +
+                    '</div>'
+                );
+                if(currentValue > 0) {
+                    let selEl = document.getElementById('indicatorID');
+                    if(selEl !== null) {
+                        selEl.value = currentValue;
                     }
                 }
-                dialog.setContent(
-                    '<br />Select the data field that will be used to route to selected individual.<br /><select id="indicatorID">' +
-                    indicatorList + '</select><br /><br />\
-    			    * Your form must have a field with the "Orgchart Employee" or "Raw Data" input format');
             },
             error: (err) => console.log(err),
             cache: false
@@ -1709,19 +1741,45 @@
             type: 'GET',
             url: '../api/form/indicator/list',
             success: function(res) {
-                var indicatorList = '';
-                for (let i in res) {
-                    if (res[i]['format'] == 'orgchart_group' ||
-                        res[i]['format'] == 'raw_data') {
-                        indicatorList += '<option value="' + res[i].indicatorID + '">' + res[i]
-                            .categoryName + ': ' + res[i].name + ' (id: ' + res[i].indicatorID +
-                            ')</option>';
+                const indOptions = res
+                    .filter(ind => ind?.format === 'orgchart_group' || ind?.format === 'raw_data')
+                    .sort((indA, indB ) => indA.categoryName.localeCompare(indB.categoryName));
+
+                let indicatorHTML = '';
+                let optGroup = null;
+                indOptions.forEach(ind => {
+                    const catName = XSSHelpers.stripAllTags(ind.categoryName);
+                    let name = XSSHelpers.stripAllTags(ind.name);
+                    name = name.length <= 50 ? name : name.slice(0, 50) + '...';
+
+                    let newOptGroup = false;
+                    if (catName !== optGroup) {
+                        newOptGroup = true;
+                        optGroup = catName;
+                        if (indicatorHTML !== '') {
+                            indicatorHTML += '</optGroup>';
+                        }
+                    }
+                    indicatorHTML += newOptGroup ? `<optGroup label="${catName}">` : '';
+                    indicatorHTML += `<option value="${ind.indicatorID}">${name} (id: ${ind.indicatorID})</option>`;
+                });
+
+                const currentValue = steps[stepID]?.indicatorID_for_assigned_groupID
+                dialog.setContent(
+                    '<div id="set_indicator_modal"><br>' +
+                    '<div class="entry_info bg-blue-5v">' +
+                    'Select the data field that will be used to route to the selected group.<br>' +
+                    'Your form must have a field with the "Orgchart Group" or "Raw Data" input format.</div><br>' +
+                    '<label for="indicatorID">Data Field:</label><br><select id="indicatorID" style="max-width:610px;">' +
+                    indicatorHTML + '</select><br><br>' +
+                    '</div>'
+                );
+                if(currentValue > 0) {
+                    let selEl = document.getElementById('indicatorID');
+                    if(selEl !== null) {
+                        selEl.value = currentValue;
                     }
                 }
-                dialog.setContent(
-                    '<br />Select a field that the requestor fills out. The workflow will route to the group they select.<br /><select id="indicatorID">' +
-                    indicatorList + '</select><br /><br />\
-                    * Your form must have a field with the "Orgchart Group" input format');
             },
             error: (err) => console.log(err),
             cache: false
@@ -2166,137 +2224,157 @@
                 break;
         }
     }
+    var endPoints = {};
+    function jsPlumbConfig() {
+        setTimeout(() => {
+            endPoints = {};
+            let step = null;
+            for (let k in steps) {
+                step = steps[k];
+                if (endPoints[step.stepID] == undefined) {
+                    endPoints[step.stepID] = jsPlumb.addEndpoint('step_' + step.stepID, { anchor: 'Continuous' }, endpointOptions);
+                    jsPlumb.draggable('step_' + step.stepID, {
+                        allowNegative: false,
+                        // save position of the box when moved
+                        stop: function(sID) {
+                            return function() {
+                                const position = $('#step_' + sID).offset();
+                                updatePosition(currentWorkflow, sID, position.left, position.top);
+                                adjustWorkflowSize();
+                            }
+                        }(step.stepID)
+                    });
+                }
+            };
+            if (endPoints[-1] == undefined) {
+                endPoints[-1] = jsPlumb.addEndpoint('step_-1', { anchor: 'Continuous' }, endpointOptions);
+                jsPlumb.draggable('step_-1', { allowNegative: false });
+            }
+            if (endPoints[0] == undefined) {
+                endPoints[0] = jsPlumb.addEndpoint(
+                    'step_0',
+                    { anchor: 'Continuous' },
+                    { ...this.endpointOptions, isSource: false }
+                );
+                jsPlumb.draggable('step_0', {
+                    allowNegative: false,
+                    stop: function() {
+                        adjustWorkflowSize();
+                    }
+                });
+            }
+        });
 
-    var endPoints = [];
+    }
+
+    function adjustWorkflowSize() {
+        let wfEl = document.getElementById('workflow');
+        if(wfEl !== null) {
+            const stepWidth = 172;
+            const stepHeight = 50;
+            //for screen resize events
+            let posX = 0, posY = 0;
+            const wfBtns = Array.from(document.querySelectorAll('#workflow button.workflowStep'));
+            wfBtns.forEach(b => {
+                posX = Math.max(b.offsetLeft, posX);
+                posY = Math.max(b.offsetTop, posY);
+            });
+            const maxRightSide = posX + stepWidth;
+            const maxBottom = posY + stepHeight;
+            const rect = wfEl.getBoundingClientRect();
+            const wfRightSide = wfEl.offsetLeft + rect.width;
+            const wfBottom = wfEl.offsetTop + rect.height;
+            //step positions are relative to the screen, not the workflow el
+            if(maxRightSide >= wfRightSide) {
+                const newWidth = maxRightSide - wfRightSide + 16 + rect.width;
+                wfEl.style.width = newWidth.toFixed(0) + 'px';
+            } else {
+                if (document?.documentElement?.clientWidth > maxRightSide) {
+                    wfEl.style.width = '100%';
+                }
+            }
+            const newHeight = posY + 140;
+            wfEl.style.height = newHeight.toFixed(0) + 'px';
+        }
+    }
 
     function drawRoutes(workflowID, stepID = null) {
-        let loc = 0.5;
-        const locIncrement = 0.15;
-        $.ajax({
-            type: 'GET',
-            url: '../api/workflow/' + workflowID + '/route',
-            success: function(res) {
-                routes = res;
-                if (endPoints[-1] == undefined) {
-                    endPoints[-1] = jsPlumb.addEndpoint('step_-1', {anchor: 'Continuous'}, endpointOptions);
-                    jsPlumb.draggable('step_-1', { allowNegative: false });
-                }
-                if (endPoints[0] == undefined) {
-                    endPoints[0] = jsPlumb.addEndpoint('step_0', {anchor: 'Continuous'}, endpointOptions);
-                    jsPlumb.draggable('step_0', { allowNegative: false });
-                }
+        jsPlumb.reset();
+        jsPlumb.setSuspendDrawing(true);
 
-                // draw connector
-                let actionCounts = {};
-                for (let i in res) {
-                    loc = 0.5;
-                    switch (res[i].actionType.toLowerCase()) {
-                        case 'sendback':
-                            loc = 0.30;
-                            break;
-                        case 'approve':
-                        case 'concur':
-                            loc = 0.5;
-                            break;
-                        case 'defer':
-                            loc = 0.25;
-                            break;
-                        case 'disapprove':
-                            loc = 0.75;
-                            break;
-                        default:
-                            const from = String(res[i].stepID);
-                            const to = String(res[i].nextStepID);
-                            if(from !== to) {
-                                const fromStepToStep = from + "_" + to;
-                                if(actionCounts?.[fromStepToStep] >= 0) {
-                                    actionCounts[fromStepToStep] += 1;
-                                    loc = Math.min(
-                                        +((0.05 + locIncrement * actionCounts[fromStepToStep]).toFixed(2)),
-                                        0.65
-                                    );
-                                    if(loc >= 0.5) { //reserve 0.5 for 0 - keeps centered if only one route
-                                        loc += locIncrement;
-                                    }
-                                } else {
-                                    actionCounts[fromStepToStep] = 0;
+        if(workflowID !== null) {
+            $.ajax({
+                type: 'GET',
+                url: '../api/workflow/' + workflowID + '/route',
+                success: function(res) {
+                    routes = res;
+
+                    //if user came via stepinfo key nav re-open that modal
+                    if(stepID !== null) {
+                        showStepInfo(stepID);
+                    }
+                },
+                error: (err) => console.log(err),
+                cache: false,
+                async: false
+            });
+        }
+
+        // draw connectors
+        setTimeout(() => {
+            const locIncrement = 0.15;
+            let loc = 0.5;
+            let actionCounts = {};
+            for (let i in routes) {
+                loc = 0.5;
+                switch (routes[i].actionType.toLowerCase()) {
+                    case 'sendback':
+                        loc = 0.30;
+                        break;
+                    case 'approve':
+                    case 'concur':
+                        loc = 0.5;
+                        break;
+                    case 'defer':
+                        loc = 0.25;
+                        break;
+                    case 'disapprove':
+                        loc = 0.75;
+                        break;
+                    default:
+                        const from = String(routes[i].stepID);
+                        const to = String(routes[i].nextStepID);
+                        if(from !== to) {
+                            const fromStepToStep = from + "_" + to;
+                            if(actionCounts?.[fromStepToStep] >= 0) {
+                                actionCounts[fromStepToStep] += 1;
+                                loc = Math.min(
+                                    +((0.05 + locIncrement * actionCounts[fromStepToStep]).toFixed(2)),
+                                    0.65
+                                );
+                                if(loc >= 0.5) { //reserve 0.5 for 0 - keeps centered if only one route
+                                    loc += locIncrement;
                                 }
+                            } else {
+                                actionCounts[fromStepToStep] = 0;
                             }
-                            break;
-                    }
-                    if (res[i].nextStepID == 0 && res[i].actionType == 'sendback') {
-                        jsPlumb.connect({
-                            source: 'step_' + res[i].stepID,
-                            target: 'step_-1',
-                            paintStyle: {stroke: 'red'},
-                            overlays: [
-                                ["Label", {
-                                        id: 'stepLabel_' + res[i].stepID + '_0_' + res[i].actionType,
-                                        cssClass: `workflowAction action-${res[i].stepID}-sendback--1`,
-                                        label: res[i].actionText,
-                                        location: loc,
-                                        parameters: {'stepID': res[i].stepID,
-                                        'nextStepID': 0,
-                                        'action': res[i].actionType,
-                                    },
-                                    events: {
-                                        click: function(overlay, evt) {
-                                            params = overlay.getParameters();
-                                            showActionInfo(params, evt);
-                                        }
-                                    }
-                                }
-                            ]]
-                        });
-                    } else {
-                        lineOptions = {
-                            source: 'step_' + res[i].stepID,
-                            target: 'step_' + res[i].nextStepID,
-                            connector: ["StateMachine", {curviness: 10}],
-                            anchor: "Continuous",
-                            overlays: [
-                                ["Label", {
-                                        id: 'stepLabel_' + res[i].stepID + '_' + res[i].nextStepID +
-                                            '_' + res[i].actionType,
-                                        cssClass: `workflowAction action-${res[i].stepID}-${res[i].actionType}-${res[i].nextStepID}`,
-                                        label: res[i].actionText,
-                                        location: loc,
-                                        parameters: {'stepID': res[i].stepID,
-                                        'nextStepID': res[i].nextStepID,
-                                        'action': res[i].actionType,
-                                    },
-                                    events: {
-                                        click: function(overlay, evt) {
-                                            params = overlay.getParameters();
-                                            showActionInfo(params, evt);
-                                        }
-                                    }
-                                }
-                            ]]
-                        };
-                        if (res[i].actionType == 'sendback') {
-                            lineOptions.paintStyle = {stroke: 'red'};
                         }
-                        jsPlumb.connect(lineOptions);
-                    }
+                        break;
                 }
-
-                // connect the initial step if it exists
-                if (workflows[workflowID].initialStepID != 0) {
+                if (routes[i].nextStepID == 0 && routes[i].actionType == 'sendback') {
                     jsPlumb.connect({
-                        source: endPoints[-1],
-                        target: endPoints[workflows[workflowID].initialStepID],
-                        connector: ["StateMachine", {curviness: 10}],
-                        anchor: "Continuous",
+                        source: 'step_' + routes[i].stepID,
+                        target: 'step_-1',
+                        paintStyle: { stroke: 'red'},
                         overlays: [
                             ["Label", {
-                                    id: 'stepLabel_0_' + workflows[workflowID].initialStepID + '_submit',
-                                    cssClass: `workflowAction action--1-submit-${workflows[workflowID].initialStepID}`,
-                                    label: 'Submit',
+                                    id: 'stepLabel_' + routes[i].stepID + '_0_' + routes[i].actionType,
+                                    cssClass: `workflowAction action-${routes[i].stepID}-sendback--1`,
+                                    label: routes[i].actionText,
                                     location: loc,
-                                    parameters: {'stepID': -1,
-                                    'nextStepID': workflows[workflowID].initialStepID,
-                                    'action': 'submit',
+                                    parameters: { 'stepID': routes[i].stepID,
+                                    'nextStepID': 0,
+                                    'action': routes[i].actionType,
                                 },
                                 events: {
                                     click: function(overlay, evt) {
@@ -2307,33 +2385,90 @@
                             }
                         ]]
                     });
+                } else {
+                    lineOptions = {
+                        source: 'step_' + routes[i].stepID,
+                        target: 'step_' + routes[i].nextStepID,
+                        connector: ["StateMachine", { curviness: 10}],
+                        anchor: "Continuous",
+                        overlays: [
+                            [
+                                "Label",
+                                {
+                                    id: 'stepLabel_' + routes[i].stepID + '_' + routes[i].nextStepID +
+                                        '_' + routes[i].actionType,
+                                    cssClass: `workflowAction action-${routes[i].stepID}-${routes[i].actionType}-${routes[i].nextStepID}`,
+                                    label: routes[i].actionText,
+                                    location: loc,
+                                    parameters: {
+                                        'stepID': routes[i].stepID,
+                                        'nextStepID': routes[i].nextStepID,
+                                        'action': routes[i].actionType,
+                                    },
+                                    events: {
+                                        click: function(overlay, evt) {
+                                            params = overlay.getParameters();
+                                            showActionInfo(params, evt);
+                                        }
+                                    }
+                                }
+                            ]
+                        ]
+                    };
+                    if (routes[i].actionType == 'sendback') {
+                        lineOptions.paintStyle = { stroke: 'red' };
+                    }
+                    jsPlumb.connect(lineOptions);
                 }
-
-                // bind connection events
-                jsPlumb.bind("connection", function(info) {
-                    createAction(info);
+            }
+            // connect the initial step if it exists
+            const workflowID = currentWorkflow;
+            if (workflows[workflowID].initialStepID != 0) {
+                jsPlumb.connect({
+                    source: endPoints[-1],
+                    target: endPoints[workflows[workflowID].initialStepID],
+                    connector: ["StateMachine", { curviness: 10}],
+                    anchor: "Continuous",
+                    overlays: [
+                        [
+                            "Label",
+                            {
+                                id: 'stepLabel_0_' + workflows[workflowID].initialStepID + '_submit',
+                                cssClass: `workflowAction action--1-submit-${workflows[workflowID].initialStepID}`,
+                                label: 'Submit',
+                                location: loc,
+                                parameters: {
+                                    'stepID': -1,
+                                    'nextStepID': workflows[workflowID].initialStepID,
+                                    'action': 'submit',
+                                },
+                                events: {
+                                    click: function(overlay, evt) {
+                                        params = overlay.getParameters();
+                                        showActionInfo(params, evt);
+                                    }
+                                }
+                            }
+                        ]
+                    ]
                 });
-                jsPlumb.setSuspendDrawing(false, true);
+            }
 
-                //if user came via stepinfo key nav re-open that modal
-                if(stepID !== null) {
-                    showStepInfo(stepID);
-                }
-            },
-            error: (err) => console.log(err),
-            cache: false,
-            async: false
+            // bind connection events
+            jsPlumb.bind("connection", function(info) {
+                createAction(info);
+            });
+            jsPlumb.setSuspendDrawing(false, true);
         });
+
     }
 
     var currentWorkflow = 0;
 
     function loadWorkflow(workflowID, stepID = null, params = null) {
+        jsPlumb?.reset();
         currentWorkflow = workflowID;
-        jsPlumb.reset();
-        endPoints = [];
         steps = {};
-        jsPlumb.setSuspendDrawing(true);
 
         $('#workflows').val(workflowID);
         $('#workflows').trigger('chosen:updated');
@@ -2402,21 +2537,6 @@
                         'background-color': res[i].stepBgColor
                     });
 
-                    if (endPoints[res[i].stepID] == undefined) {
-                        endPoints[res[i].stepID] = jsPlumb.addEndpoint('step_' + res[i].stepID, {anchor: 'Continuous'}, endpointOptions);
-                        jsPlumb.draggable('step_' + res[i].stepID, {
-                            allowNegative: false,
-                            // save position of the box when moved
-                            stop: function(stepID) {
-                                return function() {
-                                    var position = $('#step_' + stepID).offset();
-
-                                    updatePosition(workflowID, stepID, position.left, position.top);
-                                }
-                            }(res[i].stepID)
-                        });
-                    }
-
                     if (maxY < posY) {
                         maxY = posY;
                     }
@@ -2436,9 +2556,8 @@
                     'top': 160 + maxY + 'px',
                     'background-color': '#ff8181'
                 });
+                adjustWorkflowSize();
 
-                $('#workflow').css('height', 300 + maxY + 'px');
-                drawRoutes(workflowID, stepID);
                 buildStepList(steps);
                 if(params !== null) {
                     const elAction = document.querySelector(`div[class*="action-${params?.stepID}-${params?.action}-"]`);
@@ -2454,6 +2573,9 @@
                 if(window.location.href.indexOf(`?a=workflow&workflowID=${workflowID}`) == -1) {
                     window.history.pushState('', '', `?a=workflow&workflowID=${workflowID}`);
                 }
+
+                jsPlumbConfig();
+                drawRoutes(workflowID, stepID);
             },
             error: (err) => console.log(err),
             cache: false
@@ -3368,6 +3490,19 @@
         jsPlumb.Defaults.Endpoint = "Blank";
 
         loadWorkflowList();
+
+        const sizeListener = () => {
+            adjustWorkflowSize();
+        }
+        const setDebounce = (callback, mstime) => {
+            let timeout;
+            return () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(()=> { callback()}, mstime);
+            }
+        }
+        const sizeDebounce = setDebounce(sizeListener, 150);
+        window.onresize = sizeDebounce;
 
         $.ajax({
             type: 'GET',
