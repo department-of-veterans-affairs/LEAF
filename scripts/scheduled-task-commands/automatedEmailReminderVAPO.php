@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors',1);
-error_reporting(-1);
-
 // this file will need to be added, Pete's destruction ticket has it already.
 require_once 'globals.php';
 require_once APP_PATH . '/Leaf/Db.php';
