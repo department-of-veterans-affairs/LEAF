@@ -140,13 +140,9 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                 });
                             }
 
-                            const newNoteLines = (response?.comment?.comment ?? '').split('\n');
-                            const cleanNote = newNoteLines
-                                .map(line => scrubHTML(line) + lineEnd)
-                                .join('\n')
-                                .slice(0, -lineEnd.length);
-
-                            if (cleanNote != "") {
+                            //comments are cleaned server side with php xsshelpers sanitizeHTML
+                            const newComment = response?.comment?.comment ?? '';
+                            if (newComment != "") {
                                 const new_note = '<div class="comment_block"> <span class="comments_time"> ' +
                                     response.comment.date +
                                     '</span> <span class="comments_name">' +
@@ -154,7 +150,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                     " " +
                                     scrubHTML(response?.comment?.user_name ?? '') +
                                     '</span> <div class="comments_message">' +
-                                    cleanNote +
+                                    newComment +
                                     "</div> </div>";
 
                                 $(new_note).insertAfter("#notes");
@@ -672,11 +668,8 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 const label =  response.dependencyID == submittedDepID ?
                     response.categoryName : response.description;
 
-                const commentLines = (response?.comment ?? '').split('\n');
-                const cleanComment = commentLines
-                    .map(line => scrubHTML(line) + lineEnd + lineEnd) //there have been two breaks in the comment area - keeping that behavior
-                    .join('\n')
-                    .slice(0, -(2*lineEnd.length));
+                //comments are cleaned server side with php xsshelpers sanitizeHTML
+                const lastComment = response?.comment ?? '';
 
                 if (unfilledDependencyLookup != null) {
                     if (response.dependencyID != submittedDepID) {
@@ -714,10 +707,10 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                             }) +
                             "</span><br /></div>";
 
-                        if (cleanComment != "") {
+                        if (lastComment != "") {
                             text += '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br>' +
                                 '<div style="font-weight: normal; padding-left: 16px; font-size: 12px; word-break:break-word;">' +
-                                cleanComment +
+                                lastComment +
                                 '</div></div>';
                         }
                     } else {
@@ -769,10 +762,10 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                             }) +
                             "</span></div>";
 
-                        if (cleanComment != "") {
+                        if (lastComment != "") {
                             text += '<div style="padding: 4px 16px"><fieldset style="border: 1px solid black;word-break:break-word;">' +
                                 '<legend class="noprint">Comment</legend><span style="font-size: 80%; font-weight: normal">' +
-                                cleanComment +
+                                lastComment +
                                 "</span></fieldset></div>";
                         }
                     } else {
