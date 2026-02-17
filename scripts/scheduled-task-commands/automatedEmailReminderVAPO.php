@@ -26,9 +26,9 @@ foreach ($siteList as $site) {
     echo "Portal: " . $dir . $site['site_path'] . '/scripts/automated_email.php' . "\r\n";
     $scriptPath = realpath($dir . $site['site_path'] . '/scripts/automated_email.php');
     
-    if (is_file($dir . $site['site_path'] . '/scripts/automated_email.php') && $scriptPath !== false && strpos($scriptPath, $dir) === 0) {
-        $response =  exec('php ' . $dir . $site['site_path'] . '/scripts/automated_email.php');
-        echo 'here';
+    if (is_file($scriptPath) && $scriptPath !== false && strpos($scriptPath, $dir) === 0) {
+        $response =  exec('php ' . $scriptPath);
+
         if($response == '0'){
             $failedArray[] = $site['site_path'].' (Failed)';
         }
