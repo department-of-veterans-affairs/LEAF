@@ -19,18 +19,17 @@ var LeafWorkflow = function (containerID, CSRFToken) {
     let extraParams;
     const bgColorReg = /^#[0-9a-f]{6}$/i;
     const fColorReg = /^[a-z]+?$/i;
-    const lineEnd = '<br>';
 
     /**
      * @memberOf LeafWorkflow
      */
     function darkenColor(color) {
         const bgColor = parseInt(color.substring(1), 16);
-        r = (bgColor & 0xff0000) >> 16;
-        g = (bgColor & 0x00ff00) >> 8;
-        b = bgColor & 0x0000ff;
+        let r = (bgColor & 0xff0000) >> 16;
+        let g = (bgColor & 0x00ff00) >> 8;
+        let b = bgColor & 0x0000ff;
 
-        factor = -0.1;
+        const factor = -0.1;
         r = r + Math.round(r * factor);
         g = g + Math.round(g * factor);
         b = b + Math.round(b * factor);
@@ -140,7 +139,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                 });
                             }
 
-                            //comments are cleaned server side with php xsshelpers sanitizeHTML
+                            //comments are cleaned server side with php xsshelpers sanitizeHTML before being returned
                             const newComment = response?.comment?.comment ?? '';
                             if (newComment != "") {
                                 const new_note = '<div class="comment_block"> <span class="comments_time"> ' +
@@ -234,7 +233,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         step['description'] = scrubHTML(step?.['description'] ?? '').trim();
 
         // draw frame and header
-        const stepDescription = step.description || "Error: The configuration in the Workflow Editor is incomplete."
+        const stepDescription = step.description || "Error: The configuration in the Workflow Editor is incomplete.";
 
         $("#" + containerID).append(
             '<div id="workflowbox_dep' +
@@ -668,7 +667,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 const label =  response.dependencyID == submittedDepID ?
                     response.categoryName : response.description;
 
-                //comments are cleaned server side with php xsshelpers sanitizeHTML
+                //comments are cleaned server side with php xsshelpers sanitizeHTML before being returned
                 const lastComment = response?.comment ?? '';
 
                 if (unfilledDependencyLookup != null) {
