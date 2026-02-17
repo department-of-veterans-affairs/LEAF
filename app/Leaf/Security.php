@@ -24,8 +24,17 @@ class Security
             return $defaultRedirect;
         }
 
-        if (strpos($decodedPath, '@') !== false || strpos($decodedPath, "\n") !== false) {
-            error_log('LEAF: Rejected redirect containing prohibited characters: ' . $decodedPath);
+        if (strpos($decodedPath, "\n") !== false) {
+            error_log('LEAF: Rejected redirect containing newline: ' . $decodedPath);
+            return $defaultRedirect;
+        }
+
+        // Only check for @ in the path portion (before query string).
+        // The @ symbol is dangerous in paths where it redefines the URL host
+        // (e.g., @evil.com/path), but is safe in query strings (e.g., ?email=user@example.com).
+        $pathPortion = strtok($decodedPath, '?');
+        if (strpos($pathPortion, '@') !== false) {
+            error_log('LEAF: Rejected redirect containing @ in path: ' . $decodedPath);
             return $defaultRedirect;
         }
 
