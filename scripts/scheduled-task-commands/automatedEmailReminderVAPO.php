@@ -15,7 +15,7 @@ if(HTTP_HOST !== 'leaf.va.gov'){
 else{
     $siteListSql = "SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal'";
 }
-    $siteListSql = "SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal'";
+    
 
 $siteList = $db->query($siteListSql);
 $dir = '/var/www/html';
