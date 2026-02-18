@@ -14,6 +14,17 @@ var LeafPreview = function(domID) {
        tmp.innerHTML = txt;
        return tmp.value;
     }
+
+    function scrubHTML(input) {
+       if (input == undefined) {
+            return '';
+        }
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while (input != t.textContent) {
+           return scrubHTML(t.textContent);
+       }
+        return t.textContent;
+    }
     function renderField(field, isChild) {
         const required = field.required == 1 ? '<span style="color:#b00;">* Required&nbsp;</span>': '';
         const sensitive = field.is_sensitive == 1 ? '<span class="sensitiveIndicator" style="color:#b00;">* Sensitive</span>': '';
@@ -40,20 +51,20 @@ var LeafPreview = function(domID) {
                 const r = Math.random();
                 for(let i in field.options) {
                     out += `<input type="radio" id="${inputId}_${i}"
-                        aria-labelledby="${labelledById}" name="${r}" ${checkStyle}>${field.options[i]}<br>`;
+                        aria-labelledby="${labelledById}" name="${r}" ${checkStyle}>${scrubHTML(field.options[i])}<br>`;
                 }
                 break;
             case 'multiselect':
                 out += `<select id="${inputId}" aria-labelledby="${labelledById}" style="min-width:185px;" multiple>`;
                 for(let i in field.options) {
-                    out += `<option>${field.options[i]}</option>`;
+                    out += `<option>${scrubHTML(field.options[i])}</option>`;
                 }
                 out += '</select>';
                 break;
             case 'dropdown':
                 out += `<select id="${inputId}" aria-labelledby="${labelledById}" style="min-width:185px;">`;
                 for(let i in field.options) {
-                    out += `<option>${field.options[i]}</option>`;
+                    out += `<option>${scrubHTML(field.options[i])}</option>`;
                 }
                 out += '</select>';
                 break;
@@ -68,7 +79,7 @@ var LeafPreview = function(domID) {
             case 'checkbox':
             case 'checkboxes':
                 for(let i in field.options) {
-                    out += `<input type="checkbox" id="${inputId}_${i}" aria-labelledby="${labelledById}" ${checkStyle}>${field.options[i]}<br>`;
+                    out += `<input type="checkbox" id="${inputId}_${i}" aria-labelledby="${labelledById}" ${checkStyle}>${scrubHTML(field.options[i])}<br>`;
                 }
                 break;
             case 'fileupload':

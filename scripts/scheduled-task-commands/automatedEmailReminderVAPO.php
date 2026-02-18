@@ -1,4 +1,5 @@
 <?php
+use App\Leaf\XSSHelpers;
 // this file will need to be added, Pete's destruction ticket has it already.
 require_once 'globals.php';
 require_once APP_PATH . '/Leaf/Db.php';
@@ -23,14 +24,15 @@ $dir = '/var/www/html';
 $failedArray = [];
 
 foreach ($siteList as $site) {
-    echo "Portal: " . $dir . $site['site_path'] . '/scripts/automated_email.php' . "\r\n";
-    $scriptPath = realpath($dir . $site['site_path'] . '/scripts/automated_email.php');
+
+    echo "Portal: " . $dir . XSSHelpers::xscrub($site['site_path']) . '/scripts/automated_email.php' . "\r\n";
+    $scriptPath = realpath($dir . XSSHelpers::xscrub($site['site_path']) . '/scripts/automated_email.php');
     
     if (is_file($scriptPath) && $scriptPath !== false && strpos($scriptPath, $dir) === 0) {
         $response =  exec('php ' . $scriptPath);
 
         if($response == '0'){
-            $failedArray[] = $site['site_path'].' (Failed)';
+            $failedArray[] = XSSHelpers::xscrub($site['site_path']).' (Failed)';
         }
     } else {
         echo "File was not found\r\n";

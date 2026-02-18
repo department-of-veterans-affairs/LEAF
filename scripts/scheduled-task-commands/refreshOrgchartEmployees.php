@@ -21,7 +21,6 @@ foreach ($orgcharts as $orgchart) {
     $scriptPath = realpath($dir . XSSHelpers::xscrub($orgchart['site_path']) . '/scripts/refreshOrgchartEmployees.php');
     
     if (is_file($scriptPath) && $scriptPath !== false && strpos($scriptPath, $dir) === 0) {
-
         
         $response = exec('php ' . $scriptPath) . "\r\n";
         

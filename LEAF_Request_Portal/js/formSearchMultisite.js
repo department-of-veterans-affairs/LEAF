@@ -189,6 +189,17 @@ var LeafFormSearchMultisite = function (containerID) {
         }
     }
 
+    function scrubHTML(input) {
+        if (input == undefined) {
+            return '';
+        }
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while (input != t.textContent) {
+            return scrubHTML(t.textContent);
+        }
+        return t.textContent;
+    }
+
     /**
      * @memberOf LeafFormSearchMultisite
      * prevQuery - optional JSON object
@@ -678,7 +689,7 @@ var LeafFormSearchMultisite = function (containerID) {
                                 '<option value="' +
                                 res[i].groupID +
                                 '">' +
-                                res[i].groupTitle +
+                                scrubHTML(res[i].groupTitle) +
                                 "</option>";
                         }
                         services += "</select>";
@@ -753,7 +764,7 @@ var LeafFormSearchMultisite = function (containerID) {
                                 '<option value="' +
                                 res[i].categoryID +
                                 '">' +
-                                res[i].categoryName +
+                                scrubHTML(res[i].categoryName) +
                                 "</option>";
                         }
                         categories += "</select>";
@@ -813,7 +824,7 @@ var LeafFormSearchMultisite = function (containerID) {
                                 '<option value="' +
                                 res[i].dependencyID +
                                 '">' +
-                                res[i].description +
+                                scrubHTML(res[i].description) +
                                 "</option>";
                         }
                         dependencies += "</select>";
