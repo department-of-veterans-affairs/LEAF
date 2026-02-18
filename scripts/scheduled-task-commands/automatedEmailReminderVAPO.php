@@ -1,4 +1,5 @@
 <?php
+use App\Leaf\XSSHelpers;
 // this file will need to be added, Pete's destruction ticket has it already.
 require_once 'globals.php';
 require_once APP_PATH . '/Leaf/Db.php';
@@ -10,11 +11,12 @@ $db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_
 $errorNotify = new App\Leaf\ErrorNotify();
 
 if(HTTP_HOST !== 'leaf.va.gov'){
-    $siteListSql = "SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal' AND `isVAPO` = 'true' AND `orgchart_path` = '/Academy/orgchart'";
+    $siteListSql = "SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal' AND `orgchart_path` = '/Academy/orgchart'";
 }
 else{
-    $siteListSql = "SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal' AND `isVAPO` = 'true'";
+    $siteListSql = "SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal'";
 }
+    
 
 $siteList = $db->query($siteListSql);
 $dir = '/var/www/html';
@@ -22,11 +24,15 @@ $dir = '/var/www/html';
 $failedArray = [];
 
 foreach ($siteList as $site) {
-    echo "Portal: " . $dir . $site['site_path'] . '/scripts/automated_email.php' . "\r\n";
-    if (is_file($dir . $site['site_path'] . '/scripts/automated_email.php')) {
-        $response =  exec('php ' . $dir . $site['site_path'] . '/scripts/automated_email.php');
+
+    echo "Portal: " . $dir . XSSHelpers::xscrub($site['site_path']) . '/scripts/automated_email.php' . "\r\n";
+    $scriptPath = realpath($dir . XSSHelpers::xscrub($site['site_path']) . '/scripts/automated_email.php');
+    
+    if (is_file($scriptPath) && $scriptPath !== false && strpos($scriptPath, $dir) === 0) {
+        $response =  exec('php ' . $scriptPath);
+
         if($response == '0'){
-            $failedArray[] = $site['site_path'].' (Failed)';
+            $failedArray[] = XSSHelpers::xscrub($site['site_path']).' (Failed)';
         }
     } else {
         echo "File was not found\r\n";

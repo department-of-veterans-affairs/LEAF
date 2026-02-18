@@ -180,6 +180,17 @@ var LeafFormSearch = function (containerID) {
     }
   }
 
+  function scrubHTML(input) {
+    if (input == undefined) {
+      return "";
+    }
+    let t = new DOMParser().parseFromString(input, "text/html").body;
+    while (input != t.textContent) {
+      return scrubHTML(t.textContent);
+    }
+    return t.textContent;
+  }
+
   /**
    * @memberOf LeafFormSearch
    * renderPreviousAdvancedSearch parses LeafFormQuery.getQuery().terms and renders the resulting UI
@@ -571,7 +582,7 @@ var LeafFormSearch = function (containerID) {
                 '<option value="' +
                 res[i].groupID +
                 '">' +
-                res[i].groupTitle +
+                scrubHTML(res[i].groupTitle) +
                 "</option>";
             }
             services += "</select>";
@@ -639,7 +650,7 @@ var LeafFormSearch = function (containerID) {
                 '<option value="' +
                 res[i].categoryID +
                 '">' +
-                res[i].categoryName +
+                scrubHTML(res[i].categoryName) +
                 "</option>";
             }
             categories += "</select>";
@@ -697,7 +708,7 @@ var LeafFormSearch = function (containerID) {
                 '<option value="' +
                 res[i].dependencyID +
                 '">' +
-                res[i].description +
+                scrubHTML(res[i].description) +
                 "</option>";
             }
             dependencies += "</select>";
@@ -759,9 +770,9 @@ var LeafFormSearch = function (containerID) {
                 '<option value="' +
                 allStepsData[i].stepID +
                 '">' +
-                allStepsData[i].description +
+                scrubHTML(allStepsData[i].description) +
                 ": " +
-                allStepsData[i].stepTitle +
+                scrubHTML(allStepsData[i].stepTitle) +
                 "</option>";
             }
             categories += "</select>";
@@ -799,9 +810,9 @@ var LeafFormSearch = function (containerID) {
                 '<option value="' +
                 res[i].indicatorID +
                 '">' +
-                res[i].categoryName +
+                scrubHTML(res[i].categoryName) +
                 ": " +
-                res[i].name +
+                scrubHTML(res[i].name) +
                 "</option>";
             }
             indicators += "</select><br />";
@@ -1030,9 +1041,9 @@ var LeafFormSearch = function (containerID) {
                               : resOptions[i].substr(8).trim();
                           options +=
                             '<option value="' +
-                            currOption +
+                            scrubHTML(currOption) +
                             '">' +
-                            currOption +
+                            scrubHTML(currOption) +
                             "</option>";
                         }
                         options += "</select>";
