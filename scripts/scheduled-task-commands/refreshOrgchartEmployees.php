@@ -15,10 +15,18 @@ $dir = '/var/www/html';
 $failedArray = [];
 
 foreach ($orgcharts as $orgchart) {
+<<<<<<< HEAD
     if (is_file($dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php')) {
         echo "Orgchart: " . $dir . XSSHelpers::xscrub($orgchart['site_path']) . '/scripts/refreshOrgchartEmployees.php' . "\r\n";
+=======
+    echo "Orgchart: " . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php' . "\r\n";
+
+    $scriptPath = realpath($dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php');
+    
+    if (is_file($scriptPath) && $scriptPath !== false && strpos($scriptPath, $dir) === 0) {
+>>>>>>> origin
         
-        $response = exec('php ' . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php',$output) . "\r\n";
+        $response = exec('php ' . $scriptPath) . "\r\n";
         
         if($response == '0'){
             $failedArray[] = XSSHelpers::xscrub($orgchart['site_path']).' (Failed)';
