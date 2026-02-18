@@ -1,0 +1,42 @@
+<?php
+use App\Leaf\XSSHelpers;
+// this file will need to be added, Pete's destruction ticket has it already.
+require_once 'globals.php';
+require_once APP_PATH . '/Leaf/Db.php';
+require_once APP_PATH . '/Leaf/ErrorNotify.php';
+
+$startTime = microtime(true);
+
+$db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
+$errorNotify = new App\Leaf\ErrorNotify();
+
+if(HTTP_HOST !== 'leaf.va.gov'){
+    $siteListSql = "SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal' AND `isVAPO` = 'false' AND `orgchart_path` = '/Academy/orgchart'";
+}
+else{
+    $siteListSql = "SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal' AND `isVAPO` = 'false'";
+}
+
+$siteList = $db->query($siteListSql);
+$dir = '/var/www/html';
+
+$failedArray = [];
+
+foreach ($siteList as $site) {
+    if (is_file($dir . $site['site_path'] . '/scripts/automated_email.php')) {
+        echo "Portal: " . $dir . XSSHelpers::xscrub($site['site_path']) . '/scripts/automated_email.php' . "\r\n";
+        $response =  exec('php ' . $dir . $site['site_path'] . '/scripts/automated_email.php');
+        if($response == '0'){
+            $failedArray[] = XSSHelpers::xscrub($site['site_path']).' (Failed)';
+        }
+    } else {
+        echo "File was not found\r\n";
+    }
+}
+
+$errorNotify->logEmailErrors($failedArray);
+
+$endTime = microtime(true);
+$timeInMinutes = round(($endTime - $startTime) / 60, 2);
+echo "Emails processing took {$timeInMinutes} minutes";
+echo date('Y-m-d g:i:s a') . "\r\n";
