@@ -17,7 +17,7 @@ else{
     $siteListSql = "SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal'";
 }
     
-
+echo "I know this file has issues with that app path so lets see what it says now";
 $siteList = $db->query($siteListSql);
 $dir = '/var/www/html';
 
