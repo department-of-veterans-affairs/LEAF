@@ -28,3 +28,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_DOCKERFILE: false
           APP_PATH: '/github/workspace/app'
+          
