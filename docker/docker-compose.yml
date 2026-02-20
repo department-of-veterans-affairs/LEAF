@@ -8,7 +8,7 @@ services:
             - ./env_files/globals_leaf20_local.env
         build:
             context: ../
-            dockerfile: docker/php/leaf_monlith.dockerfile
+            dockerfile: docker/php/leaf_php.dockerfile
             args:
                 - BUILD_UID=${BUILD_UID}
                 - SMTP_HOST=smtp4dev
@@ -50,7 +50,7 @@ services:
             - ./env_files/globals_leaf20_local.env
         build:
             context: ../
-            dockerfile: docker/php/leaf_monlith.dockerfile
+            dockerfile: docker/php/leaf_php.dockerfile
             args:
                 - BUILD_UID=${BUILD_UID}
                 - SMTP_HOST=smtp4dev
