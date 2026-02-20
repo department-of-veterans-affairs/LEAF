@@ -648,7 +648,11 @@ class FormWorkflow
                     continue;
                 }
                 $res[$i]['dependencyActions'] = $this->getDependencyActions($res[$i]['workflowID'], $res[$i]['stepID']);
-
+                foreach($res[$i]['dependencyActions'] as $aIdx => $action) {
+                    if(isset($action['actionIcon'])) {
+                        $res[$i]['dependencyActions'][$aIdx]['actionIcon'] = XSSHelpers::scrubFilename($action['actionIcon']);
+                    }
+                }
                 $res[$i]['hasAccess'] = $res[$i]['isActionable'];
 
 
