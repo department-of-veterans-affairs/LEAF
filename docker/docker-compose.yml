@@ -204,10 +204,6 @@ services:
             - host.docker.internal:host-gateway
 
 volumes:
-    leaf-php-data:
-        external: true
-    leaf-lib:
-        external: true
     leaf-dev-mysql-data:
         external: false
 
