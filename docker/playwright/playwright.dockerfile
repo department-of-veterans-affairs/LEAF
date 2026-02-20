@@ -1,4 +1,4 @@
-FROM node:22-slim
+FROM node:25-slim
 WORKDIR /usr/app/leaf
 
 # Copy just package.json
