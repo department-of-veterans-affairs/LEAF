@@ -41,7 +41,7 @@ services:
         environment:
             - REMOTE_USER=${REMOTE_USER}
             - APACHE_RUN_USER=build_user
-    php-fpm-api:
+    php-fpm-large-queries:
         env_file:
             - ./env_files/globals_local.env
             - ./env_files/secrets.env
@@ -54,9 +54,9 @@ services:
                 - SMTP_HOST=smtp4dev
                 - MAIL_HUB=smtp4dev
         volumes:
-            - ../docker/phpapi/php-dev.ini:/usr/local/etc/php/php.ini
-            - ../docker/phpapi/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini
-            - ../docker/phpapi/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
+            - ../docker/php-large-queries/php-dev.ini:/usr/local/etc/php/php.ini
+            - ../docker/php-large-queries/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini
+            - ../docker/php-large-queries/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
             - ../docker/php/ssmtp/ssmtp.conf:/etc/ssmtp/ssmtp.conf
             - ../docker/php/ssmtp/revaliases:/etc/ssmtp/revaliases
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
