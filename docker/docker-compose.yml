@@ -14,6 +14,11 @@ services:
                 - SMTP_HOST=smtp4dev
                 - MAIL_HUB=smtp4dev
         volumes:
+            - ../docker/php/php-dev.ini:/usr/local/etc/php/php.ini
+            - ../docker/php/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini
+            - ../docker/php/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
+            - ../docker/php/ssmtp/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+            - ../docker/php/ssmtp/revaliases:/etc/ssmtp/revaliases
             - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
@@ -45,12 +50,17 @@ services:
             - ./env_files/globals_leaf20_local.env
         build:
             context: ../
-            dockerfile: docker/phpapi/leaf_monlith.dockerfile
+            dockerfile: docker/php/leaf_monlith.dockerfile
             args:
                 - BUILD_UID=${BUILD_UID}
                 - SMTP_HOST=smtp4dev
                 - MAIL_HUB=smtp4dev
         volumes:
+            - ../docker/phpapi/php-dev.ini:/usr/local/etc/php/php.ini
+            - ../docker/phpapi/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini
+            - ../docker/phpapi/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
+            - ../docker/php/ssmtp/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+            - ../docker/php/ssmtp/revaliases:/etc/ssmtp/revaliases
             - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
