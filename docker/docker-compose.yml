@@ -19,8 +19,6 @@ services:
             - ../docker/php/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
             - ../docker/php/ssmtp/ssmtp.conf:/etc/ssmtp/ssmtp.conf
             - ../docker/php/ssmtp/revaliases:/etc/ssmtp/revaliases
-            - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
-            - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/LEAF_Nexus/vafavicon.ico
             # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
@@ -61,8 +59,6 @@ services:
             - ../docker/phpapi/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
             - ../docker/php/ssmtp/ssmtp.conf:/etc/ssmtp/ssmtp.conf
             - ../docker/php/ssmtp/revaliases:/etc/ssmtp/revaliases
-            - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
-            - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/LEAF_Nexus/vafavicon.ico
             # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
