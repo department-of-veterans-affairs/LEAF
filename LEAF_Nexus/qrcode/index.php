@@ -2,10 +2,10 @@
 
 use App\Leaf\XSSHelpers;
 
-require_once getenv('APP_LIBS_PATH') . '/globals.php';
-require_once getenv('APP_LIBS_PATH') . '/globals_plus.php';
+require_once '/var/www/html/app/libs/globals.php';
+require_once '/var/www/html/app/libs/globals_plus.php';
 include_once getenv('APP_PATH') . '/Leaf/XSSHelpers.php';
-require_once getenv('APP_LIBS_PATH') . '/qrcode/qrlib.php';
+require_once '/var/www/html/app/libs/qrcode/qrlib.php';
 $cacheDir = 'cache/';
 
 $encode = 'Invalid Input.';
