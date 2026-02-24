@@ -27,6 +27,7 @@ class Export
     // Contents primarily copied from exportPDL.php
     public function exportPDL() : array {
         $position = new Position($this->db, $this->login);
+        $employee = new NationalEmployee($this->db, $this->login);
         $tag = new Tag($this->db, $this->login);
 
         //echo "LEAF Position ID, HR Smart Position Number, Service, Position Title, Classification Title, Employee Name, Employee Username, Supervisor Name, Pay Plan, Series, Pay Grade, FTE Ceiling / Total Headcount, Current FTE, PD Number, Note\r\n";
@@ -89,16 +90,22 @@ class Export
                 // find supervisor
                 $supervisor = $position->getSupervisor($pos['positionID']);
                 $supervisorName = '';
+                $supervisorEmail = '';
                 if (isset($supervisor[0]['lastName'])
                     && $supervisor[0]['isActing'] == 0)
                 {
                     $supervisorName = "{$supervisor[0]['lastName']}, {$supervisor[0]['firstName']}";
+                    $supervisorData = $employee->lookupEmpUID($supervisor[0]['empUID']);
+                    $supervisorEmail = $supervisorData[0]['email'];
                 }
       
                 $employeeName = '';
+                $employeeEmail = '';
                 if($emp['lastName'] != ''
                     && $emp['isActing'] == 0) {
                     $employeeName = $emp['lastName'] . ', ' . $emp['firstName'];
+                    $empData = $employee->lookupEmpUID($emp['empUID']);
+                    $employeeEmail = $empData[0]['email'];
                 }
                 $apiOut[] = [
                     'LEAF Position ID' => $pos['positionID'],
@@ -108,7 +115,9 @@ class Export
                     'Classification Title' => $output[$pos['positionID']]['data']['Classification Title'],
                     'Employee Name' => $employeeName,
                     'Employee Username' => $emp['userName'],
+                    'Employee Email' => $employeeEmail,
                     'Supervisor Name' => $supervisorName,
+                    'Supervisor Email' => $supervisorEmail,
                     'Pay Plan' => $output[$pos['positionID']]['data']['Pay Plan'],
                     'Series' => $output[$pos['positionID']]['data']['Series'],
                     'Pay Grade' => $output[$pos['positionID']]['data']['Pay Grade'],

@@ -76,9 +76,8 @@ foreach ($res as $pos)
     {
         // find supervisor
         $supervisor = $position->getSupervisor($pos['positionID']);
-        $empData = $employee->lookupEmpUID($emp['empUID']);
-        $empEmail = $empData[0]['data'];
         $supervisorName = '';
+        $supervisorEmail = '';
         if (isset($supervisor[0]['lastName'])
             && $supervisor[0]['isActing'] == 0)
         {
@@ -86,25 +85,26 @@ foreach ($res as $pos)
             $supervisorData = $employee->lookupEmpUID($supervisor[0]['empUID']);
             $supervisorEmail = $supervisorData[0]['email'];
         }
-        var_dump($supervisorEmail);
-        var_dump($empEmail);
 
         echo "\"". XSSHelpers::xscrub($pos['positionID']) . "\",";
         echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']) ."\",";
         echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['service']) ."\",";
         echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']) ."\",";
         echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Classification Title']) ."\",";
+        $employeeEmail = '';
         if ($emp['lastName'] != ''
             && $emp['isActing'] == 0)
         {
             echo "\"". XSSHelpers::xscrub($emp['lastName']) .",". XSSHelpers::xscrub($emp['firstName']) ."\",";
+            $empData = $employee->lookupEmpUID($emp['empUID']);
+            $employeeEmail = $empData[0]['email'];
         }
         else
         {
             echo '"",';
         }
         echo "\"". XSSHelpers::xscrub($emp['userName']) ."\",";
-        echo "\"". XSSHelpers::xscrub($empEmail) ."\",";
+        echo "\"". XSSHelpers::xscrub($employeeEmail) ."\",";
         echo "\"". XSSHelpers::xscrub($supervisorName) ."\",";
         echo "\"". XSSHelpers::xscrub($supervisorEmail) ."\",";
         echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']) ."\",";
