@@ -37,6 +37,14 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         return "#" + ((r << 16) + (g << 8) + b).toString(16);
     }
 
+    /**
+     * Uses the DOMParser API to provide a secure, native alternative to RegEx for stripping HTML.
+     * It handles complex or malformed structures by leveraging the browser's built-in parsing engine.
+     * This method recursively extracts only the text of the input, eliminating any DOM elements that might
+     * contain scripts or other malicious content.
+     * @param {string} input
+     * @returns string
+     */
     function scrubHTML(input) {
         if(input == undefined) {
             return '';
