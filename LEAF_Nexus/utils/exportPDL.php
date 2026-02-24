@@ -13,6 +13,7 @@ $login->setBaseDir('../');
 $login->loginUser();
 
 $position = new Orgchart\Position($db, $login);
+$employee = new Orgchart\NationalEmployee($db, $login);
 $tag = new Orgchart\Tag($db, $login);
 
 header('Content-type: text/csv');
@@ -75,12 +76,18 @@ foreach ($res as $pos)
     {
         // find supervisor
         $supervisor = $position->getSupervisor($pos['positionID']);
+        $empData = $employee->lookupEmpUID($emp['empUID']);
+        $empEmail = $empData[0]['data'];
         $supervisorName = '';
         if (isset($supervisor[0]['lastName'])
             && $supervisor[0]['isActing'] == 0)
         {
             $supervisorName = "{$supervisor[0]['lastName']}, {$supervisor[0]['firstName']}";
+            $supervisorData = $employee->lookupEmpUID($supervisor[0]['empUID']);
+            $supervisorEmail = $supervisorData[0]['email'];
         }
+        var_dump($supervisorEmail);
+        var_dump($empEmail);
 
         echo "\"". XSSHelpers::xscrub($pos['positionID']) . "\",";
         echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']) ."\",";
@@ -97,7 +104,9 @@ foreach ($res as $pos)
             echo '"",';
         }
         echo "\"". XSSHelpers::xscrub($emp['userName']) ."\",";
+        echo "\"". XSSHelpers::xscrub($empEmail) ."\",";
         echo "\"". XSSHelpers::xscrub($supervisorName) ."\",";
+        echo "\"". XSSHelpers::xscrub($supervisorEmail) ."\",";
         echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']) ."\",";
         echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']) ."\",";
         echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']) ."\",";
