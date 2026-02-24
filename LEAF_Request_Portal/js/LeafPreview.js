@@ -1,5 +1,3 @@
-// Ensure DOMPurify is loaded
-// <script src="js/dompurify.min.js"></script> must be included in the HTML before this script
 var LeafPreview = function(domID) {
     let numSection = 1;
     let rawForm = {};
@@ -22,15 +20,12 @@ var LeafPreview = function(domID) {
         const sensitive = field.is_sensitive == 1 ? '<span class="sensitiveIndicator" style="color:#b00;">* Sensitive</span>': '';
         const labelledById = `leaf_library_preview_${field.indicatorID}`;
         const inputId = `leaf_library_input_${field.indicatorID}`;
-        //const indName = decodeHTMLEntities(field.name);
         // Sanitize with DOMPurify to prevent XSS
         const indName = window.DOMPurify ? window.DOMPurify.sanitize(field.name) : field.name;
         let style_isChild = '';
         if(isChild == undefined) {
             style_isChild = 'font-weight:bold;';
         }
-        // XSS note: indName contains pre-sanitized HTML from server (e.g., <br> tags for formatting)
-        // Safe because server-side validation ensures no script content. Using scrubHTML would strip formatting.
         let out = `<div style="margin-bottom:4px;${style_isChild}" id="${labelledById}">${indName}&nbsp; ${required} ${sensitive}</div>`;
         const f = field.format;
         const checkStyle = 'style="margin:2px 4px;width:16px;height:16px;vertical-align:middle;"';
@@ -111,7 +106,6 @@ var LeafPreview = function(domID) {
             numSection = 1;
         }
         const temp = renderField(field);
-        // XSS fix: use escapeHtml on dynamic content (numSection is internal counter, safe)
         const out = '<div style="font-size: 120%;padding:4px; background-color: black; color: white">Section '+ numSection +'</div><div class="card" style="margin:0;padding: 16px;line-height:1.3">'+ temp +'</div><br />';
         numSection++;
         return out;
