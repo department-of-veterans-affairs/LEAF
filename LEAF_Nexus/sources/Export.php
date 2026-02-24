@@ -30,7 +30,7 @@ class Export
         $employee = new NationalEmployee($this->db, $this->login);
         $tag = new Tag($this->db, $this->login);
 
-        //echo "LEAF Position ID, HR Smart Position Number, Service, Position Title, Classification Title, Employee Name, Employee Username, Supervisor Name, Pay Plan, Series, Pay Grade, FTE Ceiling / Total Headcount, Current FTE, PD Number, Note\r\n";
+        //echo "LEAF Position ID, HR Smart Position Number, Service, Position Title, Classification Title, Employee Name, Employee Username, Employee Email, Supervisor Name, Supervisor Email, Pay Plan, Series, Pay Grade, FTE Ceiling / Total Headcount, Current FTE, PD Number, Note\r\n";
 
         $res = $this->db->prepared_query('SELECT `positionID`, `positionTitle` FROM positions', array());
 
@@ -135,10 +135,13 @@ class Export
                     // find supervisor
                     $supervisor = $position->getSupervisor($pos['positionID']);
                     $supervisorName = '';
+                    $supervisorEmail = '';
                     if (isset($supervisor[0]['lastName'])
                         && $supervisor[0]['isActing'] == 0)
                     {
                         $supervisorName = "{$supervisor[0]['lastName']}, {$supervisor[0]['firstName']}";
+                        $supervisorData = $employee->lookupEmpUID($supervisor[0]['empUID']);
+                        $supervisorEmail = $supervisorData[0]['email'];
                     }
 
                     $apiOut[] = [
@@ -150,6 +153,7 @@ class Export
                         'Employee Name' => '',
                         'Employee Username' => '',
                         'Supervisor Name' => $supervisorName,
+                        'Supervisor Email' => $supervisorEmail,
                         'Pay Plan' => $output[$pos['positionID']]['data']['Pay Plan'],
                         'Series' => $output[$pos['positionID']]['data']['Series'],
                         'Pay Grade' => $output[$pos['positionID']]['data']['Pay Grade'],

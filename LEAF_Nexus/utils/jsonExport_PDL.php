@@ -15,6 +15,7 @@ $oc_login->loginUser();
 $memberships = $oc_login->getMembership();
 
 $position = new Orgchart\Position($oc_db, $oc_login);
+$employee = new Orgchart\NationalEmployee($oc_db, $oc_login);
 $tag = new Orgchart\Tag($oc_db, $oc_login);
 
 // check for cached result
@@ -111,22 +112,29 @@ foreach ($res as $pos)
             // find supervisor
             $supervisor = $position->getSupervisor($pos['positionID']);
             $supervisorName = '';
+            $supervisorEmail = '';
             if (isset($supervisor[0]['lastName'])
                 && $supervisor[0]['isActing'] == 0)
             {
                 $supervisorName = "{$supervisor[0]['lastName']}, {$supervisor[0]['firstName']}";
+                $supervisorData = $employee->lookupEmpUID($supervisor[0]['empUID']);
+                $supervisorEmail = $supervisorData[0]['email'];
             }
 
             $packet = array();
             $packet['positionID'] = (int)$pos['positionID'];
             $packet['positionTitle'] = XSSHelpers::xscrub($pos['positionTitle']);
 
+            $employeeEmail = '';
             if ($emp['lastName'] != ''
                 && $emp['isActing'] == 0)
             {
                 $packet['employee'] = XSSHelpers::xscrub("{$emp['lastName']}, {$emp['firstName']}");
                 $packet['employeeUserName'] = XSSHelpers::xscrub($emp['userName']);
                 $packet['employeeUID'] = (int)$emp['empUID'];
+                $empData = $employee->lookupEmpUID($emp['empUID']);
+                $employeeEmail = $empData[0]['email'];
+                $packet['employeeEmail'] = XSSHelpers::xscrub($employeeEmail);
             }
             else
             {
@@ -136,6 +144,7 @@ foreach ($res as $pos)
             }
 
             $packet['supervisor'] = XSSHelpers::xscrub($supervisorName);
+            $packet['supervisorEmail'] = XSSHelpers::xscrub($supervisorEmail);
             $packet['service'] = XSSHelpers::xscrub($output[$pos['positionID']]['service']);
             $packet['payPlan'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']);
             $packet['series'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']);
@@ -161,10 +170,13 @@ foreach ($res as $pos)
             // find supervisor
             $supervisor = $position->getSupervisor($pos['positionID']);
             $supervisorName = '';
+            $supervisorEmail = '';
             if (isset($supervisor[0]['lastName'])
                 && $supervisor[0]['isActing'] == 0)
             {
                 $supervisorName = "{$supervisor[0]['lastName']}, {$supervisor[0]['firstName']}";
+                $supervisorData = $employee->lookupEmpUID($supervisor[0]['empUID']);
+                $supervisorEmail = $supervisorData[0]['email'];
             }
 
             $packet = array();
@@ -173,7 +185,9 @@ foreach ($res as $pos)
             $packet['employee'] = '';
             $packet['employeeUserName'] = '';
             $packet['employeeUID'] = '';
+            $packet['employeeEmail'] = '';
             $packet['supervisor'] = XSSHelpers::xscrub($supervisorName);
+            $packet['supervisorEmail'] = XSSHelpers::xscrub($supervisorEmail);
             $packet['service'] = XSSHelpers::xscrub($output[$pos['positionID']]['service']);
             $packet['payPlan'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']);
             $packet['series'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']);

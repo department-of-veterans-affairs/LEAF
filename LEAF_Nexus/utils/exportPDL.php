@@ -137,6 +137,8 @@ foreach ($res as $pos)
                 && $supervisor[0]['isActing'] == 0)
             {
                 $supervisorName = "{$supervisor[0]['lastName']}, {$supervisor[0]['firstName']}";
+                $supervisorData = $employee->lookupEmpUID($supervisor[0]['empUID']);
+                $supervisorEmail = $supervisorData[0]['email'];
             }
 
             echo "\"". XSSHelpers::xscrub($pos['positionID']) ."\",";
@@ -147,6 +149,7 @@ foreach ($res as $pos)
             echo '"",'; // vacant employee
             echo '"",'; // vacant employee
             echo "\"". XSSHelpers::xscrub($supervisorName) ."\",";
+            echo "\"". XSSHelpers::xscrub($supervisorEmail) ."\",";
             echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']) ."\",";
             echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']) ."\",";
             echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']) ."\",";
