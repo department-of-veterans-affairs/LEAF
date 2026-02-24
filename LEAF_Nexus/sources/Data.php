@@ -17,6 +17,7 @@ use App\Leaf\XSSHelpers;
 use App\Leaf\Logger\Formatters\DataActions;
 use App\Leaf\Logger\Formatters\LoggableTypes;
 use App\Leaf\Logger\LogItem;
+use App\Leaf\Security;
 
 abstract class Data
 {
@@ -204,7 +205,7 @@ abstract class Data
             {
                 $idx = $resIn['indicatorID'];
                 $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
-                $data[$idx]['data'] = @unserialize($data[$idx]['data']) === false ? $data[$idx]['data'] : unserialize($data[$idx]['data']);
+                $data[$idx]['data'] = @Security::parseSerializedData($data[$idx]['data']) ?: $data[$idx]['data'];
                 if ($data[$idx]['format'] == 'json')
                 {
                     $data[$idx]['data'] = html_entity_decode($data[$idx]['data']);
