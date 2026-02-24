@@ -19,7 +19,7 @@ $tag = new Orgchart\Tag($db, $login);
 header('Content-type: text/csv');
 header('Content-Disposition: attachment; filename="Exported_' . time() . '.csv"');
 
-echo "LEAF Position ID, HR Smart Position Number, Service, Position Title, Classification Title, Employee Name, Employee Username, Supervisor Name, Pay Plan, Series, Pay Grade, FTE Ceiling / Total Headcount, Current FTE, PD Number, Note\r\n";
+echo "LEAF Position ID, HR Smart Position Number, Service, Position Title, Classification Title, Employee Name, Employee Username, Employee Email, Supervisor Name, Supervisor Email, Pay Plan, Series, Pay Grade, FTE Ceiling / Total Headcount, Current FTE, PD Number, Note\r\n";
 
 $res = $db->prepared_query('SELECT * FROM positions', array());
 
