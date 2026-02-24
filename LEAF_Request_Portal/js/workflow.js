@@ -17,22 +17,43 @@ var LeafWorkflow = function (containerID, CSRFToken) {
     var actionSuccessCallback;
     var rootURL = "";
     let extraParams;
+    const bgColorReg = /^#[0-9a-f]{6}$/i;
+    const fColorReg = /^[a-z]+?$/i;
 
     /**
      * @memberOf LeafWorkflow
      */
     function darkenColor(color) {
-        bgColor = parseInt(color.substring(1), 16);
-        r = (bgColor & 0xff0000) >> 16;
-        g = (bgColor & 0x00ff00) >> 8;
-        b = bgColor & 0x0000ff;
+        const bgColor = parseInt(color.substring(1), 16);
+        let r = (bgColor & 0xff0000) >> 16;
+        let g = (bgColor & 0x00ff00) >> 8;
+        let b = bgColor & 0x0000ff;
 
-        factor = -0.1;
+        const factor = -0.1;
         r = r + Math.round(r * factor);
         g = g + Math.round(g * factor);
         b = b + Math.round(b * factor);
 
         return "#" + ((r << 16) + (g << 8) + b).toString(16);
+    }
+
+    /**
+     * Uses the DOMParser API to provide a secure, native alternative to RegEx for stripping HTML.
+     * It handles complex or malformed structures by leveraging the browser's built-in parsing engine.
+     * This method recursively extracts only the text of the input, eliminating any DOM elements that might
+     * contain scripts or other malicious content.
+     * @param {string} input
+     * @returns string
+     */
+    function scrubHTML(input) {
+        if(input == undefined) {
+            return '';
+        }
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while(input != t.textContent) {
+            return scrubHTML(t.textContent);
+        }
+        return t.textContent;
     }
 
     /**
@@ -126,19 +147,19 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                 });
                             }
 
-                            let new_note;
-                            new_note =
-                                '<div class="comment_block"> <span class="comments_time"> ' +
-                                response.comment.date +
-                                '</span> <span class="comments_name">' +
-                                response.comment.responder +
-                                " " +
-                                response.comment.user_name +
-                                '</span> <div class="comments_message">' +
-                                response.comment.comment +
-                                "</div> </div>";
+                            //comments are cleaned server side with php xsshelpers sanitizeHTML before being returned
+                            const newComment = response?.comment?.comment ?? '';
+                            if (newComment != "") {
+                                const new_note = '<div class="comment_block"> <span class="comments_time"> ' +
+                                    response.comment.date +
+                                    '</span> <span class="comments_name">' +
+                                    response.comment.responder +
+                                    " " +
+                                    scrubHTML(response?.comment?.user_name ?? '') +
+                                    '</span> <div class="comments_message">' +
+                                    newComment +
+                                    "</div> </div>";
 
-                            if (response.comment.comment != "") {
                                 $(new_note).insertAfter("#notes");
                             }
 
@@ -213,11 +234,14 @@ var LeafWorkflow = function (containerID, CSRFToken) {
      */
     var modulesLoaded = {};
     function drawWorkflow(step, firstDepID = null) {
+        step['dependencyID'] = +step['dependencyID'];
+        step['stepBgColor'] = bgColorReg.test(step['stepBgColor']) ? step['stepBgColor'] : "#e0e0e0";
+        step['stepFontColor'] = fColorReg.test(step['stepFontColor']) ? step['stepFontColor'] : "#000000";
+        step['stepBorder'] = step?.['stepBorder'] ? scrubHTML(step['stepBorder']) : "1px solid black";
+        step['description'] = scrubHTML(step?.['description'] ?? '').trim();
+
         // draw frame and header
-        let stepDescription =
-            step.description == null
-                ? "Error: The configuration in the Workflow Editor is incomplete."
-                : step.description;
+        const stepDescription = step.description || "Error: The configuration in the Workflow Editor is incomplete.";
 
         $("#" + containerID).append(
             '<div id="workflowbox_dep' +
@@ -300,6 +324,9 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
         // draw buttons
         for (let i in step.dependencyActions) {
+            step.dependencyActions[i].actionIcon = encodeURIComponent((step.dependencyActions[i].actionIcon ?? '').trim());
+            step.dependencyActions[i].actionType = scrubHTML(step.dependencyActions[i].actionType ?? '').trim();
+            step.dependencyActions[i].actionText = scrubHTML(step.dependencyActions[i].actionText ?? '').trim();
             const icon =
                 step.dependencyActions[i].actionIcon != ""
                     ? `<img src="${rootURL}dynicons/?img=${step.dependencyActions[i].actionIcon}&amp;w=22"
@@ -504,8 +531,11 @@ var LeafWorkflow = function (containerID, CSRFToken) {
      * @memberOf LeafWorkflow
      */
     function drawWorkflowNoAccess(step) {
-        // hide cancel button since the user doesn't have access
-        //        $('#btn_cancelRequest').css('display', 'none');
+        step['dependencyID'] = +step['dependencyID'];
+        step['stepBgColor'] = bgColorReg.test(step['stepBgColor']) ? step['stepBgColor'] : "#e0e0e0";
+        step['stepFontColor'] = fColorReg.test(step['stepFontColor']) ? step['stepFontColor'] : "#000000";
+        step['stepBorder'] = step?.['stepBorder'] ? scrubHTML(step['stepBorder']) : "1px solid black";
+        step['description'] = scrubHTML(step?.['description'] ?? '').trim();
 
         $("#" + containerID).append(
             '<div id="workflowbox_dep' +
@@ -529,21 +559,17 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     "/_" +
                     step.indicatorID_for_assigned_empUID,
                 success: function (res) {
+                    const dataValue = res[currRecordID]["s1"]["id" + step.indicatorID_for_assigned_empUID] || null;
                     let name = "";
 
                     if (
-                        res[currRecordID]["s1"][
-                            "id" + step.indicatorID_for_assigned_empUID
-                        ] == null
+                        dataValue == null
                     ) {
                         name =
                             "Warning: User not selected for current action (Contact Administrator)";
                     } else {
                         name =
-                            "Pending action from " +
-                            res[currRecordID]["s1"][
-                                "id" + step.indicatorID_for_assigned_empUID
-                            ];
+                            "Pending action from " + scrubHTML(dataValue);
                     }
 
                     $("#workflowbox_dep" + step.dependencyID).append(
@@ -572,7 +598,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 success: function (res) {
                     let name = "";
 
-                    if (step.description == null) {
+                    if (step.description == '') {
                         name =
                             "Warning: Group not selected for current action (Contact Administrator)";
                     } else {
@@ -614,39 +640,46 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
     /**
      * @memberOf LeafWorkflow
+     * Use recordID to get the last action taken on the request
+     * If available, display a banner 'who took it: name of action' beneath the workflow field
+     * @param {number} recordID
+     * @param {object} unfilledDependencyLookup
      */
-    function getLastAction(recordID, res) {
+    function getLastAction(recordID, unfilledDependencyLookup) {
         $.ajax({
             type: "GET",
             url:
                 rootURL + "api/formWorkflow/" + recordID + "/lastActionSummary",
             dataType: "json",
             success: function (lastActionSummary) {
-                response = lastActionSummary.lastAction;
+                let response = lastActionSummary.lastAction;
                 if (response == null) {
-                    if (res == null) {
+                    if (unfilledDependencyLookup == null) {
                         $("#" + containerID).append("No actions available");
                     }
                     return null;
                 }
-                response.stepBgColor =
-                    response.stepBgColor == null
-                        ? "#e0e0e0"
-                        : response.stepBgColor;
-                response.stepFontColor =
-                    response.stepFontColor == null
-                        ? "#000000"
-                        : response.stepFontColor;
-                response.stepBorder =
-                    response.stepBorder == null
-                        ? "1px solid black"
-                        : response.stepBorder;
-                let label =
-                    response.dependencyID == 5
-                        ? response.categoryName
-                        : response.description;
-                if (res != null) {
-                    if (response.dependencyID != 5) {
+                //properties used for display
+                response['stepBgColor'] = bgColorReg.test(response['stepBgColor']) ? response['stepBgColor'] : "#e0e0e0";
+                response['stepFontColor'] = fColorReg.test(response['stepFontColor']) ? response['stepFontColor'] : "#000000";
+                response['stepBorder'] = response?.['stepBorder'] ? scrubHTML(response['stepBorder']) : "1px solid black";
+                response['dependencyID'] = +response['dependencyID'];
+                response['categoryName'] = scrubHTML(response['categoryName']);
+                response['stepTitle'] = scrubHTML(response['stepTitle']);
+                response['description'] = scrubHTML(response['description']);
+                response['actionType'] = scrubHTML(response['actionType']);
+                response['actionText'] = scrubHTML(response['actionText']);
+                response['actionTextPasttense'] = scrubHTML(response['actionTextPasttense']);
+
+                const submittedDepID = 5; //dependency ID for 'submitted'
+                const label =  response.dependencyID == submittedDepID ?
+                    response.categoryName : response.description;
+
+                //comments are cleaned server side with php xsshelpers sanitizeHTML before being returned
+                const lastComment = response?.comment ?? '';
+
+                if (unfilledDependencyLookup != null) {
+                    if (response.dependencyID != submittedDepID) {
                         $("#" + containerID).append(
                             '<div id="workflowbox_lastAction" class="workflowbox" style="padding: 0px; margin-top: 8px"></div>'
                         );
@@ -680,21 +713,18 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                 day: "numeric",
                             }) +
                             "</span><br /></div>";
-                        if (
-                            response.comment != "" &&
-                            response.comment != null
-                        ) {
-                            text +=
-                                '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br /><div style="font-weight: normal; padding-left: 16px; font-size: 12px; word-break:break-word;">' +
-                                response.comment +
-                                "</div></div>";
+
+                        if (lastComment != "") {
+                            text += '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br>' +
+                                '<div style="font-weight: normal; padding-left: 16px; font-size: 12px; word-break:break-word;">' +
+                                lastComment +
+                                '</div></div>';
                         }
                     } else {
-                        text =
-                            "[ Please refer to this request's history for current status ]";
+                        text = "[ Please refer to this request's history for current status ]";
                     }
 
-                    if (response.dependencyID != 5) {
+                    if (response.dependencyID != submittedDepID) {
                         $("#workflowbox_lastAction").append(
                             '<span style="font-weight: bold; color: ' +
                                 response.stepFontColor +
@@ -738,18 +768,15 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                 day: "numeric",
                             }) +
                             "</span></div>";
-                        if (
-                            response.comment != "" &&
-                            response.comment != null
-                        ) {
-                            text +=
-                                '<div style="padding: 4px 16px"><fieldset style="border: 1px solid black;word-break:break-word;"><legend class="noprint">Comment</legend><span style="font-size: 80%; font-weight: normal">' +
-                                response.comment +
+
+                        if (lastComment != "") {
+                            text += '<div style="padding: 4px 16px"><fieldset style="border: 1px solid black;word-break:break-word;">' +
+                                '<legend class="noprint">Comment</legend><span style="font-size: 80%; font-weight: normal">' +
+                                lastComment +
                                 "</span></fieldset></div>";
                         }
                     } else {
-                        text =
-                            "[ Please refer to this request's history for current status. ]";
+                        text = "[ Please refer to this request's history for current status. ]";
                     }
 
                     $("#workflowbox_lastAction").append(
@@ -775,11 +802,11 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         let year = sigTime.getFullYear();
                         $("#workflowSignatureContainer").append(
                             '<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">' +
-                                lastActionSummary.signatures[i].stepTitle +
+                                scrubHTML(lastActionSummary.signatures[i].stepTitle) +
                                 ' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="' +
                                 rootURL +
                                 'dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle; padding-right: 4px" alt="digital signature (beta) logo" />' +
-                                lastActionSummary.signatures[i].name +
+                                scrubHTML(lastActionSummary.signatures[i].name) +
                                 " " +
                                 month +
                                 "/" +
