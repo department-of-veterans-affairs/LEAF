@@ -13,7 +13,7 @@ $login->setBaseDir('../');
 $login->loginUser();
 
 $position = new Orgchart\Position($db, $login);
-$employee = new Orgchart\NationalEmployee($db, $login);
+$employee = new Orgchart\Employee($db, $login);
 $tag = new Orgchart\Tag($db, $login);
 
 header('Content-type: text/csv');

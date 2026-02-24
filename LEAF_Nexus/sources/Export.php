@@ -27,7 +27,7 @@ class Export
     // Contents primarily copied from exportPDL.php
     public function exportPDL() : array {
         $position = new Position($this->db, $this->login);
-        $employee = new NationalEmployee($this->db, $this->login);
+        $employee = new Employee($this->db, $this->login);
         $tag = new Tag($this->db, $this->login);
 
         //echo "LEAF Position ID, HR Smart Position Number, Service, Position Title, Classification Title, Employee Name, Employee Username, Employee Email, Supervisor Name, Supervisor Email, Pay Plan, Series, Pay Grade, FTE Ceiling / Total Headcount, Current FTE, PD Number, Note\r\n";

@@ -15,7 +15,7 @@ $oc_login->loginUser();
 $memberships = $oc_login->getMembership();
 
 $position = new Orgchart\Position($oc_db, $oc_login);
-$employee = new Orgchart\NationalEmployee($oc_db, $oc_login);
+$employee = new Orgchart\Employee($oc_db, $oc_login);
 $tag = new Orgchart\Tag($oc_db, $oc_login);
 
 // check for cached result
