@@ -8,14 +8,17 @@ services:
             - ./env_files/globals_leaf20_local.env
         build:
             context: ../
-            dockerfile: docker/php/leaf_monlith.dockerfile
+            dockerfile: docker/php/leaf_php.dockerfile
             args:
                 - BUILD_UID=${BUILD_UID}
                 - SMTP_HOST=smtp4dev
                 - MAIL_HUB=smtp4dev
         volumes:
-            - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
-            - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
+            - ../docker/php/php-dev.ini:/usr/local/etc/php/php.ini
+            - ../docker/php/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini
+            - ../docker/php/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
+            - ../docker/php/ssmtp/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+            - ../docker/php/ssmtp/revaliases:/etc/ssmtp/revaliases
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/LEAF_Nexus/vafavicon.ico
             # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
@@ -38,21 +41,24 @@ services:
         environment:
             - REMOTE_USER=${REMOTE_USER}
             - APACHE_RUN_USER=build_user
-    php-fpm-api:
+    php-fpm-large-queries:
         env_file:
             - ./env_files/globals_local.env
             - ./env_files/secrets.env
             - ./env_files/globals_leaf20_local.env
         build:
             context: ../
-            dockerfile: docker/phpapi/leaf_monlith.dockerfile
+            dockerfile: docker/php/leaf_php.dockerfile
             args:
                 - BUILD_UID=${BUILD_UID}
                 - SMTP_HOST=smtp4dev
                 - MAIL_HUB=smtp4dev
         volumes:
-            - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
-            - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
+            - ../docker/php-large-queries/php-dev.ini:/usr/local/etc/php/php.ini
+            - ../docker/php-large-queries/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini
+            - ../docker/php-large-queries/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
+            - ../docker/php/ssmtp/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+            - ../docker/php/ssmtp/revaliases:/etc/ssmtp/revaliases
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/LEAF_Nexus/vafavicon.ico
             # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
@@ -194,10 +200,6 @@ services:
             - host.docker.internal:host-gateway
 
 volumes:
-    leaf-php-data:
-        external: true
-    leaf-lib:
-        external: true
     leaf-dev-mysql-data:
         external: false
 
