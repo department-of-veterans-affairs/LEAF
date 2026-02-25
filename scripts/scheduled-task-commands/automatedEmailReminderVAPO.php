@@ -3,6 +3,7 @@ use App\Leaf\XSSHelpers;
 // this file will need to be added, Pete's destruction ticket has it already.
 require_once 'globals.php';
 require_once APP_PATH . '/Leaf/Db.php';
+require_once APP_PATH . '/Leaf/XSSHelpers.php';
 require_once APP_PATH . '/Leaf/ErrorNotify.php';
 
 $startTime = microtime(true);
