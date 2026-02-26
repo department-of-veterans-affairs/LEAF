@@ -10,7 +10,7 @@ use App\Leaf\Db;
 
 */
 
-require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
+require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
 {

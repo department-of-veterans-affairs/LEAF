@@ -7,18 +7,19 @@ use App\Leaf\XSSHelpers;
 
 set_time_limit(240);
 
-require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
+require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 $login->setBaseDir('../');
 $login->loginUser();
 
 $position = new Orgchart\Position($db, $login);
+$employee = new Orgchart\Employee($db, $login);
 $tag = new Orgchart\Tag($db, $login);
 
 header('Content-type: text/csv');
 header('Content-Disposition: attachment; filename="Exported_' . time() . '.csv"');
 
-echo "LEAF Position ID, HR Smart Position Number, Service, Position Title, Classification Title, Employee Name, Employee Username, Supervisor Name, Pay Plan, Series, Pay Grade, FTE Ceiling / Total Headcount, Current FTE, PD Number, Note\r\n";
+echo "LEAF Position ID, HR Smart Position Number, Service, Position Title, Classification Title, Employee Name, Employee Username, Employee Email, Supervisor Name, Supervisor Email, Pay Plan, Series, Pay Grade, FTE Ceiling / Total Headcount, Current FTE, PD Number, Note\r\n";
 
 $res = $db->prepared_query('SELECT * FROM positions', array());
 
@@ -76,10 +77,13 @@ foreach ($res as $pos)
         // find supervisor
         $supervisor = $position->getSupervisor($pos['positionID']);
         $supervisorName = '';
+        $supervisorEmail = '';
         if (isset($supervisor[0]['lastName'])
             && $supervisor[0]['isActing'] == 0)
         {
             $supervisorName = "{$supervisor[0]['lastName']}, {$supervisor[0]['firstName']}";
+            $supervisorData = $employee->lookupEmpUID($supervisor[0]['empUID']);
+            $supervisorEmail = $supervisorData[0]['email'];
         }
 
         echo "\"". XSSHelpers::xscrub($pos['positionID']) . "\",";
@@ -87,17 +91,22 @@ foreach ($res as $pos)
         echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['service']) ."\",";
         echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']) ."\",";
         echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Classification Title']) ."\",";
+        $employeeEmail = '';
         if ($emp['lastName'] != ''
             && $emp['isActing'] == 0)
         {
             echo "\"". XSSHelpers::xscrub($emp['lastName']) .",". XSSHelpers::xscrub($emp['firstName']) ."\",";
+            $empData = $employee->lookupEmpUID($emp['empUID']);
+            $employeeEmail = $empData[0]['email'];
         }
         else
         {
             echo '"",';
         }
         echo "\"". XSSHelpers::xscrub($emp['userName']) ."\",";
+        echo "\"". XSSHelpers::xscrub($employeeEmail) ."\",";
         echo "\"". XSSHelpers::xscrub($supervisorName) ."\",";
+        echo "\"". XSSHelpers::xscrub($supervisorEmail) ."\",";
         echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']) ."\",";
         echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']) ."\",";
         echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']) ."\",";
@@ -128,6 +137,8 @@ foreach ($res as $pos)
                 && $supervisor[0]['isActing'] == 0)
             {
                 $supervisorName = "{$supervisor[0]['lastName']}, {$supervisor[0]['firstName']}";
+                $supervisorData = $employee->lookupEmpUID($supervisor[0]['empUID']);
+                $supervisorEmail = $supervisorData[0]['email'];
             }
 
             echo "\"". XSSHelpers::xscrub($pos['positionID']) ."\",";
@@ -138,6 +149,7 @@ foreach ($res as $pos)
             echo '"",'; // vacant employee
             echo '"",'; // vacant employee
             echo "\"". XSSHelpers::xscrub($supervisorName) ."\",";
+            echo "\"". XSSHelpers::xscrub($supervisorEmail) ."\",";
             echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']) ."\",";
             echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']) ."\",";
             echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']) ."\",";

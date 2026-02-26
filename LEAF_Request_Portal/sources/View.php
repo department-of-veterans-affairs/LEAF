@@ -60,7 +60,7 @@ class View
             $dir = new VAMC_Directory;
 
             $vars = array(':recordID' => $recordID);
-            $sql1 = 'SELECT time, description, actionText, stepTitle,
+            $sql1 = 'SELECT 1 as rowOrder, time, description, actionText, stepTitle,
                         dependencyID, comment, userID, userMetadata
                      FROM action_history
                      LEFT JOIN dependencies USING (dependencyID)
@@ -68,17 +68,17 @@ class View
                      LEFT JOIN actions USING (actionType)
                      WHERE recordID=:recordID
                      UNION
-                     SELECT timestamp, "Note Added", "N/A", "N/A",
+                     SELECT 1 as rowOrder, timestamp, "Note Added", "N/A", "N/A",
                         "N/A", note, userID, userMetadata
                      FROM notes
                      WHERE recordID = :recordID
                      AND deleted IS NULL
                      UNION
-                     SELECT `timestamp`, "Email Sent", "N/A", "N/A",
+                     SELECT 2 as rowOrder, `timestamp`, "Email Sent", "N/A", "N/A",
                         "N/A", concat(`recipients`, "<br />", `subject`), "", ""
                      FROM `email_tracker`
                      WHERE recordID = :recordID
-                     ORDER BY time ASC';
+                     ORDER BY time, rowOrder ASC';
 
             $res = $this->db->prepared_query($sql1, $vars);
 

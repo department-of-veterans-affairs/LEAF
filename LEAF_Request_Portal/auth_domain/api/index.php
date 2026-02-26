@@ -10,7 +10,7 @@
 header('Access-Control-Allow-Origin: *');
 error_reporting(E_ERROR);
 
-require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
+require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 $login->setBaseDir('../');
 
