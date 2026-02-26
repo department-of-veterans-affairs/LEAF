@@ -4,7 +4,7 @@ use App\Leaf\XSSHelpers;
 
 require_once '/var/www/html/app/libs/globals.php';
 require_once '/var/www/html/app/libs/globals_plus.php';
-include_once getenv('APP_PATH') . '/Leaf/XSSHelpers.php';
+include_once '/var/www/html/app/Leaf/XSSHelpers.php';
 require_once '/var/www/html/app/libs/qrcode/qrlib.php';
 $cacheDir = 'cache/';
 
