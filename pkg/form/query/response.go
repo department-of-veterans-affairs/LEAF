@@ -1,12 +1,49 @@
 package query
 
+import (
+	"encoding/json"
+)
+
+type RecordID = int
+
 // Response represents the response structure for the "form/query" API endpoint
-// The map's key is the record ID
-type Response map[int]Record
+type Response map[RecordID]Record
+
+// ResponseCompat provides compatibility with the current response format
+// Associative arrays in PHP encode into JS objects, however PHP's json_encode() converts
+// an empty associative array to a JS array instead of a JS object.
+//
+// TODO: if x-filterData= is empty, api/form/query responses should contain empty objects instead of arrays
+type ResponseCompat map[RecordID][]string
+
+// UnmarshallJSON provides compatibility, see ResponseCompat
+func (r *Response) UnmarshalJSON(b []byte) error {
+	var temp map[RecordID]Record
+	err := json.Unmarshal(b, &temp)
+	if err != nil {
+		var rc ResponseCompat
+		err = json.Unmarshal(b, &rc)
+		if err == nil {
+			res := make(Response)
+			for k := range rc {
+				res[k] = Record{}
+			}
+			*r = res
+		} else if string(b) == "[]" {
+			return nil
+		} else {
+			return err
+		}
+	} else {
+		*r = Response(temp)
+	}
+
+	return nil
+}
 
 // Record represents the structure of a single record in the response
 type Record struct {
-	RecordID                int                    `json:"recordID"`
+	RecordID                RecordID               `json:"recordID"`
 	ServiceID               int                    `json:"serviceID"`
 	Date                    int                    `json:"date"`
 	UserID                  string                 `json:"userID"`
@@ -35,11 +72,12 @@ type Record struct {
 	FirstName               string                 `json:"firstName"`
 	LastName                string                 `json:"lastName"`
 	UserName                string                 `json:"userName"`
+	StepFulfillmentOnly     []StepFulfillment      `json:"stepFulfillmentOnly"`
 }
 
 // ActionHistory represents an action history event for a record
 type ActionHistory struct {
-	RecordID            int              `json:"recordID"`
+	RecordID            RecordID         `json:"recordID"`
 	StepID              int              `json:"stepID"`
 	UserID              string           `json:"userID"`
 	Time                int              `json:"time"`
@@ -53,6 +91,7 @@ type ActionHistory struct {
 
 // Data represents the dynamic data fields in the record
 // The map's key is "id" + the indicatorID of the field
+// TODO: Migrate the key format from "id###"" to "###"
 type Data map[string]string
 
 type OrgchartEmployee struct {
@@ -70,4 +109,9 @@ type UnfilledDependency struct {
 	Description  string `json:"description"`
 	ApproverName string `json:"approverName"`
 	ApproverUID  string `json:"approverUID"`
+}
+
+type StepFulfillment struct {
+	StepID int `json:"stepID"`
+	Time   int `json:"time"`
 }

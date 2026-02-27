@@ -431,6 +431,10 @@ class FormWorkflow
                     $groupDesignatedIndicators[$depRecord['indicatorID_for_assigned_groupID']] = 1;
                     break;
 
+                case -4: // dependencyID -4 is for the LEAF Agent
+                    $records[$depRecordID]['isActionable'] = $this->login->getUserID() == getenv('APP_AGENT_USERNAME');
+                    break;
+
                 default:
                     // check groups associated with dependency privileges
                     foreach ($res2 as $group)
@@ -977,6 +981,12 @@ class FormWorkflow
                         return 'User account is not part of the designated group';
                     }
 
+                    break;
+                case -4: // dependencyID -4 : LEAF Agent
+                    if($this->login->getUserID() != getenv('APP_AGENT_USERNAME')) {
+                        http_response_code(403);
+                        return 'Mismatched LEAF Agent account';
+                    }
                     break;
                 default:
                     http_response_code(400);
