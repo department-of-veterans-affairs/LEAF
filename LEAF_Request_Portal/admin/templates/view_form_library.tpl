@@ -1,3 +1,4 @@
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
 <script src="../js/dialogController.js"></script>
 <script src="../js/formGrid.js"></script>
 <script src="../js/formQuery.js"></script>

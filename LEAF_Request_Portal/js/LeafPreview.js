@@ -22,6 +22,11 @@ var LeafPreview = function(domID) {
         const inputId = `leaf_library_input_${field.indicatorID}`;
         // Sanitize with DOMPurify to prevent XSS
         const indName = window.DOMPurify ? window.DOMPurify.sanitize(field.name) : field.name;
+        if(window.DOMPurify) {
+            console.log('DOMPurify sanitized:', indName, 'Original:', field.name);
+        } else {
+            console.log('DOMPurify not available, using raw:', field.name);
+        }
         let style_isChild = '';
         if(isChild == undefined) {
             style_isChild = 'font-weight:bold;';
@@ -125,8 +130,8 @@ var LeafPreview = function(domID) {
                 if(container) {
                     for(let i in form) {
                         const field = renderSection(form[i]);
-                        // XSS fix: use insertAdjacentHTML with proper XSS context (field variable is constructed from renderField which escapes user inputs)
-                        container.insertAdjacentHTML('beforeend', field);
+                        const safeField = window.DOMPurify ? window.DOMPurify.sanitize(field) : field;
+                        container.insertAdjacentHTML('beforeend', safeField);
                     }
                 }
                 if(callback != undefined) {
