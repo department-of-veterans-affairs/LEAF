@@ -39,7 +39,32 @@ class Site
             return 'Admin access required';
         }
 
-        $vars = array(':input' => $_POST['sitemap_json']);
+        $cardConfig = json_decode($_POST['sitemap_json'], true)['buttons'] ?? [];
+        $cardConfig = XSSHelpers::scrubObjectOrArray($cardConfig);
+
+        $iconPath = 'https://' . HTTP_HOST . '/libs/dynicons/svg/';
+        $colorReg = '/^#[0-9a-f]{6}/i';
+
+        foreach($cardConfig as $i => $item) {
+            $cardConfig[$i]['color'] = preg_match($colorReg, $item['color']) > 0 ? $item['color'] : '#ffffff';
+            $cardConfig[$i]['fontColor'] = preg_match($colorReg, $item['fontColor']) > 0 ? $item['fontColor'] : '#000000';
+
+            $cardConfig[$i]['icon'] = '';
+            $iconFile = explode('/', $item['icon'])[-1];
+            if(!empty($iconFile)) {
+                $cardConfig[$i]['icon'] = $iconPath . XSSHelpers::scrubFilename($iconFile);
+            }
+
+            $cardConfig[$i]['target'] = '';
+            if(stripos($item['target'], 'https') === 0) {
+                $cardConfig[$i]['target'] = XSSHelpers::scrubNewLinesFromURL($item['target']);
+            }
+        }
+
+        $cards = array('buttons' => $cardConfig);
+        $cardJSON = json_encode($cards);
+
+        $vars = array(':input' => $cardJSON);
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="sitemap_json"', $vars);
 
         return 1;
@@ -116,8 +141,33 @@ class Site
     }
 	public function getSitemapJSON()
 	{
-        $settings = $this->db->prepared_query('SELECT data from settings WHERE setting="sitemap_json"', null);
+        $res = $this->db->prepared_query('SELECT data from settings WHERE setting="sitemap_json"', null);
 
-		return $settings;
+        $cardJSON = $res[0]['data'];
+        $cardJSON = strip_tags(htmlspecialchars_decode($cardJSON));
+        $cardConfig = json_decode($cardJSON, true)['buttons'] ?? [];
+
+        $iconPath = 'https://' . HTTP_HOST . '/libs/dynicons/svg/';
+        $colorReg = '/^#[0-9a-f]{6}/i';
+
+        foreach($cardConfig as $i => $item) {
+            $cardConfig[$i]['color'] = preg_match($colorReg, $item['color']) > 0 ? $item['color'] : '#ffffff';
+            $cardConfig[$i]['fontColor'] = preg_match($colorReg, $item['fontColor']) > 0 ? $item['fontColor'] : '#000000';
+
+            $cardConfig[$i]['icon'] = '';
+            $iconFile = explode('/', $item['icon'])[-1];
+            if(!empty($iconFile)) {
+                $cardConfig[$i]['icon'] = $iconPath . XSSHelpers::scrubFilename($iconFile);
+            }
+
+            $cardConfig[$i]['target'] = '';
+            if(stripos($item['target'], 'https') === 0) {
+                $cardConfig[$i]['target'] = XSSHelpers::scrubNewLinesFromURL($item['target']);
+            }
+        }
+        $cardJSON = json_encode(array('buttons' => $cardConfig));
+        $out = array();
+        $out[] = array('data' => $cardJSON);
+		return $out;
 	}
 }
