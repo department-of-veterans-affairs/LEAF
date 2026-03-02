@@ -23,7 +23,8 @@ switch ($action) {
             $res = $db->prepared_query('SELECT time FROM action_history
         							ORDER BY time DESC
         							LIMIT 1', array());
-            echo isset($res[0]['time']) ? $res[0]['time'] : 0;
+            header('Content-Type: text/plain');
+            echo isset($res[0]['time']) ? (int)$res[0]['time'] : 0;
         }
         else
         {
@@ -32,7 +33,8 @@ switch ($action) {
                     						WHERE recordID = :recordID
                 							ORDER BY time DESC
                 							LIMIT 1', $vars);
-            echo isset($res[0]['time']) ? $res[0]['time'] : 0;
+            header('Content-Type: text/plain');
+            echo isset($res[0]['time']) ? (int)$res[0]['time'] : 0;
         }
 
         break;

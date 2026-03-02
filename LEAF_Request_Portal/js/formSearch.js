@@ -806,7 +806,7 @@ var LeafFormSearch = function (containerID) {
                         for (var i in res) {
                             services +=
                                 '<option value="' +
-                                res[i].groupID +
+                                scrubHTML(res[i].groupID) +
                                 '">' +
                                 scrubHTML(res[i].groupTitle) +
                                 "</option>";

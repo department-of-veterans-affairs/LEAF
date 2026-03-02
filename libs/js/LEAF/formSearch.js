@@ -580,7 +580,7 @@ var LeafFormSearch = function (containerID) {
             for (var i in res) {
               services +=
                 '<option value="' +
-                res[i].groupID +
+                scrubHTML(res[i].groupID) +
                 '">' +
                 scrubHTML(res[i].groupTitle) +
                 "</option>";
@@ -1041,9 +1041,9 @@ var LeafFormSearch = function (containerID) {
                               : resOptions[i].substr(8).trim();
                           options +=
                             '<option value="' +
-                            scrubHTML(currOption) +
+                            window.DOMPurify.sanitize(currOption) +
                             '">' +
-                            scrubHTML(currOption) +
+                            window.DOMPurify.sanitize(currOption) +
                             "</option>";
                         }
                         options += "</select>";

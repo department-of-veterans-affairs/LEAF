@@ -1,3 +1,4 @@
+<script src="../LEAF_Request_Portal/js/dompurify.min.js"></script>
 <div id="maincontent">
     <div id="position">
         <div id="positionHeader">

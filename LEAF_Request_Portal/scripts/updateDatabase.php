@@ -10,4 +10,4 @@ $update = new DbUpdate($db, $setting_up, 'portal', PORTAL_PATH);
 
 $update->run();
 
-echo $update->getMessage();
+echo XSSHelpers::xscrub($update->getMessage());

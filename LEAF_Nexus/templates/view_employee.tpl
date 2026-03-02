@@ -1,3 +1,5 @@
+<script src="../LEAF_Request_Portal/js/dompurify.min.js"></script>
+
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Tools</h1>
     <!--{if $is_admin == true}-->

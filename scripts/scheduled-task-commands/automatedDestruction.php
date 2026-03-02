@@ -54,14 +54,14 @@ foreach ($portals as $portal) {
                             "VALUES (:recordID, :categoryID, UNIX_TIMESTAMP())";
                 $db->prepared_query($logStrSQL, $logVars);
 
-                echo "{$record['recordID']} Deleted\r\n";
+                echo (int)$record['recordID'] . " Deleted\r\n";
 
                 $count++;
             }
         }
-        echo "{$portal['portal_database']}: {$count} records deleted.\r\n";
+        echo XSSHelpers::xscrub($portal['portal_database']) . ": " . $count . " records deleted.\r\n";
     } else {
-        echo "No Destruction for {$portal['portal_database']}\r\n";
+        echo "No Destruction for " . XSSHelpers::xscrub($portal['portal_database']) . "\r\n";
     }
 }
 

@@ -32,11 +32,13 @@ $controllerMap = new Portal\ControllerMap();
 
 $controllerMap->register('form', function () use ($db, $login, $action) {
     $formController = new Portal\FormController($db, $login);
+    header('Content-Type: application/json');
     echo $formController->handler($action);
 });
 
 $controllerMap->register('open', function() use ($db, $login, $action) {
     $SignatureController = new Portal\OpenController($db, $login);
+    header('Content-Type: application/json');
     echo $SignatureController->handler($action);
 });
 
