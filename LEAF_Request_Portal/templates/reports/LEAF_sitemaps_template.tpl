@@ -288,7 +288,7 @@
             const target = stripAllTags($("#xhr input#button-target").val());
             const color = stripAllTags($("#xhr input[name='btnColor']").val());
             const fontColor = stripAllTags($("#xhr input[name='btnFntColor']").val());
-            const icon = stripAllTags($("#xhr #picked-icon>img").attr('src') ?? '')
+            const icon = stripAllTags($("#xhr #picked-icon>img").attr('src') ?? '');
             const order = sitemapOBJ.buttons.length;
 
             $.each(sitemapOBJ.buttons, function(index, value) {
@@ -315,7 +315,7 @@
             type: 'GET',
             url: './api/iconPicker/list',
             success: function(results) {
-                for (result in results) {
+                for (const result in results) {
                     let icon = results[result];
                     icon.id = icon.alt.replace('.svg', '');
                     $('#iconpicker').append(`

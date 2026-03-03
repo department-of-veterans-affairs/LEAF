@@ -32,6 +32,33 @@ class Site
 		return $res;
 	}
 
+    private function validateSiteCards(array $cardConfig):array
+    {
+        $iconPath = 'https://' . HTTP_HOST . '/libs/dynicons/svg/';
+        $colorReg = '/^#[0-9a-f]{6}/i';
+
+        foreach($cardConfig as $i => $item) {
+            $cardConfig[$i]['color'] = preg_match($colorReg, $item['color'] ?? '') > 0 ? $item['color'] : '#ffffff';
+            $cardConfig[$i]['fontColor'] = preg_match($colorReg, $item['fontColor'] ?? '') > 0 ? $item['fontColor'] : '#000000';
+
+            $cardConfig[$i]['icon'] = '';
+            $iconFileParts = explode('/', $item['icon'] ?? '');
+            $fileFileIdx = count($iconFileParts) - 1;
+            if(isset($iconFileParts[$fileFileIdx]) && !empty($iconFileParts[$fileFileIdx])) {
+                $cardConfig[$i]['icon'] = $iconPath . XSSHelpers::scrubFilename($iconFileParts[$fileFileIdx]);
+            }
+
+            $cardConfig[$i]['target'] = '';
+            if(stripos($item['target'] ?? '', 'https') === 0) {
+                $cardConfig[$i]['target'] = XSSHelpers::scrubNewLinesFromURL($item['target']);
+            }
+            if(isset($item['formColumns']) && empty($item['formColumns'])) {
+                $cardConfig[$i]['formColumns'] = (object) $item['formColumns'];
+            }
+        }
+        return $cardConfig;
+    }
+
 	public function setSitemapJSON()
     {
         if (!$this->login->checkGroup(1))
@@ -42,28 +69,7 @@ class Site
         $cardConfig = json_decode($_POST['sitemap_json'], true)['buttons'] ?? [];
         $cardConfig = XSSHelpers::scrubObjectOrArray($cardConfig);
 
-        $iconPath = 'https://' . HTTP_HOST . '/libs/dynicons/svg/';
-        $colorReg = '/^#[0-9a-f]{6}/i';
-
-        foreach($cardConfig as $i => $item) {
-            $cardConfig[$i]['color'] = preg_match($colorReg, $item['color']) > 0 ? $item['color'] : '#ffffff';
-            $cardConfig[$i]['fontColor'] = preg_match($colorReg, $item['fontColor']) > 0 ? $item['fontColor'] : '#000000';
-
-            $cardConfig[$i]['icon'] = '';
-            $iconFileParts = explode('/', $item['icon']);
-            $fileFileIdx = count($iconFileParts) - 1;
-            if(isset($iconFileParts[$fileFileIdx]) && !empty($iconFileParts[$fileFileIdx])) {
-                $cardConfig[$i]['icon'] = $iconPath . XSSHelpers::scrubFilename($iconFileParts[$fileFileIdx]);
-            }
-
-            $cardConfig[$i]['target'] = '';
-            if(stripos($item['target'], 'https') === 0) {
-                $cardConfig[$i]['target'] = XSSHelpers::scrubNewLinesFromURL($item['target']);
-            }
-            if(isset($item['formColumns']) && empty($item['formColumns'])) {
-                $cardConfig[$i]['formColumns'] = (object) $item['formColumns'];
-            }
-        }
+        $cardConfig = $this->validateSiteCards($cardConfig);
 
         $cards = array('buttons' => $cardConfig);
         $cardJSON = json_encode($cards);
@@ -158,29 +164,8 @@ class Site
             }
         });
 
-        $iconPath = 'https://' . HTTP_HOST . '/libs/dynicons/svg/';
-        $colorReg = '/^#[0-9a-f]{6}/i';
+        $cardConfig = $this->validateSiteCards($cardConfig);
 
-        //more specific validation for color, file name, url values
-        foreach($cardConfig as $i => $item) {
-            $cardConfig[$i]['color'] = preg_match($colorReg, $item['color']) > 0 ? $item['color'] : '#ffffff';
-            $cardConfig[$i]['fontColor'] = preg_match($colorReg, $item['fontColor']) > 0 ? $item['fontColor'] : '#000000';
-
-            $cardConfig[$i]['icon'] = '';
-            $iconFileParts = explode('/', $item['icon']);
-            $fileFileIdx = count($iconFileParts) - 1;
-            if(isset($iconFileParts[$fileFileIdx]) && !empty($iconFileParts[$fileFileIdx])) {
-                $cardConfig[$i]['icon'] = $iconPath . XSSHelpers::scrubFilename($iconFileParts[$fileFileIdx]);
-            }
-
-            $cardConfig[$i]['target'] = '';
-            if(stripos($item['target'], 'https') === 0) {
-                $cardConfig[$i]['target'] = XSSHelpers::scrubNewLinesFromURL($item['target']);
-            }
-            if(isset($item['formColumns']) && empty($item['formColumns'])) {
-                $cardConfig[$i]['formColumns'] = (object) $item['formColumns'];
-            }
-        }
         $cardJSON = json_encode(array('buttons' => $cardConfig));
         $out = array();
         $out[] = array('data' => $cardJSON);
