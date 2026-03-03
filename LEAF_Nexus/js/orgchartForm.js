@@ -47,6 +47,16 @@ orgchartForm.prototype.initialize = function () {
   );
 };
 
+orgchartForm.prototype.scrubHTML = function(input) {
+  if (input === undefined || input === null) return '';
+  try {
+    var t = new DOMParser().parseFromString(String(input), 'text/html').body;
+    return t.textContent;
+  } catch (e) {
+    return String(input);
+  }
+};
+
 orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
   this.currUID = UID;
   this.dialog.clearDialog();
@@ -72,7 +82,7 @@ orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
           });
         },
         error: function (jqXHR, status, error) {
-          dialog.setContent("Error: " + error);
+          dialog.setContent("Error: " + t.scrubHTML(error));
         },
         cache: false,
       });
@@ -115,7 +125,7 @@ orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
           });
         },
         error: function (jqXHR, status, error) {
-          dialog.setContent("Error: " + error);
+          dialog.setContent("Error: " + t.scrubHTML(error));
         },
         cache: false,
       });
@@ -152,7 +162,7 @@ orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
           });
         },
         error: function (jqXHR, status, error) {
-          dialog.setContent("Error: " + error);
+          dialog.setContent("Error: " + t.scrubHTML(error));
         },
         cache: false,
       });

@@ -1506,6 +1506,13 @@
         let trumbowygBtns = Array.from(document.querySelectorAll('.trumbowyg-box button'));
 
         /** handle keyboard events.  trumbow uses mousedown so dispatch that event for enter or spacebar */
+        const trumbowygTitleClassMap = {
+            "formatting": "trumbowyg-dropdown-formatting",
+            "link": "trumbowyg-dropdown-link",
+            "text color": "trumbowyg-dropdown-foreColor",
+            "background color": "trumbowyg-dropdown-backColor",
+            "add variables": "trumbowyg-dropdown-addVariables",
+        };
         const handleTrumbowEvents = (event) => {
             const btn = event.currentTarget;
             const isDropdown = btn.classList.contains('trumbowyg-open-dropdown');
@@ -1520,9 +1527,9 @@
             }
             if(event?.which === 9) { //fix menu tabbing and tabbing order
                 const controllerBtn = document.querySelector(`button[aria-controls="${btn.parentNode.id}"]`);
-
+                const title = (btn.title ?? '').toLowerCase();
                 const btnWrapperSelector = isDropdown ?
-                    `id_${this.trumbowygTitleClassMap[btn.title]}` : `${btn.parentNode.id}`;
+                    `id_${trumbowygTitleClassMap[title]}` : `${btn.parentNode.id}`;
 
                 if (btnWrapperSelector !== "") {
                     const firstSubmenuBtn = document.querySelector(`#${btnWrapperSelector} button`);
@@ -1562,7 +1569,8 @@
             ['keydown', 'click'].forEach(ev => btn.addEventListener(ev, handleTrumbowEvents));
             if(btn.classList.contains('trumbowyg-open-dropdown')) {
                 btn.setAttribute('aria-expanded', false);
-                const controlClass = this.trumbowygTitleClassMap?.[btn.title] || null;
+                const title = (btn.title ?? '').toLowerCase();
+                const controlClass = trumbowygTitleClassMap?.[title] || null;
                 if(controlClass !== null) {
                     btn.setAttribute('aria-controls', 'id_' + controlClass);
                     const elSubmenu = document.querySelector('.' + controlClass);
