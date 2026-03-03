@@ -442,7 +442,7 @@ class System
                 $vars = array(':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '',  strip_tags($_POST['actionText'])),
                         ':actionText' => strip_tags($_POST['actionText']),
                         ':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
-                        ':actionIcon' => $_POST['actionIcon'],
+                        ':actionIcon' => XSSHelpers::scrubFilename($_POST['actionIcon']),
                         ':actionAlignment' => $alignment,
                         ':sort' => strip_tags($_POST['sort']),
                         ':fillDependency' => $_POST['fillDependency'],

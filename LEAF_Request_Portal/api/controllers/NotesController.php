@@ -7,6 +7,7 @@ namespace Portal;
 
 use App\Leaf\Db;
 use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\XSSHelpers;
 
 class NotesController extends RESTfulResponse
 {
@@ -98,11 +99,13 @@ class NotesController extends RESTfulResponse
                     parse_str($_POST['form'], $params);
 
                     if (!empty($params['note'])) {
+                        $params['note'] = XSSHelpers::sanitizeHTML($params['note']);
                         $params['recordID'] = $args[0];
                         $params['timestamp'] = time();
                         $params['userMetadata'] = $form->employee->getInfoForUserMetadata($params['userID'], false);
                         $posted_note_id = $note->postNote($params);
                         $posted_note = $note->getNotesById($posted_note_id);
+                        $posted_note['note'] = $params['note'];
                         $posted_note['user_name'] = $_SESSION['name'];
                         $posted_note['date'] = date('M j', $posted_note['timestamp']);
                     } else {

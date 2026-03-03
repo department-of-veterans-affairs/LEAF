@@ -601,7 +601,7 @@ class Email
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
         $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, sd.stepID, ".
-            "ser.serviceID, ser.service, ser.groupID AS quadrad, users.groupID, rec.title, rec.lastStatus, ".
+            "ser.serviceID, ser.service, ser.groupID AS quadrad, users.groupID, users.backupID, rec.title, rec.lastStatus, ".
             "needToKnow,categoryName FROM records_workflow_state ".
             "LEFT JOIN records AS rec USING (recordID) ".
             "LEFT JOIN category_count USING (recordID) ".
@@ -689,7 +689,12 @@ class Email
                     if (!empty($approver['approverID']) && strlen($approver['approverID']) > 0) {
                         $tmp = $dir->lookupLogin($approver['approverID']);
                         if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
-                            $this->addRecipient($tmp[0]['Email']);
+                            if( isset($approver['backupID']) && $approver['backupID'] != ''){
+                                $this->addCcBcc($tmp[0]['Email']);
+                            }
+                            else{
+                                $this->addRecipient($tmp[0]['Email']);
+                            }
                         }
                     }
 

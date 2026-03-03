@@ -1570,6 +1570,9 @@ class Workflow
         $vars = array(':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($actionType)));
 
         $action = $this->db->prepared_query('SELECT * FROM actions WHERE actionType=:actionType AND NOT (deleted = 1)', $vars);
+        if(isset($action[0]['actionIcon'])) {
+            $action[0]['actionIcon'] = XSSHelpers::scrubFilename($action[0]['actionIcon']);
+        }
         return $action;
     }
 
@@ -1603,7 +1606,7 @@ class Workflow
             ':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($actionType)),
             ':actionText' => strip_tags($_POST['actionText']),
             ':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
-            ':actionIcon' => $_POST['actionIcon'],
+            ':actionIcon' => XSSHelpers::scrubFilename($_POST['actionIcon']),
             ':actionAlignment' => $alignment,
             ':sort' => $sort,
             ':fillDependency' => $_POST['fillDependency'],
@@ -1613,7 +1616,7 @@ class Workflow
 
         $this->dataActionLogger->logAction(DataActions::MODIFY, LoggableTypes::ACTIONS, [
             new LogItem("actions", "actionText",  strip_tags($_POST['actionText'])),
-            new LogItem("actions", "actionIcon",  $_POST['actionIcon']),
+            new LogItem("actions", "actionIcon",  XSSHelpers::scrubFilename($_POST['actionIcon'])),
             new LogItem("actions", "actionAlignment",  $alignment),
             new LogItem("actions", "sort",  $sort),
             new LogItem("actions", "fillDependency",  $_POST['fillDependency']),
