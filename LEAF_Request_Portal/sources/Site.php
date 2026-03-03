@@ -50,9 +50,10 @@ class Site
             $cardConfig[$i]['fontColor'] = preg_match($colorReg, $item['fontColor']) > 0 ? $item['fontColor'] : '#000000';
 
             $cardConfig[$i]['icon'] = '';
-            $iconFile = explode('/', $item['icon'])[-1];
-            if(!empty($iconFile)) {
-                $cardConfig[$i]['icon'] = $iconPath . XSSHelpers::scrubFilename($iconFile);
+            $iconFileParts = explode('/', $item['icon']);
+            $fileFileIdx = count($iconFileParts) - 1;
+            if(isset($iconFileParts[$fileFileIdx]) && !empty($iconFileParts[$fileFileIdx])) {
+                $cardConfig[$i]['icon'] = $iconPath . XSSHelpers::scrubFilename($iconFileParts[$fileFileIdx]);
             }
 
             $cardConfig[$i]['target'] = '';
@@ -144,20 +145,29 @@ class Site
         $res = $this->db->prepared_query('SELECT data from settings WHERE setting="sitemap_json"', null);
 
         $cardJSON = $res[0]['data'];
-        $cardJSON = strip_tags(htmlspecialchars_decode($cardJSON));
         $cardConfig = json_decode($cardJSON, true)['buttons'] ?? [];
+
+        //initial pass: recursively decode and strip by reference
+        array_walk_recursive($cardConfig, function(&$value) {
+            if (is_string($value)) {
+                $decoded = htmlspecialchars_decode($value, ENT_QUOTES | ENT_HTML5);
+                $value = strip_tags($decoded);
+            }
+        });
 
         $iconPath = 'https://' . HTTP_HOST . '/libs/dynicons/svg/';
         $colorReg = '/^#[0-9a-f]{6}/i';
 
+        //more specific validation for color, file name, url values
         foreach($cardConfig as $i => $item) {
             $cardConfig[$i]['color'] = preg_match($colorReg, $item['color']) > 0 ? $item['color'] : '#ffffff';
             $cardConfig[$i]['fontColor'] = preg_match($colorReg, $item['fontColor']) > 0 ? $item['fontColor'] : '#000000';
 
             $cardConfig[$i]['icon'] = '';
-            $iconFile = explode('/', $item['icon'])[-1];
-            if(!empty($iconFile)) {
-                $cardConfig[$i]['icon'] = $iconPath . XSSHelpers::scrubFilename($iconFile);
+            $iconFileParts = explode('/', $item['icon']);
+            $fileFileIdx = count($iconFileParts) - 1;
+            if(isset($iconFileParts[$fileFileIdx]) && !empty($iconFileParts[$fileFileIdx])) {
+                $cardConfig[$i]['icon'] = $iconPath . XSSHelpers::scrubFilename($iconFileParts[$fileFileIdx]);
             }
 
             $cardConfig[$i]['target'] = '';

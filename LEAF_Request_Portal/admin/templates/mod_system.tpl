@@ -117,7 +117,7 @@ function saveSettings() {
                 },
                 success: function(res) {
                     siteSettings.heading = heading;
-                    $('#headerDescription').html(heading);
+                    $('#headerDescription').text(heading);
                 },
                 error: function(err) {
                     console.log(err);
@@ -137,7 +137,7 @@ function saveSettings() {
                 },
                 success: function(res) {
                     siteSettings.subHeading = subHeading;
-                    $('#logo .leaf-site-title').html(subHeading);
+                    $('#logo .leaf-site-title').text(subHeading);
                 },
                 error: function(err) {
                     console.log(err);
@@ -338,7 +338,7 @@ function renderSettings(res) {
         inputEl = document.getElementById(i);
         if(inputEl !== null) {
             let tmp = document.createElement('div');
-            tmp.innerHTML = res[i] ?? '';
+            tmp.innerHTML = XSSHelpers.stripAllTags(res[i] ?? '');
             inputEl.value = tmp.textContent;
         }
         if(i == 'leafSecure') {

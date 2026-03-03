@@ -62,7 +62,7 @@
                 refreshButtons();
             },
             error: function(err) {
-                console.log(err);
+                console.error(err);
             }
         });
     }
@@ -186,7 +186,7 @@
             '<input type="color" id="btnFntColor" name="btnFntColor" style="display: block;" value="#000000">' +
             '</div>' +
             '<div class="leaf-marginAll-1rem" style="width: 90%; float: left;">' +
-            '<label id="iconpicker_label" class="leaf-bold" style="display: inline-block;">Icon (Optional)</label>' +
+            '<div id="iconpicker_label" class="leaf-bold" style="display: inline-block;">Icon (Optional)</div>' +
             '<div id="picked-icon" class="icon-picked" style="display: inline-block;"></div>' +
             '</div>' +
             '<div id="iconpicker" aria-labelledby="iconpicker_label" style="border: 1px solid grey; width: 100%; height: 10rem; overflow: auto; float: left; margin-bottom: 1rem;"></div>' +
@@ -207,12 +207,12 @@
         dialog.setSaveHandler(function() {
             dialog.indicateBusy();
             const id = generateNewButtonID();
-            const title = stripAllTags(decodeHTMLEntities($("#xhr input#button-title").val()));
-            const description = stripAllTags(decodeHTMLEntities($("#xhr input#button-description").val()));
-            const target = stripAllTags(decodeHTMLEntities($("#xhr input#button-target").val()));
-            const color = stripAllTags(decodeHTMLEntities($("#xhr input[name='btnColor']").val()));
-            const fontColor = stripAllTags(decodeHTMLEntities($("#xhr input[name='btnFntColor']").val()));
-            const icon = stripAllTags(decodeHTMLEntities($("#xhr #picked-icon>img").attr('src') ?? ''));
+            const title = stripAllTags($("#xhr input#button-title").val());
+            const description = stripAllTags($("#xhr input#button-description").val());
+            const target = stripAllTags($("#xhr input#button-target").val());
+            const color = stripAllTags($("#xhr input[name='btnColor']").val());
+            const fontColor = stripAllTags($("#xhr input[name='btnFntColor']").val());
+            const icon = stripAllTags($("#xhr #picked-icon>img").attr('src') ?? '');
             const order = sitemapOBJ.buttons.length;
             const newButton = { id, title, description, target, color, fontColor, icon, order };
             sitemapOBJ.buttons.push(newButton);
@@ -259,12 +259,12 @@
             '<input type="color" id="btnFntColor" name="btnFntColor" style="display: block;" value="#000000" />' +
             '</div>' +
             '<div class="leaf-marginAll-1rem" style="width: 90%; float: left;">' +
-            '<label for="iconpicker" class="leaf-bold" style="display: inline-block;">Icon (Optional)</label>' +
+            '<div id="iconpicker_label" class="leaf-bold" style="display: inline-block;">Icon (Optional)</div>' +
             '<div id="picked-icon" class="icon-picked" style="display: inline-block;">' + (icon ?
                 '<img alt="" class="icon leaf-marginLeft-1rem" style="vertical-align: middle;" src=' + icon + '>' : '') +
             '</div>' +
             '</div>' +
-            '<div id="iconpicker" tabindex="0" style="border: 1px solid grey; width: 100%; height: 10rem; overflow: auto; float: left; margin-bottom: 1rem;"></div>' +
+            '<div id="iconpicker" tabindex="0" aria-labelledby="iconpicker_label" style="border: 1px solid grey; width: 100%; height: 10rem; overflow: auto; float: left; margin-bottom: 1rem;"></div>' +
             '<div class="leaf-buttonBar leaf-clearBoth">' +
             '<button class="usa-button usa-button--secondary leaf-float-right" onClick="deleteButtonFromUI(\'' +
             buttonID + '\');" id="delete-button">Delete Site</button>' +
@@ -283,12 +283,12 @@
         dialog.setSaveHandler(function() {
             dialog.indicateBusy();
             const id = generateNewButtonID();
-            const title = stripAllTags(decodeHTMLEntities($("#xhr input#button-title").val()));
-            const description = stripAllTags(decodeHTMLEntities($("#xhr input#button-description").val()));
-            const target = stripAllTags(decodeHTMLEntities($("#xhr input#button-target").val()));
-            const color = stripAllTags(decodeHTMLEntities($("#xhr input[name='btnColor']").val()));
-            const fontColor = stripAllTags(decodeHTMLEntities($("#xhr input[name='btnFntColor']").val()));
-            const icon = stripAllTags(decodeHTMLEntities($("#xhr #picked-icon>img").attr('src') ?? ''))
+            const title = stripAllTags($("#xhr input#button-title").val());
+            const description = stripAllTags($("#xhr input#button-description").val());
+            const target = stripAllTags($("#xhr input#button-target").val());
+            const color = stripAllTags($("#xhr input[name='btnColor']").val());
+            const fontColor = stripAllTags($("#xhr input[name='btnFntColor']").val());
+            const icon = stripAllTags($("#xhr #picked-icon>img").attr('src') ?? '')
             const order = sitemapOBJ.buttons.length;
 
             $.each(sitemapOBJ.buttons, function(index, value) {
