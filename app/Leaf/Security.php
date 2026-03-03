@@ -93,7 +93,7 @@ class Security
      * @param string $data The serialized data
      * @return mixed|null The parsed data, or null if data is invalid/empty/contains objects
      */
-    public static function parseSerializedData(string $data)
+    public static function parseSerializedData(?string $data)
     {
         if (empty($data)) {
             return null;

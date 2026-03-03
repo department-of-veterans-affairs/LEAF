@@ -123,9 +123,12 @@ class Shortener
         if (isset($resReport[0])) {
             $redirectPath = $resReport[0]['data'];
 
-            // Use Security class to validate the raw redirect path
-            // We need to temporarily encode it to use validateRedirect
-            $encodedPath = base64_encode($redirectPath);
+            // Prepend the site directory so the redirect includes the full path
+            // The stored data is relative to the portal dir (e.g. "/?a=report&v=...")
+            // but validateRedirect builds: protocol + host + path
+            $siteDir = dirname($_SERVER['PHP_SELF']);
+            $fullPath = $siteDir . $redirectPath;
+            $encodedPath = base64_encode($fullPath);
 
             $safeRedirect = Security::validateRedirect($encodedPath, HTTP_HOST, $this->siteRoot);
 
