@@ -60,6 +60,9 @@ class Site
             if(stripos($item['target'], 'https') === 0) {
                 $cardConfig[$i]['target'] = XSSHelpers::scrubNewLinesFromURL($item['target']);
             }
+            if(isset($item['formColumns']) && empty($item['formColumns'])) {
+                $cardConfig[$i]['formColumns'] = (object) $item['formColumns'];
+            }
         }
 
         $cards = array('buttons' => $cardConfig);
@@ -173,6 +176,9 @@ class Site
             $cardConfig[$i]['target'] = '';
             if(stripos($item['target'], 'https') === 0) {
                 $cardConfig[$i]['target'] = XSSHelpers::scrubNewLinesFromURL($item['target']);
+            }
+            if(isset($item['formColumns']) && empty($item['formColumns'])) {
+                $cardConfig[$i]['formColumns'] = (object) $item['formColumns'];
             }
         }
         $cardJSON = json_encode(array('buttons' => $cardConfig));
