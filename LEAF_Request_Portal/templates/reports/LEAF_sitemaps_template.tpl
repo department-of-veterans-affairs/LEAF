@@ -58,7 +58,7 @@
             cache: false,
             success: function(res) {
                 $("#spinner").hide();
-                sitemapOBJ = JSON.parse(res[0]?.data ?? {});
+                sitemapOBJ = JSON.parse(res[0]?.data ?? '{}');
                 refreshButtons();
             },
             error: function(err) {
@@ -92,9 +92,8 @@
             '</a></li>');
         const icon = button.icon ? '<img alt="" style="float: left; margin-right: 1rem; height: 48px; width: 48px;" src="' +
             button.icon + '">' : '';
-
         $('div#sortable').append(
-            '<div tabindex="0" class="edit-card leaf-sitemap-card draggable="true" style="cursor: pointer; background-color: ' +
+            '<div tabindex="0" class="edit-card leaf-sitemap-card" draggable="true" style="cursor: pointer; background-color: ' +
             button.color + '; color: ' + button.fontColor + ';" id="div_buttonID_' + button.id +
             '");" title="Drag to move, click to edit."><h3 class="edit-card" id="div_headingID_' + button.id +
             '"><a tabindex="-1" href="javascript:void(0);" onClick="editButtonDialog(\'' + button.id +
@@ -282,14 +281,12 @@
         // save handler
         dialog.setSaveHandler(function() {
             dialog.indicateBusy();
-            const id = generateNewButtonID();
             const title = stripAllTags($("#xhr input#button-title").val());
             const description = stripAllTags($("#xhr input#button-description").val());
             const target = stripAllTags($("#xhr input#button-target").val());
             const color = stripAllTags($("#xhr input[name='btnColor']").val());
             const fontColor = stripAllTags($("#xhr input[name='btnFntColor']").val());
             const icon = stripAllTags($("#xhr #picked-icon>img").attr('src') ?? '');
-            const order = sitemapOBJ.buttons.length;
 
             $.each(sitemapOBJ.buttons, function(index, value) {
                 if (value.id == buttonID) {

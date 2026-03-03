@@ -35,7 +35,7 @@ class Site
     private function validateSiteCards(array $cardConfig):array
     {
         $iconPath = 'https://' . HTTP_HOST . '/libs/dynicons/svg/';
-        $colorReg = '/^#[0-9a-f]{6}/i';
+        $colorReg = '/^#[0-9a-f]{6}$/i';
 
         foreach($cardConfig as $i => $item) {
             $cardConfig[$i]['color'] = preg_match($colorReg, $item['color'] ?? '') > 0 ? $item['color'] : '#ffffff';
