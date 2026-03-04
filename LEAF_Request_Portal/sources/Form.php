@@ -2098,6 +2098,12 @@ class Form
                 }
 
                 break;
+            case -4: // dependencyID -4 : LEAF Agent
+                if ($this->login->getUserID() == getenv('APP_AGENT_USERNAME'))
+                {
+                    return true;
+                }
+                break;
             default:
                 if ($this->login->checkGroup($details['groupID']))
                 {
