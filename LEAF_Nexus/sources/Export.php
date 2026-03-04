@@ -152,6 +152,7 @@ class Export
                         'Classification Title' => $output[$pos['positionID']]['data']['Classification Title'],
                         'Employee Name' => '',
                         'Employee Username' => '',
+                        'Employee Email' => '',
                         'Supervisor Name' => $supervisorName,
                         'Supervisor Email' => $supervisorEmail,
                         'Pay Plan' => $output[$pos['positionID']]['data']['Pay Plan'],
