@@ -146,8 +146,9 @@ foreach ($res as $pos)
             echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['service']) ."\",";
             echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']) ."\",";
             echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Classification Title']) ."\",";
-            echo '"",'; // vacant employee
-            echo '"",'; // vacant employee
+            echo '"",'; // vacant employee name
+            echo '"",'; // vacant employee username
+            echo '"",'; // vacant employee email
             echo "\"". XSSHelpers::xscrub($supervisorName) ."\",";
             echo "\"". XSSHelpers::xscrub($supervisorEmail) ."\",";
             echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']) ."\",";
