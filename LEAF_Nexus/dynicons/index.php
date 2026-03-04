@@ -26,7 +26,7 @@ ini_set('display_errors', 0);
 */
 
 require_once '/var/www/html/app/libs/globals.php';
-include_once getenv('APP_PATH') . '/Leaf/Dynicon.php';
-include_once getenv('APP_PATH') . '/Leaf/XSSHelpers.php';
+include_once '/var/www/html/app/Leaf/Dynicon.php';
+include_once '/var/www/html/app/Leaf/XSSHelpers.php';
 
 $image = new Dynicon(XSSHelpers::scrubFilename($_GET['img']), $_GET['w']);

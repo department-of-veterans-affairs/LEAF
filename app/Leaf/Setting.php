@@ -71,4 +71,23 @@ class Setting
 
         return $return_value;
     }
+
+    public static function checkUserExists(string $userName, Db $oc_db): bool
+    {
+        $return_value = false;
+
+        $vars = array(':userName' => $userName);
+        $sql = 'SELECT `userName`
+                FROM `employee`
+                WHERE `userName` = :userName
+                AND `deleted` = 0';
+
+        $res = $oc_db->prepared_query($sql, $vars);
+
+        if (count($res) > 0) {
+            $return_value = true;
+        }
+
+        return $return_value;
+    }
 }

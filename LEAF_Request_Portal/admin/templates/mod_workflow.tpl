@@ -1,3 +1,6 @@
+<script src="../js/form.js"></script>
+<script src="../js/formQuery.js"></script>
+<script src="../js/agentViewer.js"></script>
 <div id="workflow_editor">
     <div id="sideBar">
         <div>
@@ -48,6 +51,7 @@
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_edit_dialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_OkDialog.tpl"}-->
@@ -1043,8 +1047,8 @@
                 buffer += `<div><span id="req_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
                     <select id="dependencyID" name="dependencyID" title="Select a requiremement" onchange="updateSelectionStatus(this, 'req_select_status')">`;
 
-                var reservedDependencies = [-3, -2, -1, 1, 8];
-                var maskedDependencies = [5, -4];
+                var reservedDependencies = [-4, -3, -2, -1, 1, 8];
+                var maskedDependencies = [5];
 
                 buffer += '<optgroup label="Custom Requirements" aria-label="Custom Requirements">';
                 for (let i in res) {
@@ -1729,7 +1733,7 @@
                 dialog.hide();
             });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function setDynamicGroupApprover(stepID) {
@@ -1791,7 +1795,60 @@
                 dialog.hide();
             });
         });
-    dialog.show();
+        dialog.show();
+    }
+
+    function decodeHtmlEntities(html) {
+        var txt = document.createElement('textarea');
+        txt.innerHTML = html;
+        return txt.value;
+    }
+
+    async function editAgentInstructions(stepID) {
+        alert('The Edit feature for the LEAF Agent is under development, and will be completed in 2026.');
+    }
+
+    async function viewAgentInstructions(stepID) {
+        document.querySelectorAll('.workflowStepInfo').forEach(el => {
+            el.style.display = 'none';
+        });
+        dialog_edit.setTitle(`Instructions for Agent (stepID #${stepID})`);
+        dialog_edit.setContent('<div id="agentConfig">Loading...</div>');
+
+        dialog_edit.setSaveHandler(function() {
+            editAgentInstructions(stepID);
+            dialog_edit.hide();
+        });
+        dialog_edit.show();
+        document.querySelector('#edit_button_save').innerHTML = 'Edit';
+
+        let idx = window.location.href.indexOf('admin/?a=workflow');
+        let thisSite = window.location.href.substring(0, idx);
+
+        let query = new LeafFormQuery();
+        query.setRootURL(`https://${window.location.host}/platform/agent/`);
+        query.addDataTerm('data', '2', '=', thisSite);
+        query.addDataTerm('data', '3', '=', stepID);
+        query.addTerm('stepID', '=', 2);
+        query.getData(4);
+        query.setExtraParams('&x-filterData=');
+        let res = await query.execute();
+
+        let instructions = [];
+        if(Object.keys(res).length > 0) {
+            let taskID = Object.keys(res)[0];
+            try {
+                instructions = JSON.parse(decodeHtmlEntities(res[taskID].s1.id4));
+            } catch (err) {
+                console.error(err);
+                return;
+            }
+        }
+
+        let agentViewer = new LeafAgentViewer('agentConfig', thisSite);
+        await agentViewer.init();
+        agentViewer.importConfig(instructions);
+        agentViewer.render();
     }
 
     function signatureRequired(cb, stepID) {
@@ -2121,6 +2178,11 @@
                                     <div>indicatorID: ${res[i].indicatorID_for_assigned_groupID ?? '<b style="color: #c00000;">not set</b>'}</div>
                                     <button type="button" class="buttonNorm" onclick="setDynamicGroupApprover('${res[i].stepID}')">Set Data Field</button>
                                 </li>`;
+                            } else if (depID === -4) { // dependencyID -4 : leaf agent
+                                output += `<li>${depText} ${control_unlinkDependency} (depID:${depID})<br />
+                                        <button type="button" class="buttonNorm" onclick="viewAgentInstructions(${res[i].stepID})">View Instructions</button>
+                                    </li>`;
+
                             } else {
                                 if (tDeps[depID] == undefined) {
                                     tDeps[depID] = 1;
@@ -3449,7 +3511,7 @@
     }
 
 
-    var dialog, dialog_confirm, dialog_simple, dialog_ok;
+    var dialog, dialog_edit, dialog_confirm, dialog_simple, dialog_ok;
     var workflows = {};
     var steps = {};
     var routes = {};
@@ -3477,6 +3539,7 @@
 
     $(function() {
         dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save','button_cancelchange');
+        dialog_edit = new dialogController('edit_xhrDialog', 'edit_xhr', 'edit_loadIndicator', 'edit_button_save','edit_button_cancelchange');
         dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator','confirm_button_save', 'confirm_button_cancelchange');
         dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator','simplebutton_save', 'simplebutton_cancelchange');
         dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');

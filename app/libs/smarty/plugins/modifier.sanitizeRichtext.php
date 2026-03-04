@@ -25,7 +25,7 @@ use App\Leaf\XSSHelpers;
  */
 
  if(!class_exists('App\Leaf\XSSHelpers')){
-    include_once __DIR__ . '/../../../Leaf/XSSHelpers.php';
+    require_once '/var/www/html/app/Leaf/XSSHelpers.php';
 }
 
 function smarty_modifier_sanitizeRichtext($in)

@@ -1,5 +1,6 @@
 <?php
 use App\Leaf\Db;
+use App\Leaf\Security;
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
@@ -21,15 +22,8 @@ if (isset($_SERVER['REMOTE_USER']))
 //    {
 //        $protocol = 'https://';
 //    }
-    $redirect = '';
-    if (isset($_GET['r']))
-    {
-        $redirect = $protocol . HTTP_HOST . base64_decode($_GET['r']);
-    }
-    else
-    {
-        $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
-    }
+    $defaultRedirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
+    $redirect = Security::getSafeRedirectFromRequest(HTTP_HOST, $defaultRedirect, $protocol);
 
     list($domain, $user) = explode('\\\\', $_SERVER['REMOTE_USER']);
 

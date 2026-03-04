@@ -1,6 +1,6 @@
 <?php
 require_once 'globals.php';
-require_once APP_PATH . '/Leaf/Db.php';
+require_once '/var/www/html/app/Leaf/Db.php';
 
 $dir = '/var/www/html';
 
