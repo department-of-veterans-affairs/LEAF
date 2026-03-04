@@ -9,28 +9,28 @@ use App\Leaf\XSSHelpers;
 
 class Site
 {
-	public $siteRoot = '';
+    public $siteRoot = '';
 
-	private $db;
+    private $db;
 
-	private $login;
+    private $login;
 
-	public function __construct($db, $login)
-	{
-		$this->db = $db;
-		$this->login = $login;
+    public function __construct($db, $login)
+    {
+        $this->db = $db;
+        $this->login = $login;
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
-//		$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+    //$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
-		$this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
-	}
+        $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
+    }
 
-	public function getAllSitePaths()
-	{
-		$res = $this->db->prepared_query("SELECT site_type, site_path FROM sites ORDER BY site_path ASC", null);
-		return $res;
-	}
+    public function getAllSitePaths()
+    {
+        $res = $this->db->prepared_query("SELECT site_type, site_path FROM sites ORDER BY site_path ASC", null);
+        return $res;
+    }
 
     private function validateSiteCards(array $cardConfig):array
     {
@@ -43,15 +43,13 @@ class Site
 
             $cardConfig[$i]['icon'] = '';
             $iconFileParts = explode('/', $item['icon'] ?? '');
-            $fileFileIdx = count($iconFileParts) - 1;
-            if(isset($iconFileParts[$fileFileIdx]) && !empty($iconFileParts[$fileFileIdx])) {
-                $cardConfig[$i]['icon'] = $iconPath . XSSHelpers::scrubFilename($iconFileParts[$fileFileIdx]);
+            $fileNameIdx = count($iconFileParts) - 1;
+            if(isset($iconFileParts[$fileNameIdx]) && !empty($iconFileParts[$fileNameIdx])) {
+                $cardConfig[$i]['icon'] = $iconPath . XSSHelpers::scrubFilename($iconFileParts[$fileNameIdx]);
             }
 
-            $cardConfig[$i]['target'] = '';
-            if(stripos($item['target'] ?? '', 'https') === 0) {
-                $cardConfig[$i]['target'] = XSSHelpers::scrubNewLinesFromURL($item['target']);
-            }
+            $cardConfig[$i]['target'] = XSSHelpers::scrubNewLinesFromURL($item['target'] ?? '');
+
             if(isset($item['formColumns']) && empty($item['formColumns'])) {
                 $cardConfig[$i]['formColumns'] = (object) $item['formColumns'];
             }
@@ -59,7 +57,7 @@ class Site
         return $cardConfig;
     }
 
-	public function setSitemapJSON()
+    public function setSitemapJSON()
     {
         if (!$this->login->checkGroup(1))
         {
@@ -149,12 +147,13 @@ class Site
         $status['message'] = "success";
         return $status;
     }
-	public function getSitemapJSON()
-	{
+    public function getSitemapJSON()
+    {
         $res = $this->db->prepared_query('SELECT data from settings WHERE setting="sitemap_json"', null);
 
         $cardJSON = $res[0]['data'];
-        $cardConfig = json_decode($cardJSON, true)['buttons'] ?? [];
+        $cardConfig = json_decode($cardJSON, true);
+        $cardConfig = isset($cardConfig['buttons']) && is_array($cardConfig['buttons']) ? $cardConfig['buttons'] : [];
 
         //initial pass: recursively decode and strip by reference
         array_walk_recursive($cardConfig, function(&$value) {
@@ -169,6 +168,6 @@ class Site
         $cardJSON = json_encode(array('buttons' => $cardConfig));
         $out = array();
         $out[] = array('data' => $cardJSON);
-		return $out;
-	}
+        return $out;
+    }
 }

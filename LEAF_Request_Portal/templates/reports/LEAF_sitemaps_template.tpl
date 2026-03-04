@@ -76,7 +76,7 @@
     function refreshButtons() {
         $('ul.usa-sidenav').html('');
         $('div#sortable').html('');
-        let buttons = sitemapOBJ.buttons;
+        let buttons = sitemapOBJ?.buttons ?? [];
         buttons.sort(function(a, b) {
             return a.order - b.order;
         });
