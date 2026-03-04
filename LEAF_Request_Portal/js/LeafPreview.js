@@ -21,12 +21,7 @@ var LeafPreview = function(domID) {
         const labelledById = `leaf_library_preview_${field.indicatorID}`;
         const inputId = `leaf_library_input_${field.indicatorID}`;
         // Sanitize with DOMPurify to prevent XSS
-        const indName = window.DOMPurify ? window.DOMPurify.sanitize(field.name) : field.name;
-        if(window.DOMPurify) {
-            console.log('DOMPurify sanitized:', indName, 'Original:', field.name);
-        } else {
-            console.log('DOMPurify not available, using raw:', field.name);
-        }
+        const indName = window.DOMPurify.sanitize(field.name);
         let style_isChild = '';
         if(isChild == undefined) {
             style_isChild = 'font-weight:bold;';
@@ -130,7 +125,7 @@ var LeafPreview = function(domID) {
                 if(container) {
                     for(let i in form) {
                         const field = renderSection(form[i]);
-                        const safeField = window.DOMPurify ? window.DOMPurify.sanitize(field) : field;
+                        const safeField = window.DOMPurify.sanitize(field);
                         container.insertAdjacentHTML('beforeend', safeField);
                     }
                 }

@@ -1,4 +1,3 @@
-<script src="../LEAF_Request_Portal/js/dompurify.min.js"></script>
 <div class="menu2" style="width: 315px; float: left">
 
 <a href="?a=navigator">

@@ -37,6 +37,7 @@
     <script type="text/javascript" src="{$app_js_path}/jquery/jquery.min.js"></script>
     {if $useUI == true}
     <script type="text/javascript" src="{$app_js_path}/jquery/jquery-ui.custom.min.js"></script>
+    <script type="text/javascript" src="{$app_js_path}/dompurify/dompurify.min.js"></script>
     <script type="text/javascript" src="js/dialogController.js"></script>
     <script type="text/javascript" src="{$app_js_path}/jquery/chosen/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="{$app_js_path}/jquery/trumbowyg/trumbowyg.min.js"></script>

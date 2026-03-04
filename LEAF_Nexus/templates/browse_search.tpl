@@ -1,4 +1,3 @@
-<script src="../LEAF_Request_Portal/js/dompurify.min.js"></script>
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Options</h1>
         <div onclick="window.location='?a=browse_group';"><img src="dynicons/?img=preferences-desktop-theme.svg&amp;w=32" style="vertical-align: middle" alt="" title="Search Groups" /> View Groups</div>

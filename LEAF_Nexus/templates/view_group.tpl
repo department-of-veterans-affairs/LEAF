@@ -1,5 +1,3 @@
-<script src="../LEAF_Request_Portal/js/dompurify.min.js"></script>
-
 <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="assertive" id="buttonClick" role="status"></span>
 
 <div id="maincontent">

@@ -106,6 +106,7 @@ switch ($action) {
            $main->assign('javascripts', array(
                 LEAF_NEXUS_URL . 'js/dialogController.js',
                 LEAF_NEXUS_URL . 'js/employeeSelector.js',
+                APP_JS_PATH . '/dompurify/dompurify.min.js',
                 APP_JS_PATH . '/qr-code/qrcode.min.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -151,6 +152,7 @@ switch ($action) {
         $main->assign('stylesheets', array('../css/mod_groups.css', '../css/employeeSelector.css'));
         $main->assign('javascripts', array(
             '../js/dialogController.js', '../js/nationalEmployeeSelector.js',
+            APP_JS_PATH . '/dompurify/dompurify.min.js',
             APP_JS_PATH . '/qr-code/qrcode.min.js'));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -182,6 +184,7 @@ switch ($action) {
         $t_form->assign('app_js_path', APP_JS_PATH);
         $main->assign('javascripts', array(
             APP_JS_PATH . '/LEAF/workbookhelper.js',
+            APP_JS_PATH . '/dompurify/dompurify.min.js',
             APP_JS_PATH . '/qr-code/qrcode.min.js'));
 
         $main->assign('body', $t_form->fetch('orgChart_import.tpl'));
@@ -208,6 +211,7 @@ switch ($action) {
             'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/scroll/annotatescrollbar.js',
             'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/matchesonscrollbar.js',
             'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/display/fullscreen.js',
+            APP_JS_PATH . '/dompurify/dompurify.min.js',
             APP_JS_PATH . '/qr-code/qrcode.min.js'
         ));
         $main->assign('stylesheets', array('https://' . HTTP_HOST . '/app/libs/js/codemirror/lib/codemirror.css',
@@ -248,6 +252,7 @@ switch ($action) {
             '../js/groupSelector.js',
             '../js/dialogController.js',
             '../js/orgchartForm.js',
+            APP_JS_PATH . '/dompurify/dompurify.min.js',
             APP_JS_PATH . '/qr-code/qrcode.min.js'));
         $main->assign('stylesheets', array('../css/employeeSelector.css',
                                            '../css/view_employee.css',

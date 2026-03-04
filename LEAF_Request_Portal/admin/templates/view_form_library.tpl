@@ -1,4 +1,3 @@
-<script src="../js/dompurify.min.js"></script>
 <script src="../js/dialogController.js"></script>
 <script src="../js/formGrid.js"></script>
 <script src="../js/formQuery.js"></script>

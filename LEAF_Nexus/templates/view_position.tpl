@@ -1,4 +1,3 @@
-<script src="../LEAF_Request_Portal/js/dompurify.min.js"></script>
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Tools</h1>
         <button type="button" class="options" onclick="window.location='?a=navigator&amp;rootID=<!--{$positionID|strip_tags}-->';"><img src="dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="" title="View in Org Chart" /> View in Org Chart</button>
