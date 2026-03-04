@@ -12,8 +12,8 @@
     I decided it best to put this into a class and have the class deal with it to keep this file clean
 */
 
-require_once getenv('APP_PATH') . '/Leaf/Db.php';
-require_once getenv('APP_PATH') . '/Leaf/Site.php';
+require_once '/var/www/html/app/Leaf/Db.php';
+require_once '/var/www/html/app/Leaf/Site.php';
 
 $file_paths_db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 

@@ -1,7 +1,7 @@
 <?php
 require_once 'scheduled-task-commands/globals.php';
-require_once APP_PATH . '/Leaf/Db.php';
-require_once APP_PATH . '/Leaf/VAMCActiveDirectory.php';
+require_once '/var/www/html/app/Leaf/Db.php';
+require_once '/var/www/html/app/Leaf/VAMCActiveDirectory.php';
 
 $startTime = microtime(true);
 
