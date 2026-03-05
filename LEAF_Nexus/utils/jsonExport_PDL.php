@@ -140,6 +140,7 @@ foreach ($res as $pos)
             {
                 $packet['employee'] = '';
                 $packet['employeeUserName'] = '';
+                $packet['employeeEmail'] = '';
                 $packet['employeeUID'] = '';
             }
 
