@@ -44,6 +44,7 @@ switch ($action) {
         $res = $db->prepared_query('SELECT recordID FROM action_history
         								WHERE time > :lastStatusTime
         								GROUP BY recordID', $vars);
+        header('Content-type: application/json');
         echo json_encode($res);
 
         break;
@@ -74,6 +75,7 @@ switch ($action) {
             $record[$key] = XSSHelpers::xscrub($record[$key]);
         }
 
+        header('Content-type: application/json');
         echo json_encode($record);
 
         break;

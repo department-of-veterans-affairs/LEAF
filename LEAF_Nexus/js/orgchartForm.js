@@ -205,7 +205,7 @@ orgchartForm.prototype.updateFormDisplay = function (
             "#xhrIndicator_" + indicatorID + "_" + categoryID + "_" + UID
           ).empty();
           $("#xhrIndicator_" + indicatorID + "_" + categoryID + "_" + UID).html(
-            response
+            window.DOMPurify.sanitize(response)
           );
           $("#xhrIndicator_" + indicatorID + "_" + categoryID + "_" + UID)
             .fadeOut(250)
@@ -227,7 +227,7 @@ orgchartForm.prototype.updateFormDisplay = function (
             "#xhrIndicator_" + indicatorID + "_" + categoryID + "_" + UID
           ).empty();
           $("#xhrIndicator_" + indicatorID + "_" + categoryID + "_" + UID).html(
-            response
+            window.DOMPurify.sanitize(response)
           );
           $("#xhrIndicator_" + indicatorID + "_" + categoryID + "_" + UID)
             .fadeOut(250)
@@ -249,7 +249,7 @@ orgchartForm.prototype.updateFormDisplay = function (
             "#xhrIndicator_" + indicatorID + "_" + categoryID + "_" + UID
           ).empty();
           $("#xhrIndicator_" + indicatorID + "_" + categoryID + "_" + UID).html(
-            response
+            window.DOMPurify.sanitize(response)
           );
           $("#xhrIndicator_" + indicatorID + "_" + categoryID + "_" + UID)
             .fadeOut(250)

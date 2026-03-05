@@ -30,9 +30,9 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 switch ($action) {
     case 'mod_groups_getMembers':
-        $group = new Portal\Group($db, $login);
+        $group = new Portal\Group($db, $login); 
 
-        echo $group->getMembers($_GET['groupID'])['data'];
+        echo htmlspecialchars($group->getMembers($_GET['groupID'])['data'], ENT_QUOTES, 'UTF-8');
 
         break;
     case 'directory_lookup':
