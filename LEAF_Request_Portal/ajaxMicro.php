@@ -18,21 +18,27 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 switch ($action) {
     // Get the timestamp of the last action
     case 'lastaction':
+        header('Content-type: application/json');
         if (!isset($_GET['recordID']))
         {
-            $res = $db->prepared_query('SELECT time FROM action_history
-        							ORDER BY time DESC
-        							LIMIT 1', array());
-            echo isset($res[0]['time']) ? $res[0]['time'] : 0;
+            $res = $db->prepared_query(
+                "SELECT `time` FROM `action_history`
+                ORDER BY `time` DESC
+                LIMIT 1", array()
+            );
+            echo isset($res[0]['time']) ? (int) $res[0]['time'] : 0;
         }
         else
         {
             $vars = array('recordID' => $_GET['recordID']);
-            $res = $db->prepared_query('SELECT time FROM action_history
-                    						WHERE recordID = :recordID
-                							ORDER BY time DESC
-                							LIMIT 1', $vars);
-            echo isset($res[0]['time']) ? $res[0]['time'] : 0;
+            $res = $db->prepared_query(
+                "SELECT `time` FROM `action_history`
+                WHERE recordID = :recordID
+                ORDER BY `time` DESC
+                LIMIT 1", $vars
+            );
+
+            echo isset($res[0]['time']) ? (int) $res[0]['time'] : 0;
         }
 
         break;
